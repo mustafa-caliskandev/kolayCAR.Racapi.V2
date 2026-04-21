@@ -1,0 +1,39 @@
+{
+  "ExtraListsbyCountry": [
+    {
+      "CountryCode": "IT",
+      "ExtrasList": []
+    },
+    {
+      "CountryCode": "GR",
+      "ExtrasList": [
+        "TCC",
+        "TCCP",
+        "Fast Cover",
+        "MiFi",
+        "Add Driver",
+        "Upgrade",
+        "Car Choice",
+        "Diesel",
+        "Joie Highback Booster",
+        "Joie Forward Facing Child Seat",
+        "Joie Infant Seat + Isofix"
+      ]
+    },
+    {
+      "CountryCode": "ES",
+      "ExtrasList": [
+        "TCC",
+        "TCCP",
+        "Fast Cover",
+        "MiFi",
+        "Add Driver",
+        "Upgrade",
+        "Car Choice",
+        "Joie Highback Booster",
+        "Joie Forward Facing Child Seat",
+        "Joie Infant Seat + Isofix"
+      ]
+    }
+  ]
+}

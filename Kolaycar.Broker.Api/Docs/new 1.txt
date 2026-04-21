@@ -1,0 +1,592 @@
+<head>
+  <meta charset="UTF-8">
+  <title>Eren Rent a Car API – Documentation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #fff; color: #333; }
+    h1 { font-size: 24px; color: #2a2a2a; }
+    h2 { font-size: 20px; margin-top: 30px; }
+    pre { background: #f4f4f4; padding: 10px; font-family: "Courier New", monospace; border: 1px solid #ccc; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+
+<h1>Eren Rent a Car API – Documentation</h1>
+<p>Eren Rent a Car API uses Bearer Authentication to authenticate requests when interacting with your registered endpoints. Access tokens are renewed based on the response expiration time.</p>
+
+<h2>1. AUTHENTICATION (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/oauth/token</p>
+<h3>Request Parameters</h3>
+<table>
+<tbody><tr><th>Parameter</th><th>Type</th></tr>
+<tr><td>username</td><td>string</td></tr>
+<tr><td>password</td><td>string</td></tr>
+</tbody></table>
+<h3>1.1. Example JSON Response</h3>
+<pre>{
+  "access_token": "6f4bc6317b96dfc83ead95114cc23c46",
+  "token_type": "Bearer",
+  "access_expires_at": "2025-06-19T23:59Z"
+}</pre>
+
+<h2>2. LOCATIONS (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/locations</p>
+
+<h3>2.1. Required HTTP Headers</h3>
+<table>
+  <tbody><tr><th>Header</th><th>Value</th><th>Description</th></tr>
+  <tr><td>Content-Type</td><td>application/json</td><td>Specifies that the body is JSON</td></tr>
+  <tr><td>Authorization</td><td>Bearer &lt;access_token&gt;</td><td>OAuth2 access token</td></tr>
+</tbody></table>
+
+<h3>2.2. PHP Example for HTTP HEADER Authorization:</h3>
+<pre>curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "Content-Type: application/json",
+    "Authorization: Bearer 6f4bc6317b96dfc83ead95114cc23c46"
+]);</pre>
+
+<h3>2.3. Example JSON Response</h3>
+<pre>{
+  "location_id": 105,
+  "location_name": "Istanbul International Airport",
+  "latitude": "41.2753000",
+  "longitude": "28.7519000",
+  "iata_code": "IST",
+  "country": {
+    "country_id": 1,
+    "country_name": "Turkiye"
+  },
+  "city": {
+    "city_id": 34,
+    "city_name": "Istanbul"
+  },
+  "office": {
+    "office_id": 1,
+    "office_name": "Istanbul (Istanbul Airport)",
+    "office_address": "Tayakadın, Terminal Caddesi No:1, 34283 Arnavutköy/İstanbul",
+    "zip_code": "34283",
+    "office_email": "reservation@erenrentacars.com",
+    "office_phone": "905412713077",
+    "working_hours": {
+      "monday": ["00:00","23:59"],
+      "tuesday": ["00:00","23:59"],
+      "wednesday": ["00:00","23:59"],
+      "thursday": ["00:00","23:59"],
+      "friday": ["00:00","23:59"],
+      "saturday": ["00:0","23:59"],
+      "sunday": ["00:00","23:59"]
+    }
+  }
+},
+{
+  "location_id": 106,
+  "location_name": "Istanbul Sabiha Gokcen Airport",
+  "latitude": "40.8983000",
+  "longitude": "29.3092000",
+  "iata_code": "SAW",
+  "country": {
+    "country_id": 1,
+    "country_name": "Turkiye"
+  },
+  "city": {
+    "city_id": 34,
+    "city_name": "Istanbul"
+  },
+  "office": {
+    "office_id": 1,
+    "office_name": "Istanbul (Istanbul Airport)",
+    "office_address": "Tayakadın, Terminal Caddesi No:1, 34283 Arnavutköy/İstanbul",
+    "zip_code": "34283",
+    "office_email": "reservation@erenrentacars.com",
+    "office_phone": "905412713077",
+    "working_hours": {
+      "monday": ["05:00","01:30"],
+      "tuesday": ["05:00","01:30"],
+      "wednesday": ["05:00","01:30"],
+      "thursday": ["05:00","01:30"],
+      "friday": ["05:00","01:30"],
+      "saturday": ["05:00","01:30"],
+      "sunday": ["05:00","01:30"]
+    }
+  }
+}</pre>
+
+<h2>3. SEARCH AVAILABLE CARS (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/search</p>
+
+<h3>3.1. Required HTTP Headers</h3>
+<table>
+  <tbody><tr><th>Header</th><th>Value</th><th>Description</th></tr>
+  <tr><td>Content-Type</td><td>application/json</td><td>Specifies that the body is JSON</td></tr>
+  <tr><td>Authorization</td><td>Bearer &lt;access_token&gt;</td><td>OAuth2 access token</td></tr>
+</tbody></table>
+
+<h3>3.2. Request Parameters</h3>
+<table>
+<tbody><tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+<tr><td>pickup_id</td><td>integer</td><td></td></tr>
+<tr><td>dropoff_id</td><td>integer</td><td></td></tr>
+<tr><td>pickup_date</td><td>Datetime (UTC)</td><td>YYYY-MM-DDTHH:MMZ</td></tr>
+<tr><td>dropoff_date</td><td>Datetime (UTC)</td><td>YYYY-MM-DDTHH:MMZ</td></tr>
+<tr><td>currency_code</td><td>String</td><td>EUR, USD, TRY</td></tr>
+</tbody></table>
+
+<h3>3.3. Example JSON Request</h3>
+<pre>{
+  "pickup_id": 1,
+  "dropoff_id": 1,
+  "pickup_date": "2025-07-25T15:00Z",
+  "dropoff_date": "2025-08-05T15:00Z",
+  "currency_code": "EUR"
+}</pre>
+
+<h3>3.4. Example JSON Response</h3>
+<pre>{
+  "search_request_id": "22688e3c-b0e3-4a5c-a0fb-9fcce1cd33b2",
+  "available_cars": [
+    {
+      "quote_id": "43c72b2b-1505-456e-b0fd-0289e72b8db2",
+      "group_id": 80,
+      "sipp_code": "IDAH",
+      "car_make": "Fiat",
+      "car_model": "Egea",
+      "car_image": "https://system.erenrentacars.com/images/vehicles/vehicle-68bc987e9edd69.18352123.jpg",
+      "fuel_type": "Hybrid",
+      "transmission_type": "Automatic",
+      "big_bags": 3,
+      "small_bags": 2,
+      "seats": 5,
+      "doors": 4,
+      "daily_price": "27.20",
+      "total_price": "163.20",
+      "drop_price": "0.00",
+      "currency": "EUR",
+      "total_days": 6,
+      "mileage_daily": 0,
+      "mileage_max": 3500,
+      "mileage_unit": "km",
+      "mileage_excess": "2.00",
+      "insurance_excess": "500.00",
+      "deposit": "1100.00",
+      "out_of_hours": "20.00",
+      "fuel_policy": "Same to Same",
+      "refuel_price_per_liter": "1.00",
+      "min_driver_age": 23,
+      "min_driving_license_age": 2,
+      "young_driver_age": 22,
+      "young_driving_license_age": 2,
+      "young_driver_price_perday": "10.00",
+      "senior_driver_age": 65,
+      "senior_driver_price_perday": "30.00",
+      "extras": [
+        {
+          "service_id": 1,
+          "service_name": "Addition_Drive",
+          "price": "18.00",
+          "perday": 1
+        },
+        {
+          "service_id": 2,
+          "service_name": "Baby_Seat",
+          "price": "30.00",
+          "perday": 1
+        }
+      ]
+    },
+    {
+      "quote_id": "43c72b2b-1505-456e-b0fd-0289e72b8db2",
+      "group_id": 80,
+      "sipp_code": "IDAH",
+      "car_make": "Fiat",
+      "car_model": "Egea",
+      "car_image": "https://system.erenrentacars.com/images/vehicles/vehicle-68bc987e9edd69.18352123.jpg",
+      "fuel_type": "Hybrid",
+      "transmission_type": "Automatic",
+      "big_bags": 3,
+      "small_bags": 2,
+      "seats": 5,
+      "doors": 4,
+      "daily_price": "27.20",
+      "total_price": "163.20",
+      "drop_price": "0.00",
+      "currency": "EUR",
+      "total_days": 6,
+      "mileage_daily": 0,
+      "mileage_max": 3500,
+      "mileage_unit": "km",
+      "mileage_excess": "2.00",
+      "insurance_excess": "500.00",
+      "deposit": "1100.00",
+      "out_of_hours": "20.00",
+      "fuel_policy": "Same to Same",
+      "refuel_price_per_liter": "1.00",
+      "min_driver_age": 23,
+      "min_driving_license_age": 2,
+      "young_driver_age": 22,
+      "young_driving_license_age": 2,
+      "young_driver_price_perday": "10.00",
+      "senior_driver_age": 65,
+      "senior_driver_price_perday": "30.00",
+      "extras": [
+        {
+          "service_id": 1,
+          "service_name": "Addition_Drive",
+          "price": "18.00",
+          "perday": 1
+        },
+        {
+          "service_id": 2,
+          "service_name": "Baby_Seat",
+          "price": "30.00",
+          "perday": 1
+        }
+      ]
+    },
+    {
+      "quote_id": "43c72b2b-1505-456e-b0fd-0289e72b8db2",
+      "group_id": 80,
+      "sipp_code": "IDAH",
+      "car_make": "Fiat",
+      "car_model": "Egea",
+      "car_image": "https://system.erenrentacars.com/images/vehicles/vehicle-68bc987e9edd69.18352123.jpg",
+      "fuel_type": "Hybrid",
+      "transmission_type": "Automatic",
+      "big_bags": 3,
+      "small_bags": 2,
+      "seats": 5,
+      "doors": 4,
+      "daily_price": "27.20",
+      "total_price": "163.20",
+      "drop_price": "0.00",
+      "currency": "EUR",
+      "total_days": 6,
+      "mileage_daily": 0,
+      "mileage_max": 3500,
+      "mileage_unit": "km",
+      "mileage_excess": "2.00",
+      "insurance_excess": "500.00",
+      "deposit": "1100.00",
+      "out_of_hours": "20.00",
+      "fuel_policy": "Same to Same",
+      "refuel_price_per_liter": "1.00",
+      "min_driver_age": 23,
+      "min_driving_license_age": 2,
+      "young_driver_age": 22,
+      "young_driving_license_age": 2,
+      "young_driver_price_perday": "10.00",
+      "senior_driver_age": 65,
+      "senior_driver_price_perday": "30.00",
+      "extras": [
+        {
+          "service_id": 1,
+          "service_name": "Addition_Drive",
+          "price": "18.00",
+          "perday": 1
+        },
+        {
+          "service_id": 2,
+          "service_name": "Baby_Seat",
+          "price": "30.00",
+          "perday": 1
+        }
+      ]
+      // Note: If perday = 1, the price is charged per day. 
+      // If perday = 0, the price is a one-time fixed fee for the entire rental period.
+    }
+    // ...
+    // More vehicles
+  ]
+}</pre>
+
+<h2>4. BOOK (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/book</p>
+
+<h3>4.1. Required HTTP Headers</h3>
+<table>
+  <tbody><tr><th>Header</th><th>Value</th><th>Description</th></tr>
+  <tr><td>Content-Type</td><td>application/json</td><td>Specifies that the body is JSON</td></tr>
+  <tr><td>Authorization</td><td>Bearer &lt;access_token&gt;</td><td>OAuth2 access token</td></tr>
+</tbody></table>
+
+<h3>4.2. Request Parameters</h3>
+<table>
+<tbody><tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+<tr><td>booking_reference</td><td>string</td><td>Your booking reference ID</td></tr>
+<tr><td>search_request_id</td><td>string</td><td>ID provided by our API in the "Search" request.</td></tr>
+<tr><td>quote_id</td><td>string</td><td>ID provided by our API in the "Search" request.</td></tr>
+<tr><td>first_name</td><td>string</td><td>Customer first name</td></tr>
+<tr><td>last_name</td><td>string</td><td>Customer last name</td></tr>
+<tr><td>email</td><td>string</td><td>Customer email address</td></tr>
+<tr><td>phone</td><td>string</td><td>Customer phone number</td></tr>
+<tr><td>flight_number</td><td>string</td><td>Customer Flight Number</td></tr>
+<tr><td>driver_age</td><td>int</td><td>Driver Age</td></tr>
+<tr><td>id_number</td><td>string</td><td>Customer Identity number</td></tr>
+<tr><td>passport_number</td><td>string</td><td>Customer Passport Number</td></tr>
+<tr><td>comment</td><td>string</td><td>Customer additional comments</td></tr>
+<tr><td>extras</td><td>array</td><td>Array of Extra objects</td></tr>
+</tbody></table>
+<h3>4.3. Example JSON Request</h3>
+<pre>{
+  "booking_reference": "YOUR RESERVATION ID",
+  "search_request_id": "22688e3c-b0e3-4a5c-a0fb-9fcce1cd33b2",
+  "quote_id": "2f7ce962396ba2bc02f2b33e0ee5f6bc",
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "mail@domain.com",
+  "phone": "+901234567891",
+  "flight_number": "TK3501",
+  "driver_age": 22,
+  "id_number": "ID011111111",
+  "passport_number": "PS011111111",
+  "comment": "Test reservation",
+  "extras": [
+    {
+      "service_id": 1
+    },
+    {
+      "service_id": 2
+    }
+  ]
+}</pre>
+
+<h3>4.4 Example JSON Response</h3>
+<pre>{
+  "status": "success",
+  "booking_reference": "YOUR RESERVATION ID",
+  "booking_number": "ERN67C901A252235" //Our unique booking number
+}</pre>
+
+<h2>5. CANCEL (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/cancel</p>
+
+<h3>5.1. Required HTTP Headers</h3>
+<table>
+  <tbody><tr><th>Header</th><th>Value</th><th>Description</th></tr>
+  <tr><td>Content-Type</td><td>application/json</td><td>Specifies that the body is JSON</td></tr>
+  <tr><td>Authorization</td><td>Bearer &lt;access_token&gt;</td><td>OAuth2 access token</td></tr>
+</tbody></table>
+
+<h3>5.2. Request Parameters</h3>
+<table>
+<tbody><tr><th>Parameter</th><th>Type</th></tr>
+<tr><td>booking_number</td><td>string</td></tr>
+<tr><td>comment</td><td>string</td></tr>
+</tbody></table>
+
+<h3>5.3. Example JSON Request</h3>
+<pre>{
+  "booking_number": "ERN67C901A252235",
+  "comment": "Test: cancel reservation"
+}</pre>
+
+<h3>5.4. Example JSON Response</h3>
+<pre>{
+  "status": "cancelled",
+  "booking_number": "ERN67C901A252235",
+  "message": "Booking successfully canceled."
+}</pre>
+
+<h2>6. UPDATE (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/update</p>
+
+<h3>6.1. Required HTTP Headers</h3>
+<table>
+  <tbody><tr><th>Header</th><th>Value</th><th>Description</th></tr>
+  <tr><td>Content-Type</td><td>application/json</td><td>Specifies that the body is JSON</td></tr>
+  <tr><td>Authorization</td><td>Bearer &lt;access_token&gt;</td><td>OAuth2 access token</td></tr>
+</tbody></table>
+
+<h3>6.2. Request Parameters</h3>
+<table>
+<tbody><tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+<tr><td>booking_number</td><td>string</td><td>The booking number is assigned after the booking is completed.</td></tr>
+<tr><td>first_name</td><td>string</td><td>Customer First Name</td></tr>
+<tr><td>last_name</td><td>string</td><td>Customer Last Name</td></tr>
+<tr><td>email</td><td>string</td><td>Customer E-mail Address</td></tr>
+<tr><td>phone</td><td>string</td><td>Customer Phone Number</td></tr>
+<tr><td>flight_number</td><td>string</td><td>Customer Flight Number</td></tr>
+<tr><td>id_number</td><td>string</td><td>Customer Identity number</td></tr>
+<tr><td>passport_number</td><td>string</td><td>Customer Passport Number</td></tr>
+<tr><td>comment</td><td>string</td><td>Comment</td></tr>
+</tbody></table>
+
+<h3>6.3. Example JSON Request</h3>
+<pre>{
+  "booking_number": "ERN67C901A252235",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "email": "mail@domain.com",
+  "phone": "+901234567891",
+  "flight_number": "TK3501",
+  "id_number": "11111111111",
+  "passport_number": "11111111111",
+  "comment": "Test: reservation update"
+}</pre>
+
+<h3>6.4. Example JSON Response</h3>
+<pre>{
+  "status": "success",
+  "booking_number": "ERN67C901A252235",
+  "message": "Booking successfully updated."
+}</pre>
+
+<h2>7. STATUS (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/status</p>
+
+<h3>7.1. Required HTTP Headers</h3>
+<table>
+  <tbody><tr><th>Header</th><th>Value</th><th>Description</th></tr>
+  <tr><td>Content-Type</td><td>application/json</td><td>Specifies that the body is JSON</td></tr>
+  <tr><td>Authorization</td><td>Bearer &lt;access_token&gt;</td><td>OAuth2 access token</td></tr>
+</tbody></table>
+
+<h3>7.2. Request Parameters</h3>
+<table>
+<tbody><tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+<tr><td>booking_number</td><td>string</td><td>The booking number is assigned after the booking is completed.</td></tr>
+</tbody></table>
+
+<h3>7.3. Example JSON Request</h3>
+<pre>{
+  "booking_number": "ERN67C901A252235"
+}</pre>
+
+<h3>7.4. Status Parameters</h3>
+<ul>
+  <li>Confirmed</li>
+  <li>In Progress</li>
+  <li>Completed</li>
+  <li>Canceled</li>
+</ul>
+
+<h3>7.5. Example JSON Response</h3>
+<pre>{
+  "status": "Completed",
+  "booking_number": "ERN67D2F2273A302",
+  "booking_reference": "YOUR RESERVATON ID",
+  "timezone": "UTC",
+  "pickup_date": "2025-03-15 09:30",
+  "dropoff_date": "2025-03-21 09:30",
+  "total_days": "6",
+  "pickup_id": "5",
+  "dropoff_id": "5",
+  "sipp_code": "XDAD"
+}</pre>
+
+<h2>8. VEHICLE GROUPS (POST)</h2>
+<p><strong>Request URL:</strong> https://api.erenrentacars.com/v1/vehicle-groups</p>
+
+<h3>8.1. Required HTTP Headers</h3>
+<table>
+  <tbody><tr><th>Header</th><th>Value</th><th>Description</th></tr>
+  <tr><td>Content-Type</td><td>application/json</td><td>Specifies that the body is JSON</td></tr>
+  <tr><td>Authorization</td><td>Bearer &lt;access_token&gt;</td><td>OAuth2 access token</td></tr>
+</tbody></table>
+
+<h3>8.2. PHP Example for HTTP HEADER Authorization:</h3>
+<pre>curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "Content-Type: application/json",
+    "Authorization: Bearer 6f4bc6317b96dfc83ead95114cc23c46"
+]);</pre>
+
+<h3>8.3. Example JSON Response</h3>
+<pre>{
+    "vehicle_groups": [
+        {
+            "group_id": "2",
+            "sipp_code": "CCAV",
+            "car_make": "Dacia",
+            "car_model": "Duster",
+            "car_image": "https://system.erenrentacars.com/images/vehicles/vehicle-68bc8f72c71c36.32487510.jpg",
+            "fuel_type": "Petrol",
+            "transmission_type": "Automatic",
+            "big_bags": "2",
+            "small_bags": "2",
+            "seats": "5",
+            "doors": "4",
+            "currency": "EUR",
+            "mileage_daily": "0",
+            "mileage_max": "0",
+            "mileage_unit": "km",
+            "mileage_excess": "2.00",
+            "insurance_excess": "0.00",
+            "deposit": "1500.00",
+            "out_of_hours": "20.00",
+            "fuel_policy": "Same to Same",
+            "refuel_price_per_liter": "1.00",
+            "min_driver_age": "25",
+            "min_driving_license_age": "2",
+            "young_driver_age": "24",
+            "young_driving_license_age": "2",
+            "young_driver_price_perday": "10.00",
+            "senior_driver_age": "65",
+            "senior_driver_price_perday": "30.00"
+        },
+        {
+            "group_id": "131",
+            "sipp_code": "CCMR",
+            "car_make": "Renault",
+            "car_model": "Taliant",
+            "car_image": "https://system.erenrentacars.com/images/vehicles/vehicle-68bcba77172e76.05226331.jpg",
+            "fuel_type": "Petrol",
+            "transmission_type": "Manuel",
+            "big_bags": "3",
+            "small_bags": "3",
+            "seats": "5",
+            "doors": "4",
+            "currency": "EUR",
+            "mileage_daily": "0",
+            "mileage_max": "0",
+            "mileage_unit": "km",
+            "mileage_excess": "2.00",
+            "insurance_excess": "3000.00",
+            "deposit": "1100.00",
+            "out_of_hours": "20.00",
+            "fuel_policy": "Same to Same",
+            "refuel_price_per_liter": "1.00",
+            "min_driver_age": "23",
+            "min_driving_license_age": "2",
+            "young_driver_age": "22",
+            "young_driving_license_age": "2",
+            "young_driver_price_perday": "10.00",
+            "senior_driver_age": "65",
+            "senior_driver_price_perday": "30.00"
+        },
+        {
+            "group_id": "3",
+            "sipp_code": "CCMV",
+            "car_make": "Fiat",
+            "car_model": "Egea",
+            "car_image": "https://system.erenrentacars.com/images/vehicles/vehicle-68bc98642c9fa2.70320376.jpg",
+            "fuel_type": "Petrol",
+            "transmission_type": "Manuel",
+            "big_bags": "2",
+            "small_bags": "2",
+            "seats": "5",
+            "doors": "4",
+            "currency": "EUR",
+            "mileage_daily": "0",
+            "mileage_max": "0",
+            "mileage_unit": "km",
+            "mileage_excess": "2.00",
+            "insurance_excess": "500.00",
+            "deposit": "1100.00",
+            "out_of_hours": "20.00",
+            "fuel_policy": "Same to Same",
+            "refuel_price_per_liter": "1.00",
+            "min_driver_age": "23",
+            "min_driving_license_age": "2",
+            "young_driver_age": "22",
+            "young_driving_license_age": "2",
+            "young_driver_price_perday": "10.00",
+            "senior_driver_age": "65",
+            "senior_driver_price_perday": "30.00"
+        }
+    ]
+}</pre>
+
+
+
+</body>

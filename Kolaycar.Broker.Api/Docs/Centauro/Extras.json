@@ -1,0 +1,100 @@
+{
+  "extras": [
+    {
+      "extraCode": "BG",
+      "description": "Child Seat 3 - 7 years old"
+    },
+    {
+      "extraCode": "BP",
+      "description": "Baby Seat 3 months to 3 years"
+    },
+    {
+      "extraCode": "BS",
+      "description": "Infant Seat 0 - 13 months"
+    },
+    {
+      "extraCode": "CR",
+      "description": "Flexi Fuel"
+    },
+    {
+      "extraCode": "DE",
+      "description": "Delivery Charge"
+    },
+    {
+      "extraCode": "ED1",
+      "description": "FIRST ADITIONAL DRIVER"
+    },
+    {
+      "extraCode": "ED2",
+      "description": "SECOND ADITIONAL DRIVER"
+    },
+    {
+      "extraCode": "EX",
+      "description": "Express Check-In"
+    },
+    {
+      "extraCode": "SC",
+      "description": "SMART INSURANCE"
+    },
+    {
+      "extraCode": "GPS",
+      "description": "NAVIGATON SYSTEM"
+    },
+    {
+      "extraCode": "YD",
+      "description": "YOUNG DRIVER (19-24 YEARS)"
+    },
+    {
+      "extraCode": "CA",
+      "description": "SNOW CHAINS"
+    },
+    {
+      "extraCode": "SX",
+      "description": "INSURANCE TO BE ABLE TO DRIVE TO FRANCE, ANDORRA, PORTUGAL"
+    },
+    {
+      "extraCode": "FF",
+      "description": "FULL FULL SUPPLEMENT"
+    },
+    {
+      "extraCode": "LD",
+      "description": "Late Drop Off"
+    },
+    {
+      "extraCode": "OD",
+      "description": "Return different office"
+    },
+    {
+      "extraCode": "OF",
+      "description": "Return different office"
+    },
+    {
+      "extraCode": "OFB",
+      "description": "Return different office"
+    },
+    {
+      "extraCode": "OFB2",
+      "description": "Return different office"
+    },
+    {
+      "extraCode": "OH",
+      "description": "Out Of Hours"
+    },
+    {
+      "extraCode": "PF",
+      "description": "Refueling Charge"
+    },
+    {
+      "extraCode": "UP",
+      "description": "Upgrade"
+    },
+    {
+      "extraCode": "VV",
+      "description": "VIA VERDE"
+    },
+    {
+      "extraCode": "SD",
+      "description": "SENIOR DRIVER (>75 YEARS)"
+    }
+  ]
+}

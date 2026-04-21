@@ -1,0 +1,229 @@
+{
+  "Countries": [
+    {
+      "code": "ES",
+      "name": "Spain",
+      "stations": [
+        {
+          "code": 1,
+          "name": "Benidorm"
+        },
+        {
+          "code": 2,
+          "name": "Alicante Airport"
+        },
+        {
+          "code": 4,
+          "name": "Valencia Airport"
+        },
+        {
+          "code": 5,
+          "name": "Torrevieja"
+        },
+        {
+          "code": 6,
+          "name": "Valencia Joaquin Sorolla"
+        },
+        {
+          "code": 10,
+          "name": "Palma Airport"
+        },
+        {
+          "code": 22,
+          "name": "Ibiza Airport"
+        },
+        {
+          "code": 26,
+          "name": "Alicante Estacion de Tren"
+        },
+        {
+          "code": 33,
+          "name": "Seville Airport"
+        },
+        {
+          "code": 34,
+          "name": "Seville Santa Justa Train Station"
+        },
+        {
+          "code": 35,
+          "name": "Malaga Airport"
+        },
+        {
+          "code": 36,
+          "name": "Malaga Maria Zambrano Train Station"
+        },
+        {
+          "code": 50,
+          "name": "Murcia Airport"
+        },
+        {
+          "code": 55,
+          "name": "Zaragoza Train Station"
+        },
+        {
+          "code": 60,
+          "name": "Madrid Airport"
+        },
+        {
+          "code": 61,
+          "name": "Madrid Atocha Train Station"
+        },
+        {
+          "code": 62,
+          "name": "Madrid Chamartin"
+        },
+        {
+          "code": 64,
+          "name": "Madrid Leganes"
+        },
+        {
+          "code": 65,
+          "name": "Madrid Majadahonda"
+        },
+        {
+          "code": 66,
+          "name": "Madrid Alcobendas"
+        },
+        {
+          "code": 67,
+          "name": "Madrid Alcala de Henares"
+        },
+        {
+          "code": 69,
+          "name": "Madrid Collado Villalba"
+        },
+        {
+          "code": 80,
+          "name": "Bilbao Airport"
+        },
+        {
+          "code": 81,
+          "name": "Bilbao Abando Indalecio Prieto"
+        },
+        {
+          "code": 82,
+          "name": "Santiago de Compostela Airport"
+        },
+        {
+          "code": 83,
+          "name": "Santiago de Compostela Train Station"
+        },
+        {
+          "code": 90,
+          "name": "Barcelona Airport"
+        },
+        {
+          "code": 91,
+          "name": "Barcelona Sants"
+        }
+      ]
+    },
+    {
+      "code": "PT",
+      "name": "Portugal",
+      "stations": [
+        {
+          "code": 100,
+          "name": "Lisbon Airport"
+        },
+        {
+          "code": 101,
+          "name": "Faro Airport"
+        },
+        {
+          "code": 102,
+          "name": "Porto Airport"
+        },
+        {
+          "code": 103,
+          "name": "Madeira Airport"
+        }
+      ]
+    },
+    {
+      "code": "IT",
+      "name": "Italy",
+      "stations": [
+        {
+          "code": 200,
+          "name": "Rome Fiumicino Airport"
+        },
+        {
+          "code": 201,
+          "name": "Rome Ciampino Airport"
+        },
+        {
+          "code": 202,
+          "name": "Milan Malpensa Airport"
+        },
+        {
+          "code": 203,
+          "name": "Bergamo Airport"
+        },
+        {
+          "code": 204,
+          "name": "Pisa Airport"
+        },
+        {
+          "code": 205,
+          "name": "Cagliari Airport"
+        },
+        {
+          "code": 206,
+          "name": "Olbia Airport"
+        },
+        {
+          "code": 207,
+          "name": "Palermo Airport"
+        },
+        {
+          "code": 208,
+          "name": "Catania Airport"
+        },
+        {
+          "code": 209,
+          "name": "Bolonia Airport"
+        }
+
+      ]
+    },
+    {
+      "code": "GR",
+      "name": "Greece",
+      "stations": [
+        {
+          "code": 120,
+          "name": "Athens Airport"
+        },
+        {
+          "code": 121,
+          "name": "Thessaloniki Airport"
+        },
+        {
+          "code": 122,
+          "name": "Heraklion Airport"
+        },
+        {
+          "code": 123,
+          "name": "Chania Airport"
+        },
+        {
+          "code": 124,
+          "name": "Corfu Airport"
+        },
+        {
+          "code": 125,
+          "name": "Santorini Airport"
+        },
+        {
+          "code": 126,
+          "name": "Rhodes Airport"
+        },
+        {
+          "code": 128,
+          "name": "Kefalonia Airport"
+        }
+      ]
+    }
+  ]
+}

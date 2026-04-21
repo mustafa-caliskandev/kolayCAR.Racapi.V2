@@ -1,0 +1,48 @@
+{
+  "Countries": [
+    {
+      "code": "ES",
+      "name": "Spain",
+      "stations": [
+        {
+          "code": 2,
+          "name": "Alicante",
+          "address": "Carretera Aeropuerto-Torrellano S/N 03320, Torrellano (junto a rotonda Torrellano)",
+          "phoneNumber": "(34) 965083710"
+
+        },
+        {
+          "code": 3,
+          "name": "Palma de Mallorca",
+          "address": "Carrer de Can Singala 16, 07199, Palma de Mallorca",
+          "phoneNumber": "(34) 971073140"
+        },
+        {
+          "code": 4,
+          "name": "Malaga",
+          "address": "Carretera de Guadalmar, 7 (Polígono Villa Rosa) 29004, Málaga",
+          "phoneNumber": "(34) 952004356"
+        },
+        {
+          "code": 5,
+          "name": "Valencia",
+          "address": "Avinguda dels Arcs 20 46940, Manises",
+          "phoneNumber": "(34) 963 013 089"
+
+        },
+        {
+          "code": 6,
+          "name": "Ibiza",
+          "address": "Ctra. de Platja d'en Bossa s/n (frente al hotel Ushuaia, al lado del Hi), 07817    Sant Josep desa Talaia, Ibiza",
+          "phoneNumber": "(34) 971597051"
+        },
+        {
+          "code": 7,
+          "name": "Sevilla",
+          "address": "Polígono Los Espartales, Carretera N-339, km 1. Aeropuerto de Sevilla, 41309 – La Rinconada (Sevilla)",
+          "phoneNumber": "(34) 955 095 361"
+        }
+      ]
+    }
+  ]
+}

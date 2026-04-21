@@ -1,0 +1,37 @@
+﻿namespace KolayCAR.Broker.Domain.Models
+{
+    public enum AgencyOperationTypes
+    {
+        GetAgencyInfo,
+        GetVendors,
+        GetReservationList,
+        GetLocations,
+        GetRegisteredVendorToTheLocation,
+        GetReservationDetail,
+        GetCurrentAccount,
+        GetIntegrationInfoForCancelReservation,
+        UpdateReservation,
+        InvoiceOperations,
+        SmtpOperations,
+        AgencyControlOperations,
+        LoginControl,
+        AgentApplication,
+        GetMemberInfoByEmail,
+        GetDefaultMemberForExternalLogin,
+        AgencyAndMemberEmailExistsControls,
+        GetPopularVehicles,
+        GetCouponCodesByMemberId,
+        GetMemberScore,
+        InsertScoreUsageHistory,
+        InsertCoupon,
+        GetSubAgency,
+        GetVendorsByLocationId,
+        GetPopularLocations,
+        GetLocationsWithTheMostReservations,
+        GetSurveyAveragesWithVendorId,
+        GetVendorsPopularVehicles,
+        GetSurveyAveragesWithVendorIdAndLocationId,
+        GetSurveyStatus,
+        WriteLog
+    }
+}

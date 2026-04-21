@@ -1,0 +1,28 @@
+﻿# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs and temp files
+*.log
+*.cache
+TestResults/
+
+# Local .NET CLI home used by tooling
+.dotnet-cli/
+
+# Local configuration with secrets
+**/appsettings.json
+**/appsettings.Development.json
+**/appsettings.*.Development.json
+**/appsettings.AWSSettings.json
+**/appsettings.ViewSettings.json
+
+# Keep sanitized examples trackable
+!**/appsettings.example.json

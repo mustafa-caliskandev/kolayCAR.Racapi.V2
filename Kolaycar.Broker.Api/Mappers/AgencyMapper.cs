@@ -1,0 +1,80 @@
+﻿using KolayCAR.Broker.API.Models;
+using KolayCAR.Broker.Infrastructure.Extensions;
+using CommonModels = KolayCAR.Broker.Domain.Models;
+
+namespace KolayCAR.Broker.API.Mappers
+{
+    public static class AgencyMapper
+    {
+        public static CommonModels.Agency Map(this Agency agency) =>
+            agency != null ? new CommonModels.Agency
+            {
+                AgencyId = agency.Agencyid,
+                AgencyCode = agency.Agencycode,
+                Active = agency.Active ?? false,
+                AgencyName = agency.Name,
+                Email = agency.Email,
+                Address = agency.Address,
+                PhoneNumber = agency.Phone,
+                MobilePhoneNumber = agency.Mobile,
+                Fax = agency.Fax,
+                PostalCode = agency.Postalcode,
+                PostOfficeBox = agency.Pobox,
+                Place = agency.Place,
+                CountryCode = agency.Country,
+                Tktue = agency.Tktue,
+                LastUpdate = agency.Lastedit,
+                TaxNumber = agency.Taxnumber1,
+                TaxNumber2 = agency.Taxnumber2,
+                Branch = agency.Branch,
+                Barrier = agency.Barrier,
+                Limit = agency.Limit,
+                CreationDate = agency.Creationdate,
+                CountryId = agency.Countryid,
+                CityId = agency.Cityid,
+                TaxOffice = agency.Taxoffice,
+                OwnerName = agency.Ownername,
+                OwnerSurname = agency.Ownersurname,
+                AgencyApplication = agency.Agencyapplication ?? false,
+                Note = agency.Notes,
+                Note2 = agency.Notes2,
+                CountryName = agency.Countryname,
+                CityName = agency.Cityname,
+                AuthorizedPersonName = $"{agency.Ownername} {agency.Ownersurname}",
+                AgencyApiKey = agency.Agencyapikey,
+                AgencyApiPassword = agency.Agencyapipassword,
+                AgencyCommissionAmount = agency.Commission.ToFloatNullSafe(),
+                AgencyCommissionType = agency.Agencycommissiontype != null ? (CommonModels.AgencyCommissionTypes)agency.Agencycommissiontype : CommonModels.AgencyCommissionTypes.CommissionCalculatedOnTotalPrice,
+                Logo = agency.Logo,
+                UserRole = (CommonModels.UserRoles)agency.Roleid,
+                ProfitMarkupSharingRateDailyPrice = agency.Profitmarkupsharingratedailyprice.ToFloatNullSafe(),
+                ProfitMarkupSharingRateAdditionalProducts = agency.Profitmarkupsharingrateadditionalproducts.ToFloatNullSafe(),
+                ProfitMarkupSharingRateOneWayFee = agency.Profitmarkupsharingrateonewayfee.ToFloatNullSafe(),
+                LoginEnable = agency.Loginenable ?? true,
+                CreditCardPaymentActive = agency.Creditcardpaymentactive,
+                PayAllActive = agency.Payallactive,
+                AdvancePaymentActive = agency.Advancepaymentactive,
+                CommissionFreePaymentActive = (CommonModels.UserRoles)agency.Roleid == CommonModels.UserRoles.Agency ? agency.Commissionfreepaymentactive : false,
+                PayDeliveryActive = agency.Paydeliveryactive,
+                PayAgencyActive = agency.Payagencyactive,
+                CreditCardDiscountPercent = agency.Creditcarddiscountpercent ?? 0,
+                FreePriceShowActive = agency.Freepriceshowactive ?? false,
+                FreePriceActive = agency.Freepriceactive ?? false,
+                AdvancePaymentAmountByAgencyCommissionActive = agency.Advancepaymentamountbyagencycommissionactive,
+                SendReservationMailToCustomerActive = agency.Sendreservationmailtocustomeractive ?? true,
+                IsRestrictedAPI = agency.Isrestrictedapi,
+                RentalAmountDeliveryPayment = agency.Rentalamountdeliverypayment ?? false,
+                OneWayAmountDeliveryPayment = agency.Onewayamountdeliverypayment ?? false,
+                AdditionalProductAmountDeliveryPayment = agency.Additionalproductamountdeliverypayment ?? false,
+                SendReservationMailToAgency = agency.Sendreservationmailtoagency ?? true,
+                CurrencyType = (CommonModels.CurrencyTypes)(agency.Currencyid - 1),
+                ReservationSourceSelectActive = agency.Reservationsourceselectactive ?? false,
+                AgencyRentalProfitMarkup = agency.Agencyrentalprofitmarkup.ToFloatNullSafe(),
+                CancellationPenaltyActive = agency.Cancellationpenaltyactive ?? true,
+                SpecialParameters = agency.SpecialParameters.ToBoolNullSafe(),
+                FullCreditPermission = agency.FullCreditPermission.ToBoolNullSafe(),
+                IsActiveSendCheapestCar = agency.IsActiveSendCheapestCar ?? false
+            }
+            : null;
+    }
+}

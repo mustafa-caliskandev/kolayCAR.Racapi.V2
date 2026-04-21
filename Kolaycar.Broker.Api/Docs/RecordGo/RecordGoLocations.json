@@ -1,0 +1,367 @@
+{
+  "CountryList": [
+    {
+      "CountryCode": "IT",
+      "Locations": [
+        {
+          "Name": "Rome Fiumucino Airport",
+          "Coordinates": "41.76534643466948/12.264077654569112",
+          "Address": "Via dell’Aeroporto N. 164, 00054 Fiumicino RM, Italia",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "itfco@recordrentacar.com",
+          "PhoneNumber": [
+            "+39 345 5990617",
+            "+39 0601909040"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "09:00",
+            "New Years Eve": "08:00",
+            "New Years": "09:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "39005",
+          "Key Box": "YES",
+          "ExtrasList": []
+        },
+        {
+          "Name": "Olbia Airport",
+          "Coordinates": "40.90750261556465/9.517920297352546",
+          "Address": "PARKINGO’ - Via Antonio Melis, 7, 07026 Olbia SS, Italia",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "itolb@recordrentacar.com",
+          "PhoneNumber": [
+            "+39 0789 17177640"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "09:00",
+            "New Years Eve": "08:00",
+            "New Years": "09:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "39003",
+          "Key Box": "YES",
+          "ExtrasList": []
+        },
+        {
+          "Name": "Cagliari Airport",
+          "Coordinates": "39.26749664841535/9.076426281947098",
+          "Address": "PARKINGO’ - Via G. Nervi, 1, 09030 Elmas CA, Italia",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "itcag@recordrentacar.com",
+          "PhoneNumber": [
+            "+39 070 0943500"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "09:00",
+            "New Years Eve": "08:00",
+            "New Years": "09:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "39004",
+          "Key Box": "YES",
+          "ExtrasList": []
+        },
+        {
+          "Name": "Catania Airport",
+          "Coordinates": "37.47067518070869, 15.070731722244624",
+          "Address": "VIP CAR PARK - Via S. Giuseppe Alla Rena, 4, 95121 Catania CT, Italia",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "itcta@recordrentacar.com",
+          "PhoneNumber": [
+            "+39 095 0928928"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "09:00",
+            "New Years Eve": "08:00",
+            "New Years": "09:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "39002",
+          "Key Box": "YES",
+          "ExtrasList": []
+        },
+        {
+          "Name": "Palermo Airport",
+          "Coordinates": "38.17647932460592/13.119524392639551",
+          "Address": "PROVIDENCE PARKING CINISI - SS113, 90045 Cinisi PA, Italia",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "itpmo@recordrentacar.com",
+          "PhoneNumber": [
+            "+39 091 2776640"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "09:00",
+            "New Years Eve": "08:00",
+            "New Years": "09:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "39001",
+          "Key Box": "YES",
+          "ExtrasList": []
+        }
+      ]
+    },
+    {
+      "CountryCode": "GR",
+      "Locations": [
+        {
+          "Name": "Rhodes International Airport 'Diagoras'",
+          "Coordinates": "36.408420/28.110035",
+          "Address": "Eparchiaki odos Rodou-Kameirou, Petaloudon Kremastis, Rhodes, PC 85104",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "grrho@recordrentacar.com",
+          "PhoneNumber": [
+            "+30 6956644661"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "Closed",
+            "Christmas": "Closed",
+            "New Years Eve": "Closed",
+            "New Years": "Closed"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "Closed"
+          },
+          "XMLCode": "30004",
+          "Key Box": "NO",
+          "ExtrasList": [
+            "TCC",
+            "TCCP",
+            "Fast Cover",
+            "MiFi",
+            "Add Driver",
+            "Upgrade",
+            "Car Choice",
+            "Diesel",
+            "Joie Highback Booster",
+            "Joie Forward Facing Child Seat",
+            "Joie Infant Seat + Isofix"
+          ]
+        },
+        {
+          "Name": "Zakynthos International Airport Dionysios Solomos",
+          "Coordinates": "37.754422/20.888535",
+          "Address": "Kalamaki, Laganas, Zakynthos 29 100",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "grzth@recordrentacar.com",
+          "PhoneNumber": [
+            "+30 6936608673 ",
+            "+30 2695033232"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "Closed",
+            "Christmas": "Closed",
+            "New Years Eve": "Closed",
+            "New Years": "Closed"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "Closed"
+          },
+          "XMLCode": "30003",
+          "Key Box": "NO",
+          "ExtrasList": [
+            "TCC",
+            "TCCP",
+            "Fast Cover",
+            "MiFi",
+            "Add Driver",
+            "Upgrade",
+            "Car Choice",
+            "Diesel",
+            "Joie Highback Booster",
+            "Joie Forward Facing Child Seat",
+            "Joie Infant Seat + Isofix"
+          ]
+        },
+        {
+          "Name": "Thessaloniki Airport 'Makedonia'",
+          "Coordinates": "40.51382/22.98975",
+          "Address": "16th km Thessalonikis - Peraias, 570 01, Thermi, Thessaloniki, Greece",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "grskg@recordrentacar.com",
+          "PhoneNumber": [
+            "+30 6936769764",
+            "+30 2314070103"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "08:00",
+            "New Years Eve": "08:00",
+            "New Years": "08:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "30002",
+          "Key Box": "NO",
+          "ExtrasList": [
+            "TCC",
+            "TCCP",
+            "Fast Cover",
+            "MiFi",
+            "Add Driver",
+            "Upgrade",
+            "Car Choice",
+            "Diesel",
+            "Joie Highback Booster",
+            "Joie Forward Facing Child Seat",
+            "Joie Infant Seat + Isofix"
+          ]
+        },
+        {
+          "Name": "Athens International Airport S.A.",
+          "Coordinates": "37.90263/23.89661",
+          "Address": "8th Km Leof. MArkopoulou, Greece, Athens",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "grath@recordrentacar.com",
+          "PhoneNumber": [
+            "++30 6936769762"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "08:00",
+            "New Years Eve": "08:00",
+            "New Years": "08:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "30001",
+          "Key Box": "NO",
+          "ExtrasList": [
+            "TCC",
+            "TCCP",
+            "Fast Cover",
+            "MiFi",
+            "Add Driver",
+            "Upgrade",
+            "Car Choice",
+            "Diesel",
+            "Joie Highback Booster",
+            "Joie Forward Facing Child Seat",
+            "Joie Infant Seat + Isofix"
+          ]
+        }
+      ]
+    },
+    {
+      "CountryCode": "ES",
+      "Locations": [
+        {
+          "Name": "Aeropuerto Internacional de Tenerife Sur-Reina Sofía",
+          "Coordinates": "28.04866/-16.61263",
+          "Address": "Avenida Ten-Bel, 16, planta -1, puerta 1, Las Chafiras, CP 38639 San Miguel de Abona",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "ictfs@recordrentacar.com",
+          "PhoneNumber": [
+            "+34 687583628"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "09:00",
+            "New Years Eve": "08:00",
+            "New Years": "09:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "34901",
+          "Key Box": "NO",
+          "ExtrasList": [
+            "TCC",
+            "TCCP",
+            "Fast Cover",
+            "MiFi",
+            "Add Driver",
+            "Upgrade",
+            "Car Choice",
+            "Joie Highback Booster",
+            "Joie Forward Facing Child Seat",
+            "Joie Infant Seat + Isofix"
+          ]
+        },
+        {
+          "Name": "Aeropuerto de Gran Canaria",
+          "Coordinates": "27.91646/-15.39902",
+          "Address": "Carretera C-812, Km. 27, 015, 35240 Las Majoreras",
+          "Counter": "Inside the location",
+          "Parking": "Right outside of the location",
+          "Email": "iclpa@recordrentacar.com",
+          "PhoneNumber": [
+            "+34 671482339"
+          ],
+          "OpeningHours": {
+            "WeekDays": "08:00",
+            "Christmas Eve": "08:00",
+            "Christmas": "09:00",
+            "New Years Eve": "08:00",
+            "New Years": "09:00"
+          },
+          "ClosingHours": {
+            "WeekDays": "22:00",
+            "Holidays": "20:00"
+          },
+          "XMLCode": "34902",
+          "Key Box": "NO",
+          "ExtrasList": [
+            "TCC",
+            "TCCP",
+            "Fast Cover",
+            "MiFi",
+            "Add Driver",
+            "Upgrade",
+            "Car Choice",
+            "Joie Highback Booster",
+            "Joie Forward Facing Child Seat",
+            "Joie Infant Seat + Isofix"
+          ]
+        }
+      ]
+    }
+  ]
+}

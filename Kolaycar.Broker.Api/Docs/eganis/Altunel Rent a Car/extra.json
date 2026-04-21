@@ -1,0 +1,32 @@
+{
+  "extras": [
+    {
+      "id": 1,
+      "code": "BabySeat",
+      "name": "Baby Seat or Booster Seat",
+      "rentalType": 0,
+      "maxQuantity": 1
+    },
+    {
+      "id": 2,
+      "code": "FULLINS",
+      "name": "Full Insurance",
+      "rentalType": 0,
+      "maxQuantity": 1
+    },
+    {
+      "id": 3,
+      "code": "ExtraDriver",
+      "name": "Additional Driver",
+      "rentalType": 0,
+      "maxQuantity": 1
+    },
+    {
+      "id": 4,
+      "code": "Wifi",
+      "name": "PORTABLE WIFI",
+      "rentalType": 0,
+      "maxQuantity": 1
+    }
+  ]
+}

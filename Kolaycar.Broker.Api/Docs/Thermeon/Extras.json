@@ -1,0 +1,44 @@
+﻿{
+  "extras": [
+    {
+      "extraCode": "GPS",
+      "description": "GPS",
+      "PricePerDay": 8,
+      "maxPrice": 66
+    },
+    {
+      "extraCode": "BSEAT",
+      "description": "Baby Seat 0-3 yrs",
+      "PricePerDay": 10,
+      "maxPrice": 99
+    },
+    {
+      "extraCode": "BOOST",
+      "description": "Booster seat 4-7 yrs",
+      "PricePerDay": 6,
+      "maxPrice": 66
+    },
+    {
+      "extraCode": "ISOFX",
+      "description": "Isofix car seats",
+      "PricePerDay": 10,
+      "maxPrice": 99
+    },
+    {
+      "extraCode": "DRIVR",
+      "description": "Additional Driver",
+      "maxPrice": 12
+    },
+    {
+      "extraCode": "AGE24",
+      "description": "Under Age Surcharge",
+      "PricePerDay": 9.90,
+      "maxPrice": 99
+    },
+    {
+      "extraCode": "PHOLD",
+      "description": "Phone Holder",
+      "maxPrice": 5
+    }
+  ]
+}

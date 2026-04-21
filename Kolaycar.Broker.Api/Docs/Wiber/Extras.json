@@ -1,0 +1,35 @@
+{
+  "extras": [
+    {
+      "extraCode": "BG",
+      "description": "Baby Seat",
+      "PricePerDay": 11.28,
+      "maxPrice": 95
+    },
+    {
+      "extraCode": "3",
+      "description": "Additional Driver",
+      "PricePerDay": 8.00,
+      "maxPrice": 80
+
+    },
+    {
+      "extraCode": "4",
+      "description": "Young Driver",
+      "PricePerDay": 8.00,
+      "maxPrice": 80
+    },
+    {
+      "extraCode": "5",
+      "description": "Child Seats",
+      "PricePerDay": 11.28,
+      "maxPrice": 95
+    },
+    {
+      "extraCode": "6",
+      "description": "Booster Seats",
+      "PricePerDay": 11.28,
+      "maxPrice": 95
+    }
+  ]
+}

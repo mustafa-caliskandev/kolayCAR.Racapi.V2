@@ -1,0 +1,5043 @@
+﻿{
+  "count": 34,
+  "totalStatistics": {
+    "delivery_type": [
+      {
+        "count": 4,
+        "value": "meetAndGreet"
+      },
+      {
+        "count": 16,
+        "value": "nonTerminalMeetAndGreet"
+      },
+      {
+        "count": 14,
+        "value": "inTerminalOffice"
+      }
+    ],
+    "vendor": [
+      {
+        "count": 1,
+        "display": "Otocar",
+        "value": "Otocar"
+      },
+      {
+        "count": 3,
+        "display": "Air",
+        "value": "Air"
+      },
+      {
+        "count": 16,
+        "display": "Windycar",
+        "value": "Windycar"
+      },
+      {
+        "count": 14,
+        "display": "Cizgi",
+        "value": "Cizgi"
+      }
+    ],
+    "class_type": [
+      {
+        "count": 3,
+        "value": "premium"
+      },
+      {
+        "count": 2,
+        "value": "comfort"
+      },
+      {
+        "count": 6,
+        "value": "suv"
+      },
+      {
+        "count": 5,
+        "value": "intermediate"
+      },
+      {
+        "count": 17,
+        "value": "economic"
+      },
+      {
+        "count": 1,
+        "value": "luxury"
+      }
+    ],
+    "transmission": [
+      {
+        "count": 16,
+        "value": "automatic"
+      },
+      {
+        "count": 18,
+        "value": "manual"
+      }
+    ],
+    "price": {
+      "maximumValue": 239450,
+      "minimumValue": 64000
+    },
+    "full_credit": [
+      {
+        "count": 3,
+        "value": false
+      },
+      {
+        "count": 31,
+        "value": true
+      }
+    ],
+    "average_rating": {
+      "maximumValue": 2.5,
+      "minimumValue": 2.5
+    },
+    "fuel": [
+      {
+        "count": 21,
+        "value": "diesel"
+      },
+      {
+        "count": 13,
+        "value": "gas"
+      }
+    ],
+    "model": [
+      {
+        "count": 3,
+        "value": "passat"
+      },
+      {
+        "count": 3,
+        "value": "c elysee"
+      },
+      {
+        "count": 2,
+        "value": "i20"
+      },
+      {
+        "count": 2,
+        "value": "301"
+      },
+      {
+        "count": 3,
+        "value": "symbol"
+      },
+      {
+        "count": 1,
+        "value": "tourneo"
+      },
+      {
+        "count": 3,
+        "value": "accent"
+      },
+      {
+        "count": 1,
+        "value": "3008"
+      },
+      {
+        "count": 1,
+        "value": "2008"
+      },
+      {
+        "count": 1,
+        "value": "egea"
+      },
+      {
+        "count": 1,
+        "value": "megane sedan"
+      },
+      {
+        "count": 3,
+        "value": "duster 4x2"
+      },
+      {
+        "count": 2,
+        "value": "elantra"
+      },
+      {
+        "count": 1,
+        "value": "208"
+      },
+      {
+        "count": 1,
+        "value": "polo"
+      },
+      {
+        "count": 2,
+        "value": "lodgy"
+      },
+      {
+        "count": 2,
+        "value": "qashqai"
+      },
+      {
+        "count": 1,
+        "value": "corsa"
+      },
+      {
+        "count": 1,
+        "value": "juke"
+      }
+    ],
+    "distance_limit": {
+      "maximumValue": 1500,
+      "minimumValue": 0
+    },
+    "provision": {
+      "maximumValue": 400000,
+      "minimumValue": 0
+    },
+    "brand": [
+      {
+        "count": 1,
+        "value": "fiat"
+      },
+      {
+        "count": 4,
+        "value": "renault"
+      },
+      {
+        "count": 3,
+        "value": "nissan"
+      },
+      {
+        "count": 5,
+        "value": "dacia"
+      },
+      {
+        "count": 7,
+        "value": "hyundai"
+      },
+      {
+        "count": 4,
+        "value": "volkswagen"
+      },
+      {
+        "count": 3,
+        "value": "citroen"
+      },
+      {
+        "count": 1,
+        "value": "ford"
+      },
+      {
+        "count": 5,
+        "value": "peugeot"
+      },
+      {
+        "count": 1,
+        "value": "opel"
+      }
+    ]
+  },
+  "carRentalSearchId": "2e6c7611c2f84f0ab6e0a670eb058349", // rezervasyonda gerekli ***********************
+  "searchStatistics": {
+    "delivery_type": [
+      {
+        "count": 4,
+        "value": "meetAndGreet"
+      },
+      {
+        "count": 14,
+        "value": "inTerminalOffice"
+      },
+      {
+        "count": 16,
+        "value": "nonTerminalMeetAndGreet"
+      }
+    ],
+    "vendor": [
+      {
+        "count": 1,
+        "display": "Otocar",
+        "value": "Otocar"
+      },
+      {
+        "count": 3,
+        "display": "Air",
+        "value": "Air"
+      },
+      {
+        "count": 16,
+        "display": "Windycar",
+        "value": "Windycar"
+      },
+      {
+        "count": 14,
+        "display": "Cizgi",
+        "value": "Cizgi"
+      }
+    ],
+    "class_type": [
+      {
+        "count": 3,
+        "value": "premium"
+      },
+      {
+        "count": 2,
+        "value": "comfort"
+      },
+      {
+        "count": 6,
+        "value": "suv"
+      },
+      {
+        "count": 5,
+        "value": "intermediate"
+      },
+      {
+        "count": 17,
+        "value": "economic"
+      },
+      {
+        "count": 1,
+        "value": "luxury"
+      }
+    ],
+    "transmission": [
+      {
+        "count": 16,
+        "value": "automatic"
+      },
+      {
+        "count": 18,
+        "value": "manual"
+      }
+    ],
+    "price": {
+      "maximumValue": 239450,
+      "minimumValue": 64000
+    },
+    "full_credit": [
+      {
+        "count": 3,
+        "value": false
+      },
+      {
+        "count": 31,
+        "value": true
+      }
+    ],
+    "average_rating": {
+      "maximumValue": 2.5,
+      "minimumValue": 2.5
+    },
+    "fuel": [
+      {
+        "count": 21,
+        "value": "diesel"
+      },
+      {
+        "count": 13,
+        "value": "gas"
+      }
+    ],
+    "model": [
+      {
+        "count": 3,
+        "value": "c elysee"
+      },
+      {
+        "count": 2,
+        "value": "i20"
+      },
+      {
+        "count": 2,
+        "value": "301"
+      },
+      {
+        "count": 3,
+        "value": "symbol"
+      },
+      {
+        "count": 1,
+        "value": "tourneo"
+      },
+      {
+        "count": 3,
+        "value": "accent"
+      },
+      {
+        "count": 1,
+        "value": "3008"
+      },
+      {
+        "count": 2,
+        "value": "qashqai"
+      },
+      {
+        "count": 1,
+        "value": "2008"
+      },
+      {
+        "count": 1,
+        "value": "egea"
+      },
+      {
+        "count": 1,
+        "value": "megane sedan"
+      },
+      {
+        "count": 3,
+        "value": "duster 4x2"
+      },
+      {
+        "count": 2,
+        "value": "elantra"
+      },
+      {
+        "count": 1,
+        "value": "208"
+      },
+      {
+        "count": 1,
+        "value": "polo"
+      },
+      {
+        "count": 2,
+        "value": "lodgy"
+      },
+      {
+        "count": 3,
+        "value": "passat"
+      },
+      {
+        "count": 1,
+        "value": "corsa"
+      },
+      {
+        "count": 1,
+        "value": "juke"
+      }
+    ],
+    "distance_limit": {
+      "maximumValue": 1500,
+      "minimumValue": 0
+    },
+    "provision": {
+      "maximumValue": 400000,
+      "minimumValue": 0
+    },
+    "brand": [
+      {
+        "count": 1,
+        "value": "fiat"
+      },
+      {
+        "count": 4,
+        "value": "renault"
+      },
+      {
+        "count": 3,
+        "value": "nissan"
+      },
+      {
+        "count": 5,
+        "value": "dacia"
+      },
+      {
+        "count": 7,
+        "value": "hyundai"
+      },
+      {
+        "count": 4,
+        "value": "volkswagen"
+      },
+      {
+        "count": 3,
+        "value": "citroen"
+      },
+      {
+        "count": 1,
+        "value": "ford"
+      },
+      {
+        "count": 5,
+        "value": "peugeot"
+      },
+      {
+        "count": 1,
+        "value": "opel"
+      }
+    ]
+  },
+  "offset": 0,
+  "total": 34,
+  "data": [
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "162b1828-e26c-460f-92f5-10c95b102c3f",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "Symbol",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Renault"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/b1/9f/b19f0828b87fd1e49d8160dd314ecce4.png",
+          "large": "https://static.yolcu360.com/thumbnails/be/7a/be7aeab015c1950f3697c0953bb08d68.png",
+          "medium": "https://static.yolcu360.com/thumbnails/3c/14/3c14b8d77416260a321ad50b79dd524a.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 64000,
+        "priceToCharge": 59201,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 85325,
+        "finalPrice": 64000,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 21325,
+        "agencyPrice": 59201,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 59200,
+        "provision": 75000,
+        "listPrice": 64000,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-renault-symbol-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "ea5c44f0-9b83-4e0a-ba84-d9f9182bc98b",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "301",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Peugeot"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/de/cc/deccf2b5f835b6340cb762037810e448.png",
+          "large": "https://static.yolcu360.com/thumbnails/bb/aa/bbaae8bd2fd1efae1cadeb939a9c6a90.png",
+          "medium": "https://static.yolcu360.com/thumbnails/bf/51/bf51a24ae69ede211dc2133756bfab32.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 64000,
+        "priceToCharge": 59201,
+        "agencyBasePrice": 59200,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 64000,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 59201,
+        "listPrice": 64000,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-peugeot-301-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "27e7dc78-20fe-4b41-9797-9d446754b640",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "C Elysee",
+        "bigBagCount": 4,
+        "smallBagCount": 0,
+        "transmission": "manual",
+        "brand": {
+          "name": "Citroen"
+        },
+        "class": "economic",
+        "seats": 5,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/86/b1/86b16e51a9d0681d5434611bce5efdb4.png",
+          "large": "https://static.yolcu360.com/thumbnails/ff/8b/ff8b868f4c83b09fb2ff1aa0f7513f6d.png",
+          "medium": "https://static.yolcu360.com/thumbnails/7b/0e/7b0e571344e78b4f9da6f9279f7d5772.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 64000,
+        "priceToCharge": 59201,
+        "agencyBasePrice": 59200,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 64000,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 59201,
+        "listPrice": 64000,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-citroen-c-elysee-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "84e53317-995f-40ea-8e8c-de3cf712863c",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "Symbol",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Renault"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/b1/9f/b19f0828b87fd1e49d8160dd314ecce4.png",
+          "large": "https://static.yolcu360.com/thumbnails/be/7a/be7aeab015c1950f3697c0953bb08d68.png",
+          "medium": "https://static.yolcu360.com/thumbnails/3c/14/3c14b8d77416260a321ad50b79dd524a.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 68500,
+        "priceToCharge": 63363,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 91325,
+        "finalPrice": 68500,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 22825,
+        "agencyPrice": 63363,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 63362,
+        "provision": 75000,
+        "listPrice": 68500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-renault-symbol-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "f8346c65-3d00-4620-b5a8-6317478b57a9", // rezervasyonda gerekli ***********************
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 24,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Egea",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "manual",
+        "brand": {
+          "name": "Fiat"
+        },
+        "class": "intermediate",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/3b/03/3b0315905cad4728a701ffa73bc651c4.png",
+          "large": "https://static.yolcu360.com/thumbnails/e8/c7/e8c7aad229f8d83ab301fb86e00cd5f6.png",
+          "medium": "https://static.yolcu360.com/thumbnails/b6/44/b644774d4a3a5d4f2ec7928a1327e6ce.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 68500,
+        "priceToCharge": 63363,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 91325,
+        "finalPrice": 68500,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 22825,
+        "agencyPrice": 63363,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 63362,
+        "provision": 75000,
+        "listPrice": 68500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-fiat-egea-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "171ccb7b-31cd-4d50-9473-308f1efa6400",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 24,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "C Elysee",
+        "bigBagCount": 4,
+        "smallBagCount": 0,
+        "transmission": "manual",
+        "brand": {
+          "name": "Citroen"
+        },
+        "class": "economic",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/86/b1/86b16e51a9d0681d5434611bce5efdb4.png",
+          "large": "https://static.yolcu360.com/thumbnails/ff/8b/ff8b868f4c83b09fb2ff1aa0f7513f6d.png",
+          "medium": "https://static.yolcu360.com/thumbnails/7b/0e/7b0e571344e78b4f9da6f9279f7d5772.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 68500,
+        "priceToCharge": 63363,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 91325,
+        "finalPrice": 68500,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 22825,
+        "agencyPrice": 63363,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 63362,
+        "provision": 75000,
+        "listPrice": 68500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-citroen-c-elysee-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "571241cf-73f6-481b-91cd-c32fe5eeed60",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 24,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "301",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Peugeot"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/de/cc/deccf2b5f835b6340cb762037810e448.png",
+          "large": "https://static.yolcu360.com/thumbnails/bb/aa/bbaae8bd2fd1efae1cadeb939a9c6a90.png",
+          "medium": "https://static.yolcu360.com/thumbnails/bf/51/bf51a24ae69ede211dc2133756bfab32.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 68500,
+        "priceToCharge": 63363,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 91325,
+        "finalPrice": 68500,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 22825,
+        "agencyPrice": 63363,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 63362,
+        "provision": 75000,
+        "listPrice": 68500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-peugeot-301-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "875a56f6-a25e-4dee-aaa3-6feb8426f053",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "Corsa",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Opel"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/57/ae/57aecd7b97352732159a8678de89262f.png",
+          "large": "https://static.yolcu360.com/thumbnails/9d/2e/9d2e251fecce3205567e191ba9ccdc86.png",
+          "medium": "https://static.yolcu360.com/thumbnails/7d/e4/7de4726e9272a967ebf5b3e6035058c5.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 78000,
+        "priceToCharge": 72151,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 97500,
+        "finalPrice": 78000,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 19500,
+        "agencyPrice": 72151,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 72150,
+        "provision": 75000,
+        "listPrice": 78000,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-opel-corsa-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "d1501260-2b04-4707-885d-136867afce0f",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 1
+      },
+      "car": {
+        "name": "i20",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Hyundai"
+        },
+        "class": "economic",
+        "seats": 5,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/90/bf/90bf388ccd4fb9adbe8dc0e1c55084d5.png",
+          "large": "https://static.yolcu360.com/thumbnails/06/8c/068cc0ffb31e245fcf5b7551b4eeffed.png",
+          "medium": "https://static.yolcu360.com/thumbnails/a8/0e/a80ee21501eb4c37228de1b92a478431.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 86050,
+        "priceToCharge": 79597,
+        "agencyBasePrice": 79596,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 86050,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 79597,
+        "provision": 50000,
+        "listPrice": 86050,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-hyundai-i20-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "ad19dcc2-d739-456e-b0ee-b612eb807d61",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 24,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Duster 4x2",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Dacia"
+        },
+        "class": "suv",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/83/bd/83bd9315d6e439ef389d4e93be9d8da7.png",
+          "large": "https://static.yolcu360.com/thumbnails/58/af/58af5d46c1e51e1a2cd3fa3b83b4dd1e.png",
+          "medium": "https://static.yolcu360.com/thumbnails/e6/3c/e63c8fa5be67f7b791d55efb062804e3.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 91500,
+        "priceToCharge": 84638,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 130710,
+        "finalPrice": 91500,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 39210,
+        "agencyPrice": 84638,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 84637,
+        "provision": 150000,
+        "listPrice": 91500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-dacia-duster-4x2-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "cd8013d9-345b-460c-8b42-682eb9c5da43",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 1
+      },
+      "car": {
+        "name": "Polo",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Volkswagen"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/50/d0/50d08910395477493eeb48b79bf765fd.png",
+          "large": "https://static.yolcu360.com/thumbnails/ee/5a/ee5a1e267145b834982235dd28ab6362.png",
+          "medium": "https://static.yolcu360.com/thumbnails/a9/df/a9dfa831dc368c978859279399bc5ef4.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 92245,
+        "priceToCharge": 85327,
+        "agencyBasePrice": 85326,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 92245,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 85327,
+        "provision": 50000,
+        "listPrice": 92245,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-volkswagen-polo-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "fe7dab6b-61b9-40c6-bd02-9cde55755c08",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 24,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Megane Sedan",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Renault"
+        },
+        "class": "intermediate",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/86/1f/861f8c78a8464e10d8ea309dd7882643.png",
+          "large": "https://static.yolcu360.com/thumbnails/82/11/82115db1e43faef4b3b237ae25a896bc.png",
+          "medium": "https://static.yolcu360.com/thumbnails/33/da/33da24f831bbe6e9b3963626da0bb75d.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 96000,
+        "priceToCharge": 88801,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 137130,
+        "finalPrice": 96000,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 41130,
+        "agencyPrice": 88801,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 88800,
+        "provision": 100000,
+        "listPrice": 96000,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-renault-megane-sedan-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "715f3889-a2ee-4252-96d4-186adc8dfc2b",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 24,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Duster 4x2",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Dacia"
+        },
+        "class": "suv",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/83/bd/83bd9315d6e439ef389d4e93be9d8da7.png",
+          "large": "https://static.yolcu360.com/thumbnails/58/af/58af5d46c1e51e1a2cd3fa3b83b4dd1e.png",
+          "medium": "https://static.yolcu360.com/thumbnails/e6/3c/e63c8fa5be67f7b791d55efb062804e3.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 100500,
+        "priceToCharge": 92963,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 143550,
+        "finalPrice": 100500,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 43050,
+        "agencyPrice": 92963,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 92962,
+        "provision": 150000,
+        "listPrice": 100500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-dacia-duster-4x2-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "d2d21e22-2851-436d-943a-51d9772930c5",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 23,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "Accent",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "manual",
+        "brand": {
+          "name": "Hyundai"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/0c/29/0c29a529c557fc7c70238bfc18bfbe82.png",
+          "large": "https://static.yolcu360.com/thumbnails/01/e8/01e8253c219df576dbabf438423051e7.png",
+          "medium": "https://static.yolcu360.com/thumbnails/19/4e/194ecbb7a979d2a905bb78d96f8f4328.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 100870,
+        "priceToCharge": 93305,
+        "agencyBasePrice": 93304,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 100870,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 93305,
+        "provision": 50000,
+        "listPrice": 100870,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-hyundai-accent-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "43028694-585a-40c8-9739-92d49ac1e2a2",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 24,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Lodgy",
+        "bigBagCount": 2,
+        "smallBagCount": 2,
+        "transmission": "manual",
+        "brand": {
+          "name": "Dacia"
+        },
+        "class": "intermediate",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/94/51/9451c36553bda9cadf7de4ed4c82cbf6.png",
+          "large": "https://static.yolcu360.com/thumbnails/39/41/3941454f59380bab0ec6201341995d26.png",
+          "medium": "https://static.yolcu360.com/thumbnails/e5/80/e580ca23a8b5320899dcc932205e0f1d.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 105000,
+        "priceToCharge": 97126,
+        "agencyBasePrice": 97125,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 105000,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 97126,
+        "provision": 150000,
+        "listPrice": 105000,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-dacia-lodgy-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/89/d6/89d69ca58e1abd8c475ce4d4d3068eed.png",
+        "id": 19,
+        "name": "Otocar"
+      },
+      "listingId": "bf24f2cf-c701-45ec-a09e-7eb1ac89bf76",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4440692"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 5683,
+        "address": {
+          "city": "İstanbul",
+          "line": "Sabiha Gökçen Havalimanı",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "tuesday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "friday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "wednesday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "thursday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "sunday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "saturday": {
+            "close": "19:00",
+            "open": "09:00"
+          }
+        },
+        "email": "rezervasyon@otocarrental.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1000,
+        "driverAge": 22,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "Symbol",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Renault"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/b1/9f/b19f0828b87fd1e49d8160dd314ecce4.png",
+          "large": "https://static.yolcu360.com/thumbnails/be/7a/be7aeab015c1950f3697c0953bb08d68.png",
+          "medium": "https://static.yolcu360.com/thumbnails/3c/14/3c14b8d77416260a321ad50b79dd524a.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 108500,
+        "priceToCharge": 94813,
+        "agencyBasePrice": 94812,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 108500,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "deliveryFee": 6000,
+        "promotionalDiscount": 0,
+        "agencyPrice": 94813,
+        "provision": 50000,
+        "listPrice": 102500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-renault-symbol-otocar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4440692"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 5683,
+        "address": {
+          "city": "İstanbul",
+          "line": "Sabiha Gökçen Havalimanı",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "tuesday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "friday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "wednesday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "thursday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "sunday": {
+            "close": "19:00",
+            "open": "09:00"
+          },
+          "saturday": {
+            "close": "19:00",
+            "open": "09:00"
+          }
+        },
+        "email": "rezervasyon@otocarrental.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "d049838a-9fe7-46a6-9d1c-fedfdf6f406d",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 23,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "Accent",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "manual",
+        "brand": {
+          "name": "Hyundai"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/0c/29/0c29a529c557fc7c70238bfc18bfbe82.png",
+          "large": "https://static.yolcu360.com/thumbnails/01/e8/01e8253c219df576dbabf438423051e7.png",
+          "medium": "https://static.yolcu360.com/thumbnails/19/4e/194ecbb7a979d2a905bb78d96f8f4328.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 109790,
+        "priceToCharge": 101556,
+        "agencyBasePrice": 101555,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 109790,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 101556,
+        "provision": 50000,
+        "listPrice": 109790,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-hyundai-accent-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "19b8c3a8-a858-46d5-b031-2ab9efbb41b2",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 21,
+        "doubleCreditCard": false,
+        "licenseYears": 1
+      },
+      "car": {
+        "name": "i20",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Hyundai"
+        },
+        "class": "economic",
+        "seats": 5,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/90/bf/90bf388ccd4fb9adbe8dc0e1c55084d5.png",
+          "large": "https://static.yolcu360.com/thumbnails/06/8c/068cc0ffb31e245fcf5b7551b4eeffed.png",
+          "medium": "https://static.yolcu360.com/thumbnails/a8/0e/a80ee21501eb4c37228de1b92a478431.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 119410,
+        "priceToCharge": 110455,
+        "agencyBasePrice": 110454,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 119410,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 110455,
+        "provision": 50000,
+        "listPrice": 119410,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-hyundai-i20-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "713cc6bd-6218-48ac-8f3f-9ca213037c8a",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 23,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "Accent",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Hyundai"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/0c/29/0c29a529c557fc7c70238bfc18bfbe82.png",
+          "large": "https://static.yolcu360.com/thumbnails/01/e8/01e8253c219df576dbabf438423051e7.png",
+          "medium": "https://static.yolcu360.com/thumbnails/19/4e/194ecbb7a979d2a905bb78d96f8f4328.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 133165,
+        "priceToCharge": 123178,
+        "agencyBasePrice": 123177,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 133165,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 123178,
+        "provision": 50000,
+        "listPrice": 133165,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-hyundai-accent-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "02277777-127d-4524-93ad-0c4fe55190b3",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 25,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Elantra",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Hyundai"
+        },
+        "class": "comfort",
+        "seats": 4,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/6f/2a/6f2a4fe78ed0e6f75835abf01cace360.png",
+          "large": "https://static.yolcu360.com/thumbnails/c1/5f/c15f1cd27a4af8c22a03d4a8e27ac002.png",
+          "medium": "https://static.yolcu360.com/thumbnails/46/78/4678555f0b1ee15150061d2838f5bb4b.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 136530,
+        "priceToCharge": 126291,
+        "agencyBasePrice": 126290,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 136530,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 126291,
+        "provision": 75000,
+        "listPrice": 136530,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-hyundai-elantra-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": false,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/0c/e1/0ce1f45b3e49e6dd79ba08bfe2bf2104.png",
+        "id": 4,
+        "name": "Air"
+      },
+      "listingId": "56aaf6d2-13e6-4507-8534-c95f8a51830d",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4447900"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 592,
+        "address": {
+          "city": "İstanbul",
+          "line": "",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "tuesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "friday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "wednesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "thursday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "sunday": {
+            "close": "00:00",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "00:00",
+            "open": "00:00"
+          }
+        },
+        "email": "info@airrentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1750,
+        "driverAge": 22,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "C Elysee",
+        "bigBagCount": 4,
+        "smallBagCount": 0,
+        "transmission": "manual",
+        "brand": {
+          "name": "Citroen"
+        },
+        "class": "economic",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/86/b1/86b16e51a9d0681d5434611bce5efdb4.png",
+          "large": "https://static.yolcu360.com/thumbnails/ff/8b/ff8b868f4c83b09fb2ff1aa0f7513f6d.png",
+          "medium": "https://static.yolcu360.com/thumbnails/7b/0e/7b0e571344e78b4f9da6f9279f7d5772.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 139500,
+        "priceToCharge": 129038,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 199260,
+        "finalPrice": 139500,
+        "agencyCommission": 1,
+        "agencyBasePrice": 129037,
+        "discount": 59760,
+        "deliveryFee": 0,
+        "promotionalDiscount": 0,
+        "agencyPrice": 129038,
+        "provision": 40000,
+        "listPrice": 139500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-citroen-c-elysee-air",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4447900"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 592,
+        "address": {
+          "city": "İstanbul",
+          "line": "",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "tuesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "friday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "wednesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "thursday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "sunday": {
+            "close": "00:00",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "00:00",
+            "open": "00:00"
+          }
+        },
+        "email": "info@airrentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "1593e8f8-a692-4fcd-94e5-3a3962bc3262",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 4
+      },
+      "car": {
+        "name": "Passat",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Volkswagen"
+        },
+        "class": "premium",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/ab/7d/ab7d1e3a6196e0e9d1d8d8c626928328.png",
+          "large": "https://static.yolcu360.com/thumbnails/ee/e5/eee5c959dea5896d3b223d24bd4a7b7c.png",
+          "medium": "https://static.yolcu360.com/thumbnails/9b/4f/9b4f5026e74a93be0a1fc534cfb97245.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 160000,
+        "priceToCharge": 148001,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 213325,
+        "finalPrice": 160000,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 53325,
+        "agencyPrice": 148001,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 148000,
+        "provision": 300000,
+        "listPrice": 160000,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-volkswagen-passat-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "8810b77b-eb25-4dac-bacb-b70c0b3e8b83",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 25,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Elantra",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Hyundai"
+        },
+        "class": "comfort",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/6f/2a/6f2a4fe78ed0e6f75835abf01cace360.png",
+          "large": "https://static.yolcu360.com/thumbnails/c1/5f/c15f1cd27a4af8c22a03d4a8e27ac002.png",
+          "medium": "https://static.yolcu360.com/thumbnails/46/78/4678555f0b1ee15150061d2838f5bb4b.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 161900,
+        "priceToCharge": 149758,
+        "agencyBasePrice": 149757,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 161900,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 149758,
+        "provision": 75000,
+        "listPrice": 161900,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-hyundai-elantra-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "e2ca7450-0d74-41bf-8ad0-1f466f840282",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 25,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Duster 4x2",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "manual",
+        "brand": {
+          "name": "Dacia"
+        },
+        "class": "suv",
+        "seats": 5,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/83/bd/83bd9315d6e439ef389d4e93be9d8da7.png",
+          "large": "https://static.yolcu360.com/thumbnails/58/af/58af5d46c1e51e1a2cd3fa3b83b4dd1e.png",
+          "medium": "https://static.yolcu360.com/thumbnails/e6/3c/e63c8fa5be67f7b791d55efb062804e3.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 162730,
+        "priceToCharge": 150526,
+        "agencyBasePrice": 150525,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 162730,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 150526,
+        "provision": 75000,
+        "listPrice": 162730,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-dacia-duster-4x2-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": false,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/0c/e1/0ce1f45b3e49e6dd79ba08bfe2bf2104.png",
+        "id": 4,
+        "name": "Air"
+      },
+      "listingId": "e9162733-5a22-4fad-b3af-ed448bf9af0d",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4447900"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 592,
+        "address": {
+          "city": "İstanbul",
+          "line": "",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "tuesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "friday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "wednesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "thursday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "sunday": {
+            "close": "00:00",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "00:00",
+            "open": "00:00"
+          }
+        },
+        "email": "info@airrentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1750,
+        "driverAge": 22,
+        "doubleCreditCard": false,
+        "licenseYears": 2
+      },
+      "car": {
+        "name": "208",
+        "bigBagCount": 1,
+        "smallBagCount": 2,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Peugeot"
+        },
+        "class": "economic",
+        "seats": 4,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/7e/dc/7edc123507f1bf8a51712b6aaf1cddf0.png",
+          "large": "https://static.yolcu360.com/thumbnails/45/1d/451d4a6e8dc7792c63592d5a937ab280.png",
+          "medium": "https://static.yolcu360.com/thumbnails/16/e1/16e1fc2ea3c1ebd4bbd24b53b9726dd7.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 164500,
+        "priceToCharge": 152163,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 274140,
+        "finalPrice": 164500,
+        "agencyCommission": 1,
+        "agencyBasePrice": 152162,
+        "discount": 109640,
+        "deliveryFee": 0,
+        "promotionalDiscount": 0,
+        "agencyPrice": 152163,
+        "provision": 50000,
+        "listPrice": 164500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-peugeot-208-air",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4447900"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 592,
+        "address": {
+          "city": "İstanbul",
+          "line": "",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "tuesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "friday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "wednesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "thursday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "sunday": {
+            "close": "00:00",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "00:00",
+            "open": "00:00"
+          }
+        },
+        "email": "info@airrentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "fee9533a-0eff-4e4c-bf6c-8213326c2ecb",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1500,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 5
+      },
+      "car": {
+        "name": "Juke",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Nissan"
+        },
+        "class": "intermediate",
+        "seats": 5,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/56/b8/56b804948c913b6400890ab64fc6614a.png",
+          "large": "https://static.yolcu360.com/thumbnails/61/ea/61eaafb1484910d51e7aa601955331b1.png",
+          "medium": "https://static.yolcu360.com/thumbnails/c6/44/c6449b08c70f62adc3b9414fd2b13058.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 176475,
+        "priceToCharge": 163240,
+        "agencyBasePrice": 163239,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 176475,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 163240,
+        "provision": 125000,
+        "listPrice": 176475,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-nissan-juke-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/02/7b/027bf4cd06df5d6a90211a85214ae70a.png",
+        "id": 81,
+        "name": "Cizgi"
+      },
+      "listingId": "6c824044-cd2d-4aaa-8f72-d97bebb82e26",
+      "office": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 4
+      },
+      "car": {
+        "name": "3008",
+        "bigBagCount": 1,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Peugeot"
+        },
+        "class": "suv",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/5e/c2/5ec2794737ecab301ee88ee11765bad3.png",
+          "large": "https://static.yolcu360.com/thumbnails/56/de/56de8d92f02e7f9c17c59854c615f66b.png",
+          "medium": "https://static.yolcu360.com/thumbnails/c0/c9/c0c9a5f1598dd1f2fb5af858f2b98dcb.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 178500,
+        "priceToCharge": 165113,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 255000,
+        "finalPrice": 178500,
+        "agencyCommission": 1,
+        "oneWayPrice": 0,
+        "discount": 76500,
+        "agencyPrice": 165113,
+        "promotionalDiscount": 0,
+        "agencyBasePrice": 165112,
+        "provision": 300000,
+        "listPrice": 178500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-peugeot-3008-cizgi",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "number": "8504331183"
+          }
+        ],
+        "deliveryType": "inTerminalOffice",
+        "id": 1814,
+        "address": {
+          "city": "İstanbul",
+          "line": "Airport- DIŞ HATLAR",
+          "country": "Turkey"
+        },
+        "openingHours": {},
+        "email": "airport@cizgirentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "5dc9fe88-d7e3-4838-8a53-c05e9f828cd4",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 2000,
+        "driverAge": 25,
+        "doubleCreditCard": false,
+        "licenseYears": 3
+      },
+      "car": {
+        "name": "Lodgy",
+        "bigBagCount": 2,
+        "smallBagCount": 2,
+        "transmission": "manual",
+        "brand": {
+          "name": "Dacia"
+        },
+        "class": "intermediate",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/94/51/9451c36553bda9cadf7de4ed4c82cbf6.png",
+          "large": "https://static.yolcu360.com/thumbnails/39/41/3941454f59380bab0ec6201341995d26.png",
+          "medium": "https://static.yolcu360.com/thumbnails/e5/80/e580ca23a8b5320899dcc932205e0f1d.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 182965,
+        "priceToCharge": 169243,
+        "agencyBasePrice": 169242,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 182965,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 169243,
+        "provision": 75000,
+        "listPrice": 182965,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-dacia-lodgy-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "7afd6896-04b2-4648-aad6-552ee543d641",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1500,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 5
+      },
+      "car": {
+        "name": "Tourneo",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "manual",
+        "brand": {
+          "name": "Ford"
+        },
+        "class": "economic",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/47/e8/47e813cbc2d1ca089aec77ff981e8c85.png",
+          "large": "https://static.yolcu360.com/thumbnails/c8/21/c821bcdc6f752b060bc515311563e074.png",
+          "medium": "https://static.yolcu360.com/thumbnails/18/f9/18f9f1d0f4183b448db75e1ccb1fe646.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 183405,
+        "priceToCharge": 169650,
+        "agencyBasePrice": 169649,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 183405,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 169650,
+        "provision": 200000,
+        "listPrice": 183405,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-ford-tourneo-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "c49f17ce-ed28-46aa-8cc7-178d5b0cbe60",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1500,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 5
+      },
+      "car": {
+        "name": "Qashqai",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Nissan"
+        },
+        "class": "suv",
+        "seats": 5,
+        "fuel": "gas",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/f5/67/f56763e213c4e4d1a277b9c13a048661.png",
+          "large": "https://static.yolcu360.com/thumbnails/95/44/9544e79fd111aaf83c446d997527906c.png",
+          "medium": "https://static.yolcu360.com/thumbnails/2c/8a/2c8a61a1635d3756a08e122ceed80ccb.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 188825,
+        "priceToCharge": 174664,
+        "agencyBasePrice": 174663,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 188825,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 174664,
+        "provision": 125000,
+        "listPrice": 188825,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-nissan-qashqai-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "9610ab8d-b05c-4f29-97e1-f48fdeb0863c",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1500,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 5
+      },
+      "car": {
+        "name": "Qashqai",
+        "bigBagCount": 2,
+        "smallBagCount": 1,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Nissan"
+        },
+        "class": "suv",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/f5/67/f56763e213c4e4d1a277b9c13a048661.png",
+          "large": "https://static.yolcu360.com/thumbnails/95/44/9544e79fd111aaf83c446d997527906c.png",
+          "medium": "https://static.yolcu360.com/thumbnails/2c/8a/2c8a61a1635d3756a08e122ceed80ccb.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 209595,
+        "priceToCharge": 193876,
+        "agencyBasePrice": 193875,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 209595,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 193876,
+        "provision": 125000,
+        "listPrice": 209595,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-nissan-qashqai-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": false,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/0c/e1/0ce1f45b3e49e6dd79ba08bfe2bf2104.png",
+        "id": 4,
+        "name": "Air"
+      },
+      "listingId": "9581e279-54f9-469a-9f88-ae5551f736c8",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4447900"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 592,
+        "address": {
+          "city": "İstanbul",
+          "line": "",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "tuesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "friday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "wednesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "thursday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "sunday": {
+            "close": "00:00",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "00:00",
+            "open": "00:00"
+          }
+        },
+        "email": "info@airrentacar.com.tr"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1750,
+        "driverAge": 25,
+        "doubleCreditCard": false,
+        "licenseYears": 4
+      },
+      "car": {
+        "name": "2008",
+        "bigBagCount": 2,
+        "smallBagCount": 2,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Peugeot"
+        },
+        "class": "luxury",
+        "seats": 5,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/96/13/9613bb1695a895cd06dbd236a439f9a7.png",
+          "large": "https://static.yolcu360.com/thumbnails/d5/94/d594b91c4df2b2009002259005452173.png",
+          "medium": "https://static.yolcu360.com/thumbnails/87/bb/87bb9b1c2297f7890a69af41e772145c.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 219500,
+        "priceToCharge": 203038,
+        "agencyRequestedCommissionType": 1,
+        "rentalPriceDueAtPickup": 0,
+        "preDiscountPrice": 365820,
+        "finalPrice": 219500,
+        "agencyCommission": 1,
+        "agencyBasePrice": 203037,
+        "discount": 146320,
+        "deliveryFee": 0,
+        "promotionalDiscount": 0,
+        "agencyPrice": 203038,
+        "provision": 60000,
+        "listPrice": 219500,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-peugeot-2008-air",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "number": "4447900"
+          }
+        ],
+        "deliveryType": "meetAndGreet",
+        "id": 592,
+        "address": {
+          "city": "İstanbul",
+          "line": "",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "tuesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "friday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "wednesday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "thursday": {
+            "close": "17:00",
+            "open": "08:00"
+          },
+          "sunday": {
+            "close": "00:00",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "00:00",
+            "open": "00:00"
+          }
+        },
+        "email": "info@airrentacar.com.tr"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "b03aaf00-a8d6-402c-bb45-9f04fb7b87ab",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1500,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 5
+      },
+      "car": {
+        "name": "Passat",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Volkswagen"
+        },
+        "class": "premium",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/ab/7d/ab7d1e3a6196e0e9d1d8d8c626928328.png",
+          "large": "https://static.yolcu360.com/thumbnails/ee/e5/eee5c959dea5896d3b223d24bd4a7b7c.png",
+          "medium": "https://static.yolcu360.com/thumbnails/9b/4f/9b4f5026e74a93be0a1fc534cfb97245.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 234745,
+        "priceToCharge": 217140,
+        "agencyBasePrice": 217139,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 234745,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 217140,
+        "provision": 400000,
+        "listPrice": 234745,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-volkswagen-passat-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    },
+    {
+      "rentalPeriod": {
+        "count": 5,
+        "unit": "day"
+      },
+      "totalDays": 5,
+      "vendor": {
+        "supportsFullCredit": true,
+        "logoUrl": "https://static.yolcu360.com/thumbnails/aa/1a/aa1a8137e53623569f5da5e71bcc0315.png",
+        "id": 16,
+        "name": "Windycar"
+      },
+      "listingId": "bb0b352b-e452-44db-b235-2d9494172ae3",
+      "office": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "rules": {
+        "dailyRangeLimit": 0,
+        "totalRangeLimit": 1500,
+        "driverAge": 27,
+        "doubleCreditCard": false,
+        "licenseYears": 5
+      },
+      "car": {
+        "name": "Passat",
+        "bigBagCount": 2,
+        "smallBagCount": 0,
+        "transmission": "automatic",
+        "brand": {
+          "name": "Volkswagen"
+        },
+        "class": "premium",
+        "seats": 4,
+        "fuel": "diesel",
+        "image": {
+          "small": "https://static.yolcu360.com/thumbnails/ab/7d/ab7d1e3a6196e0e9d1d8d8c626928328.png",
+          "large": "https://static.yolcu360.com/thumbnails/ee/e5/eee5c959dea5896d3b223d24bd4a7b7c.png",
+          "medium": "https://static.yolcu360.com/thumbnails/9b/4f/9b4f5026e74a93be0a1fc534cfb97245.png"
+        }
+      },
+      "currency": "TRY",
+      "pricing": {
+        "totalPrice": 239450,
+        "priceToCharge": 221492,
+        "agencyBasePrice": 221491,
+        "rentalPriceDueAtPickup": 0,
+        "finalPrice": 239450,
+        "agencyCommission": 1,
+        "agencyRequestedCommissionType": 1,
+        "promotionalDiscount": 0,
+        "agencyPrice": 221492,
+        "provision": 400000,
+        "listPrice": 239450,
+        "agencyRequestedCommissionAmount": 1
+      },
+      "trackingId": "cr-istanbul-sabiha-gokcen-airport-volkswagen-passat-windycar",
+      "appointment": {
+        "dropoffLocationSlug": "istanbul-sabiha-gokcen-havalimani",
+        "dropoffDatetime": "2022-02-15T10:00:00+00:00",
+        "dropoffLocationId": 30,
+        "pickupLocationId": 30,
+        "pickupDatetime": "2022-02-10T10:00:00+00:00",
+        "pickupLocationSlug": "istanbul-sabiha-gokcen-havalimani"
+      },
+      "dropoffLocation": {
+        "phones": [
+          {
+            "country": "TR",
+            "dialCode": 90,
+            "number": "5079471475"
+          }
+        ],
+        "deliveryType": "nonTerminalMeetAndGreet",
+        "id": 1692,
+        "address": {
+          "city": "İstanbul",
+          "line": "Kurtköy Harmandere Mah.Yeni Ankara cad. No:172  Pendik / İSTANBUL",
+          "country": "TR"
+        },
+        "openingHours": {
+          "monday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "tuesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "friday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "wednesday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "thursday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "sunday": {
+            "close": "23:59",
+            "open": "00:00"
+          },
+          "saturday": {
+            "close": "23:59",
+            "open": "00:00"
+          }
+        },
+        "email": "test1212@yolcu360.com"
+      },
+      "insurance": {
+        "includedInsuranceType": "basicDamage"
+      }
+    }
+  ],
+  "categoryId": "istanbul-sabiha-gokcen-airport"
+}

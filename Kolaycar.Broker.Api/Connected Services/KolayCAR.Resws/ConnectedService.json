@@ -1,0 +1,18 @@
+﻿{
+  "ProviderId": "Microsoft.VisualStudio.ConnectedService.Wcf",
+  "Version": "15.0.40203.910",
+  "ExtendedData": {
+    "inputs": [
+      "https://resws.kolaycar.com/service.asmx?WSDL"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, KolayCAR.Resws"
+    ], //"targetFramework": "netcoreapp3.0",
+    "targetFramework": "net10.0",
+    "typeReuseMode": "None"
+  }
+}

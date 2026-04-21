@@ -1,0 +1,175 @@
+{
+  "vehicles": [
+    {
+      "Groups": "A",
+      "SIPP": "MBMR",
+      "comments": ""
+    },
+    {
+      "Groups": "A1",
+      "SIPP": "MCMR",
+      "comments": ""
+    },
+    {
+      "Groups": "B",
+      "SIPP": "EDMR",
+      "comments": ""
+    },
+    {
+      "Groups": "BE",
+      "SIPP": "EXAE",
+      "comments": ""
+    },
+    {
+      "Groups": "B2",
+      "SIPP": "EDAH",
+      "comments": "Guaranteed Hybrid"
+    },
+    {
+      "Groups": "C",
+      "SIPP": "CDMR",
+      "comments": ""
+    },
+    {
+      "Groups": "E",
+      "SIPP": "CDMD",
+      "comments": ""
+    },
+    {
+      "Groups": "E1",
+      "SIPP": "CVMR",
+      "comments": ""
+    },
+    {
+      "Groups": "E2",
+      "SIPP": "CFMR",
+      "comments": ""
+    },
+    {
+      "Groups": "E3",
+      "SIPP": "CFAR",
+      "comments": ""
+    },
+    {
+      "Groups": "C1",
+      "SIPP": "CXMR",
+      "comments": "Guaranteed Model"
+    },
+    {
+      "Groups": "D2",
+      "SIPP": "EDAR",
+      "comments": ""
+    },
+    {
+      "Groups": "F1",
+      "SIPP": "CDAR",
+      "comments": ""
+    },
+    {
+      "Groups": "F2",
+      "SIPP": "CWMR",
+      "comments": ""
+    },
+    {
+      "Groups": "F4",
+      "SIPP": "IFMR",
+      "comments": ""
+    },
+    {
+      "Groups": "F4A",
+      "SIPP": "IFAR",
+      "comments": ""
+    },
+    {
+      "Groups": "F6",
+      "SIPP": "IVMR",
+      "comments": "5+2 seats"
+    },
+    {
+      "Groups": "F7",
+      "SIPP": "IVMD",
+      "comments": "5+2 seats"
+    },
+    {
+      "Groups": "G1",
+      "SIPP": "IDMR",
+      "comments": ""
+    },
+    {
+      "Groups": "G2",
+      "SIPP": "IDAR",
+      "comments": ""
+    },
+    {
+      "Groups": "G3",
+      "SIPP": "CTMR",
+      "comments": ""
+    },
+    {
+      "Groups": "G4",
+      "SIPP": "CDAH",
+      "comments": "Guaranteed Hybrid"
+    },
+    {
+      "Groups": "J",
+      "SIPP": "FFAD",
+      "comments": "Guaranteed Model"
+    },
+    {
+      "Groups": "P1",
+      "SIPP": "IVAR",
+      "comments": ""
+    },
+    {
+      "Groups": "P2",
+      "SIPP": "NTMR",
+      "comments": "Guaranteed Model"
+    },
+    {
+      "Groups": "H",
+      "SIPP": "FVMR",
+      "comments": "7 seats"
+    },
+    {
+      "Groups": "I",
+      "SIPP": "SVMR",
+      "comments": "9 seats"
+    },
+    {
+      "Groups": "CE",
+      "SIPP": "CXAE",
+      "Comments": ""
+    },
+    {
+      "Groups": "E2E",
+      "SIPP": "CFAE",
+      "Comments": ""
+    },
+
+    {
+      "Groups": "C2",
+      "SIPP": "CXAR",
+      "Comments": "Guaranteed Model"
+    },
+    {
+      "Groups": "S2",
+      "SIPP": "DDMR",
+      "Comments": ""
+    },
+    {
+      "Groups": "S2A",
+      "SIPP": "DDAR",
+      "Comments": ""
+    },
+    {
+      "Groups": "S3",
+      "SIPP": "JDMR",
+      "Comments": ""
+    },
+    {
+      "Groups": "S3A",
+      "SIPP": "JDAR",
+      "Comments": ""
+    }
+  ]
+}

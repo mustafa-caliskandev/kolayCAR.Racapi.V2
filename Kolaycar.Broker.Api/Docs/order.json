@@ -1,0 +1,336 @@
+{
+    "billing": {
+        "adm1": "Istanbul",
+        "adm2": null,
+        "adm3": null,
+        "countryCode": "TR",
+        "countryName": "Türkiye",
+        "email": "",
+        "firstName": "Öznet Otomotiv Turizm San ve Tic Ltd Sti",
+        "id": 1395376,
+        "label": "Yolcu360Pro",
+        "language": "en",
+        "lastName": null,
+        "line": "Yeni Sehir Mah Osmanli Bulvari - A Blok 12/A Pendik -Ist",
+        "phone": "",
+        "registeredAddressID": 2847,
+        "taxDivision": "Pendik",
+        "taxIdentifier": "7030273650",
+        "type": "corporateCompany",
+        "zipCode": "34000"
+    },
+    "createdAt": "2025-11-22T07:28:34.323Z",
+    "id": "YLP_8387631",
+    "language": "en",
+    "passenger": {
+        "birthDate": "1991-01-01",
+        "email": "info@netrentacar.de",
+        "firstName": "oguzhan",
+        "identityNumber": null,
+        "lastName": "test",
+        "nationality": "TR",
+        "passportNo": "FES1B10B",
+        "phone": "49171254811212"
+    },
+    "paymentCurrency": "TRY",
+    "paymentType": "limit",
+    "updatedAt": "2025-11-22T07:28:34.323Z",
+    "orderedCarProduct": {
+        "id": 4158361,
+        "createdAt": "2025-11-22T07:28:34.639Z",
+        "updatedAt": "2025-11-22T07:28:34.651Z",
+        "orderID": "YLP_8387631",
+        "paymentID": 1840384,
+        "quantity": 1,
+        "status": "pending",
+        "vendorCancelled": false,
+        "vendorReservationID": null,
+        "car": {
+            "code": "eyJ0IjoiY2FyIiwiY3IiOnsidiI6NDQsImIiOjYzLCJtIjozNzQsImMiOjEsImYiOjIsInQiOjEsInNjIjo1LCJhZmMiOnRydWV9fQ",
+            "integrationCode": "eyJzdXBwbGllcklEIjowLCJob29rTmFtZSI6IndpbmR5IiwicGlja3VwRGF0ZSI6IjIwMjUtMTItMDhUMTI6MDA6MDArMDM6MDAiLCJwaWNrdXBMb2NhdGlvbkxhYmVsIjoiMjY1IiwiZHJvcE9mZkRhdGUiOiIyMDI1LTEyLTE1VDEyOjAwOjAwKzAzOjAwIiwiZHJvcG9mZkxvY2F0aW9uTGFiZWwiOiIyNjUiLCJzdXBwbGllckxhYmVsIjoiODAwIiwiY2FyTGFiZWwiOiI2IiwiZGF5Q291bnQiOjAsImxhbmd1YWdlIjoiIiwiZXh0cmFzIjp7IlRvdGFsUHJpY2UiOjc4NTMuM319",
+            "searchID": "eyJ0IjoiY2FyIiwiZCI6eyJjIjp7InAiOiJkYWlseSIsImNpbyI6MTA5MTQsImNvbyI6MTA5MTQsImNpRHQiOiIyMDI1LTEyLTA4VDEyOjAwOjAwKzAzOjAwIiwiY29EdCI6IjIwMjUtMTItMTVUMTI6MDA6MDArMDM6MDAiLCJjaWwiOnsibGF0Ijo0MC44OTQ0NzQsImxvbiI6MjkuMzEzMDkxfSwiY29sIjp7ImxhdCI6NDAuODk0NDc0LCJsb24iOjI5LjMxMzA5MX0sImwiOiJlbiIsImRjIjoiVFJZIiwicGMiOiJUUlkiLCJwdCI6ImxpbWl0IiwibyI6NzQ5MiwiY28iOnsidCI6InBlcmNlbnRhZ2UifSwiYSI6IjMwLTY1IiwiY291IjoiVFIiLCJjaCI6IkdvLWh0dHAtY2xpZW50LzEuMSIsImNpcCI6IjEwLjUwLjE1OS4xNDUiLCJ2IjoidjMifX19",
+            "applicableForFullCredit": true,
+            "applicableForLimitCredit": false,
+            "appointment": {
+                "checkInDateTime": "2025-12-08T12:00:00.000+03:00",
+                "checkInOffice": {
+                    "address": {
+                        "adm1": "İstanbul",
+                        "adm2": "Sabiha Gökçen Havalimanı",
+                        "country": "TR",
+                        "street": "Sabiha Gökçen Havalimanı, Gelen Yolcu Katı, Pendik - İstanbul"
+                    },
+                    "coordinates": {
+                        "lat": 40.90852,
+                        "lon": 29.31643
+                    },
+                    "deliveryType": {
+                        "id": 5,
+                        "name": "Airport office"
+                    },
+                    "email": "saw@windycar.com.tr, apt@windycar.com.tr, dontreply@windycar.com.tr",
+                    "iataCode": "SAW",
+                    "id": 10914,
+                    "openingHours": [
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 3,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 4,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 6,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 7,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 1,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 2,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 5,
+                            "open": "00:00"
+                        }
+                    ],
+                    "phones": [
+                        "+90 507 947 14 75"
+                    ],
+                    "rating": {
+                        "participants": 590,
+                        "point": 4.2276835
+                    }
+                },
+                "checkOutDateTime": "2025-12-15T12:00:00.000+03:00",
+                "checkOutOffice": {
+                    "address": {
+                        "adm1": "İstanbul",
+                        "adm2": "Sabiha Gökçen Havalimanı",
+                        "country": "TR",
+                        "street": "Sabiha Gökçen Havalimanı, Gelen Yolcu Katı, Pendik - İstanbul"
+                    },
+                    "coordinates": {
+                        "lat": 40.90852,
+                        "lon": 29.31643
+                    },
+                    "deliveryType": {
+                        "id": 5,
+                        "name": "Airport office"
+                    },
+                    "email": "saw@windycar.com.tr, apt@windycar.com.tr, dontreply@windycar.com.tr",
+                    "iataCode": "SAW",
+                    "id": 10914,
+                    "openingHours": [
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 3,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 4,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 6,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 7,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 1,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 2,
+                            "open": "00:00"
+                        },
+                        {
+                            "close": "23:59",
+                            "dayOfWeek": 5,
+                            "open": "00:00"
+                        }
+                    ],
+                    "phones": [
+                        "+90 507 947 14 75"
+                    ],
+                    "rating": {
+                        "participants": 590,
+                        "point": 4.2276835
+                    }
+                }
+            },
+            "brand": {
+                "id": 63,
+                "name": "Fiat"
+            },
+            "carRuleInformation": null,
+            "class": {
+                "id": 1,
+                "name": "Economy"
+            },
+            "customClassName": "economy",
+            "fuel": {
+                "id": 2,
+                "name": "Diesel"
+            },
+            "images": [
+                {
+                    "size": "mobile",
+                    "url": "https://integration-static.yolcu360.com/vehicle/25675a74-37e4-4450-8d2d-26c605475e0d.png"
+                },
+                {
+                    "size": "tablet",
+                    "url": "https://integration-static.yolcu360.com/vehicle/d7d0ffea-c6bd-4ae5-860f-b0f0e577562e.png"
+                },
+                {
+                    "size": "desktop",
+                    "url": "https://integration-static.yolcu360.com/vehicle/a477e3bd-0a22-4c8e-ad85-4ad3616fe653.png"
+                },
+                {
+                    "size": "prime",
+                    "url": "https://integration-static.yolcu360.com/vehicle/b2fe8a8c-6f43-4d19-9426-8c8d2f5a84ab.png"
+                }
+            ],
+            "imageURL": "https://integration-static.yolcu360.com/vehicle/b2fe8a8c-6f43-4d19-9426-8c8d2f5a84ab.png",
+            "model": {
+                "id": 374,
+                "name": "Egea"
+            },
+            "rentalConditions": {
+                "termsConditionPDF": "https://integration-static.yolcu360.com/rental_condition/9db4624c-a952-471e-af62-20d4bf566b4a.pdf"
+            },
+            "rules": [
+                {
+                    "name": "deposit",
+                    "type": "deposit",
+                    "deposit": {
+                        "amount": 300000,
+                        "currency": "TRY"
+                    }
+                },
+                {
+                    "name": "rangeLimit",
+                    "type": "rangeLimit",
+                    "rangeLimit": {
+                        "amount": 3500,
+                        "period": "total",
+                        "unit": "km",
+                        "unlimited": false
+                    }
+                },
+                {
+                    "name": "minDriverAge",
+                    "type": "minDriverAge",
+                    "minDriverAge": 23
+                },
+                {
+                    "name": "minLicenseYear",
+                    "type": "minLicenseYear",
+                    "minLicenseYear": 2
+                }
+            ],
+            "seatCount": 5,
+            "segment": {
+                "id": 7,
+                "name": "C"
+            },
+            "sippCode": "IDMD",
+            "transmission": {
+                "id": 1,
+                "name": "Manual"
+            },
+            "vendor": {
+                "displayName": "Windycar",
+                "id": 44,
+                "logo": {
+                    "url": "https://integration-static.yolcu360.com/supplier/cee9863c-c018-4046-8cf8-6d00c0078943.png"
+                },
+                "name": "Windy",
+                "information": {
+                    "contactEmail": "operasyon@windycar.com.tr",
+                    "contactPhone": "0 216 388 44 88",
+                    "contactAddress": "Hunko Plaza, Doğuşkent Cd, No:3 Maltepe İstanbul",
+                    "mernisNo": "0464033624400017"
+                }
+            },
+            "rentalDurationInDays": 7,
+            "pricing": {
+                "commission": {
+                    "amount": 0,
+                    "currency": "TRY"
+                },
+                "net": {
+                    "amount": 654442,
+                    "currency": "TRY"
+                },
+                "fee": {
+                    "amount": 654442,
+                    "currency": "TRY"
+                },
+                "paymentTotal": {
+                    "amount": 785330,
+                    "currency": "TRY"
+                },
+                "preCommissionFee": {
+                    "amount": 654442,
+                    "currency": "TRY"
+                },
+                "preDiscountTotal": {
+                    "amount": 785330,
+                    "currency": "TRY"
+                },
+                "total": {
+                    "amount": 785330,
+                    "currency": "TRY"
+                },
+                "vendorTotal": {
+                    "amount": 0,
+                    "currency": "TRY"
+                },
+                "prices": [
+                    {
+                        "amount": {
+                            "amount": 654442,
+                            "currency": "TRY"
+                        },
+                        "charge": "advance",
+                        "description": "Car Rental Service",
+                        "type": "net"
+                    },
+                    {
+                        "amount": {
+                            "amount": 130888,
+                            "currency": "TRY"
+                        },
+                        "charge": "advance",
+                        "description": "Vergi",
+                        "type": "tax"
+                    }
+                ]
+            },
+            "isFindeksRequired": false
+        }
+    }
+}

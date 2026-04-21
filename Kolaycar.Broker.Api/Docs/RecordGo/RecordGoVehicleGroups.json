@@ -1,0 +1,307 @@
+{
+  "VehicleGroupsList": [
+    {
+      "CountryCode": "IT",
+      "VehicleGroups": [
+        {
+          "Acriss": "MBMR",
+          "GroupID": "B",
+          "Doors": 3,
+          "Passengers": 4,
+          "DisplayModel": "Fiat Panda",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "EDMR",
+          "GroupID": "C1",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Citroën C3",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CDMR",
+          "GroupID": "D",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "DR4",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CDAR",
+          "GroupID": "D2",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Ford Fiesta",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IGMR",
+          "GroupID": "E2",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Nissan Qashqai",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IGAH",
+          "GroupID": "H5",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Alfa Romeo Tonale",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IXAH",
+          "GroupID": "H6",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Jeep Compass",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "SVMR",
+          "GroupID": "Q1",
+          "Doors": 5,
+          "Passengers": 9,
+          "DisplayModel": "Nissan Primastar",
+          "Guaranteed Model": "Yes"
+        }
+      ]
+    },
+    {
+      "CountryCode": "GR",
+      "VehicleGroups": [
+        {
+          "Acriss": "MBMR",
+          "GroupID": "B",
+          "Doors": 3,
+          "Passengers": 4,
+          "DisplayModel": "Toyota Aygo",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "EDMR",
+          "GroupID": "C1",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Opel Corsa",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "EDAR",
+          "GroupID": "C2",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Volkswagen Polo",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "MTMR",
+          "GroupID": "CA",
+          "Doors": 3,
+          "Passengers": 4,
+          "DisplayModel": "Fiat 500 Cabrio",
+          "Guaranteed Model": "Yes"
+        },
+        {
+          "Acriss": "CDMR",
+          "GroupID": "D",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Citroën C4",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CGAR",
+          "GroupID": "D3",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Fiat 500X",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "ISMR",
+          "GroupID": "D4",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Audi Q2",
+          "Guaranteed Model": "Yes"
+        },
+        {
+          "Acriss": "CWMR",
+          "GroupID": "E",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Toyoto Corolla Sedan",
+          "Guaranteed Model": "Yes"
+        },
+        {
+          "Acriss": "IGMR",
+          "GroupID": "E2",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Nissan Qashqai",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CDAH",
+          "GroupID": "H",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Toyota C-HR",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IGAH",
+          "GroupID": "H5",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Toyota Corolla Cross",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IXAH",
+          "GroupID": "H6",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Toyota RAV4",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "PTAR",
+          "GroupID": "V",
+          "Doors": 3,
+          "Passengers": 4,
+          "DisplayModel": "Mini Cooper Cabrio",
+          "Guaranteed Model": "Yes"
+        }
+      ]
+    },
+    {
+      "CountryCode": "ES",
+      "VehicleGroups": [
+        {
+          "Acriss": "MDMR",
+          "GroupID": "B0",
+          "Doors": 5,
+          "Passengers": 4,
+          "DisplayModel": "Hyundai i10",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "MBMR",
+          "GroupID": "B",
+          "Doors": 3,
+          "Passengers": 4,
+          "DisplayModel": "Fiat 500 Hybrid",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "MDMH",
+          "GroupID": "BH",
+          "Doors": 5,
+          "Passengers": 4,
+          "DisplayModel": "Fiat Panda Hybrid",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "MTMR",
+          "GroupID": "CA",
+          "Doors": 3,
+          "Passengers": 4,
+          "DisplayModel": "Fiat 500C",
+          "Guaranteed Model": "Yes"
+        },
+        {
+          "Acriss": "ECMR",
+          "GroupID": "C0",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Ford Fiesta",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "EDMR",
+          "GroupID": "C1",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Citroën C3",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CDMR",
+          "GroupID": "D",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "DR4",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CFAR",
+          "GroupID": "D0",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "MG ZS",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CGAR",
+          "GroupID": "D3",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Citroën C4",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "ISAR",
+          "GroupID": "D5",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "BMW Serie 1",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CGAH",
+          "GroupID": "D6",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Kia Niro",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "CWMR",
+          "GroupID": "E",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Volkwagen Golf Variant",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IFMR",
+          "GroupID": "E0",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "SWM G01",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IGMR",
+          "GroupID": "E2",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Kia Sportage",
+          "Guaranteed Model": false
+        },
+        {
+          "Acriss": "IXAH",
+          "GroupID": "H6",
+          "Doors": 5,
+          "Passengers": 5,
+          "DisplayModel": "Ford Kuga PHEV",
+          "Guaranteed Model": false
+        }
+      ]
+    }
+  ]
+}

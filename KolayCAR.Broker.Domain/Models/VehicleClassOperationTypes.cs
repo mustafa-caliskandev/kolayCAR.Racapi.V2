@@ -1,0 +1,29 @@
+﻿namespace KolayCAR.Broker.Domain.Models
+{
+    public enum VehicleClassOperationTypes
+    {
+        AddNewVehicleClass,
+        UpdateVehicleClass,
+        GetVehicleTypes,
+        GetVehicleBrands,
+        GetVehicleModels,
+        GetVehicleSeries,
+        GetVehicleCategories,
+        GetVehiclePersons,
+        GetVehicleBaggages,
+        GetVehicleTransmissions,
+        GetVehicleFuels,
+        GetVehicleClassDetails,
+        GetVehicleClassList,
+        AddNewMappedVehicleClassList,
+        GetMappedVehicleClassList,
+        UpdateVehicleClassMapDatas,
+        DeleteVehicleClassMapDatas,
+        GetMappedVehicleClassListForBrokerAPI,
+        AddNewPopularVehicle,
+        DeletePopularVehicle,
+        GetPopularVehiclesByVendorId,
+        GetPopularVehicles,
+        GetAdditionalProductToShowInVehicleList
+    }
+}
