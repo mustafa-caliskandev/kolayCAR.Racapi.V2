@@ -10,6 +10,7 @@ using KolayCAR.Broker.Infrastructure.Managers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Kolaycar.Broker.Api.Providers.Eren
@@ -68,6 +69,8 @@ namespace Kolaycar.Broker.Api.Providers.Eren
                 IdNumber = postReservationRequest.CustomerPersonalNumber,
                 PassportNumber = postReservationRequest.CustomerPersonalNumber, // Usually one or the other
                 Comment = postReservationRequest.CustomerNote,
+                CollectedPrice = postReservationRequest.PostReservationRequestV2.Payment.PaymentType == PaymentTypes.PayOnDelivery ? 0 : Math.Round(reservationToken.APIDailyPrice * reservationToken.RentalDuration, 3),
+                CollectedExtras = postReservationRequest.PostReservationRequestV2.Payment.ExtraPricePayToDelivery ? 0 : postReservationRequest.PostReservationRequestV2.Extras.Sum(e => e.ApiPrice),
                 Extras = extras.Count > 0 ? extras : null
             };
 

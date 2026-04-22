@@ -41,6 +41,12 @@ namespace KolayCAR.Broker.Domain.Models.Requests.Eren
         [JsonProperty("comment")]
         public string Comment { get; set; }
 
+        [JsonProperty("collected_price")]
+        public double CollectedPrice { get; set; }
+
+        [JsonProperty("collected_extras")]
+        public double CollectedExtras { get; set; }
+
         [JsonProperty("extras")]
         public List<ErenBookExtra> Extras { get; set; }
     }

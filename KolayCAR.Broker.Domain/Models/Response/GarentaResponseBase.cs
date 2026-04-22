@@ -69,6 +69,26 @@ namespace KolayCAR.Broker.Domain.Models.Response
             public float DEPOSIT_AMOUNT { get; set; }
             public string IS_CAMPAIGN { get; set; } = null;
             public string SEARCH_REFERENCE { get; set; } = null;
+            public string MIN_AGE { get; set; }
+            public string MIN_LICENSE_AGE { get; set; }
+            public string MIN_YOUNG_LICENSE_AGE { get; set; }
+            public string MAX_KM { get; set; }
+            public string MAX_MONTHLY_KM { get; set; }
+            public string EXCESS_KM_PRICE { get; set; }
+            public string FLEET_INFORMATION { get; set; }
+            public META_DATA META_DATA { get; set; }
+        }
+
+        public class META_DATA
+        {
+            public string MIN_AGE { get; set; }
+            public string MIN_LICENSE_AGE { get; set; }
+            public string MIN_YOUNG_AGE { get; set; }
+            public string MIN_YOUNG_LICENSE_AGE { get; set; }
+            public string MAX_KM { get; set; }
+            public string MAX_MONTHLY_KM { get; set; }
+            public string EXCESS_KM_PRICE { get; set; }
+            public string FLEET_INFORMATION { get; set; }
         }
 
         public class STATIC_VEHICLE

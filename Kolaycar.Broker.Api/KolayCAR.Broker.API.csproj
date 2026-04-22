@@ -124,6 +124,10 @@
 		<None Update="Docs\GreenMotion\GreenmotionVehicleList2.xlsx">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Docs\GreenMotion\**\*.xlsx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</None>
 	</ItemGroup>
 
 	<ProjectExtensions>

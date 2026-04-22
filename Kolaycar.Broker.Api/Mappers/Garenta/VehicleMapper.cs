@@ -4,6 +4,7 @@ using KolayCAR.Broker.Infrastructure.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace KolayCAR.Broker.API.Mappers.Garenta
 {
@@ -21,6 +22,8 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                 rentalDuration++;
 
             var dailyPrice = (vehicle.NET_AMOUNT / rentalDuration).ToFloatNullSafe();
+            var dailyKmLimit = ToNullableInt(vehicle.META_DATA?.MAX_KM ?? vehicle.MAX_KM);
+            var monthlyKmLimit = ToNullableInt(vehicle.META_DATA?.MAX_MONTHLY_KM ?? vehicle.MAX_MONTHLY_KM);
 
             return vehicle != null ? new Vehicle
             {
@@ -52,8 +55,10 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                 FuelType = FuelTypes.None,
                 BaggageQuantityType = BaggageQuantityTypes.None,
                 IsThereAirCondition = true,
-                VendorMinimumDriverAge = 0,
-                VendorMinimumDrivingLicenseAge = 0,
+                VendorMinimumDriverAge = ToNullableInt(vehicle.META_DATA?.MIN_AGE ?? vehicle.MIN_AGE) ?? 0,
+                VendorMinimumDrivingLicenseAge = ToNullableInt(vehicle.META_DATA?.MIN_LICENSE_AGE ?? vehicle.MIN_LICENSE_AGE) ?? 0,
+                DailyKMLimit = dailyKmLimit,
+                TotalKMLimit = CalculateTotalKmLimit(dailyKmLimit, monthlyKmLimit, rentalDuration),
                 DailyPricePayNow = dailyPrice,
                 TotalPricePayNow = vehicle.NET_AMOUNT.ToFloatNullSafe(),
                 FullCredit = vendor.CreditType == CreditType.FullCredit ? true : false,
@@ -100,6 +105,31 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                     _vehicles.Add(vehicle.Map());
 
             return _vehicles;
+        }
+
+        private static int? ToNullableInt(object value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+                return null;
+
+            var match = Regex.Match(value.ToString(), @"\d+");
+            return match.Success ? match.Value.ToIntNullSafe() : null;
+        }
+
+        private static int? CalculateTotalKmLimit(int? dailyKmLimit, int? monthlyKmLimit, int rentalDuration)
+        {
+            if (dailyKmLimit.HasValue && monthlyKmLimit.HasValue)
+                return dailyKmLimit.Value * rentalDuration > monthlyKmLimit.Value
+                    ? monthlyKmLimit.Value
+                    : dailyKmLimit.Value * rentalDuration;
+
+            if (dailyKmLimit.HasValue)
+                return dailyKmLimit.Value * rentalDuration;
+
+            if (monthlyKmLimit.HasValue)
+                return monthlyKmLimit.Value;
+
+            return null;
         }
     }
 }

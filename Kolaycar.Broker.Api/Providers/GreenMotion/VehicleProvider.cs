@@ -8,7 +8,10 @@ using KolayCAR.Broker.Infrastructure.Helpers;
 using KolayCAR.Broker.Infrastructure.Managers;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using GreenMotionHelper = KolayCAR.Broker.API.Helpers.GreenMotion;
 
@@ -157,355 +160,89 @@ namespace KolayCAR.Broker.API.Providers.GreenMotion
 
         public async Task<ServiceResponseBase> GetVehicleList(Vendor vendor)
         {
-            var vehicles = GetVehicleList();
+            var excelResult = ExcelHelper.ReadExcel(@$"Docs\GreenMotion\{vendor.VendorName}\VehicleList.xlsx");
+            var vehicles = new List<Vehicle>();
 
-            #region Silinecek
-            //var vehicles = new List<Vehicle>
-            //  {
+            if (excelResult.Rows.Count > 0)
+            {
+                for (int i = 0; i < excelResult.Rows.Count; i++)
+                {
+                    var row = excelResult.Rows[i];
+                    var vehicleCode = GetExcelValue(row, "Araç Grubu", "Arac Grubu", "Vehicle Group", "Group");
+                    var model = GetExcelValue(row, "Model", "Vehicle Model");
 
-            //        new Vehicle
-            //        {
-            //            VehicleId = 1,
-            //            VehicleCode = "TR-A",
-            //            VehicleName = "Renault Symbol, Diesel guaranteed or similar",
-            //            DepositPrice = 500,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 2,
-            //            VehicleCode = "TR-B",
-            //            VehicleName = "Renault Clio, Diesel guaranteed or similar",
-            //            DepositPrice = 500,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 3,
-            //            VehicleCode = "TR-BA",
-            //            VehicleName = "Ford Fiesta, Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 500,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 4,
-            //            VehicleCode = "TR-BB",
-            //            VehicleName = "Renault Clio Sport Tourer or similar",
-            //            DepositPrice = 500,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 5,
-            //            VehicleCode = "TR-BBA",
-            //            VehicleName = "Renault Clio Sport Tourer, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 6,
-            //            VehicleCode = "TR-BC",
-            //            VehicleName = "Citroen C-Elysee or similar",
-            //            DepositPrice = 500,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 7,
-            //            VehicleCode = "TR-BCA",
-            //            VehicleName = "Opel Corsa or similar",
-            //            DepositPrice = 500,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 8,
-            //            VehicleCode = "TR-C",
-            //            VehicleName = "Renault Megane, Diesel guaranteed or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 9,
-            //            VehicleCode = "TR-C1",
-            //            VehicleName = "Renault Megane Sedan Joy, or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 10,
-            //            VehicleCode = "TR-C2",
-            //            VehicleName = "Opel Astra, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 11,
-            //            VehicleCode = "TR-C3",
-            //            VehicleName = "Volkswagen Golf, or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 12,
-            //            VehicleCode = "TR-CA",
-            //            VehicleName = "Ford Focus, Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 13,
-            //            VehicleCode = "TR-CH",
-            //            VehicleName = "Toyota Corolla,  Hybrid, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 14,
-            //            VehicleCode = "TR-D",
-            //            VehicleName = "Renault Megane Hatchback, Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 15,
-            //            VehicleCode = "TR-D1",
-            //            VehicleName = "BMW I3, Automatic or Similar",
-            //            DepositPrice = 2000,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 16,
-            //            VehicleCode = "TR-D2",
-            //            VehicleName = "Mini Cooper, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 17,
-            //            VehicleCode = "TR-EA",
-            //            VehicleName = "Skoda Superb, Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 2000,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 18,
-            //            VehicleCode = "TR-ES",
-            //            VehicleName = "Ford EcoSport, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 19,
-            //            VehicleCode = "TR-F",
-            //            VehicleName = "Peugeot 2008 Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 20,
-            //            VehicleCode = "TR-F1",
-            //            VehicleName = "Opel Crossland X, Manual or similar model",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 21,
-            //            VehicleCode = "TR-G",
-            //            VehicleName = "Peugeot 3008, Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 2000,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 22,
-            //            VehicleCode = "TR-G1",
-            //            VehicleName = "Seat Ateca 1.5 Ecotsi, Automatic or similar",
-            //            DepositPrice = 1500,
-            //            VendorMinimumDriverAge = 24,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 23,
-            //            VehicleCode = "TR-H",
-            //            VehicleName = "VW Jetta, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 24,
-            //            VehicleCode = "TR-H1",
-            //            VehicleName = "Skoda Octavia, Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 25,
-            //            VehicleCode = "TR-HI",
-            //            VehicleName = "Hyundai i20 or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 20,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 26,
-            //            VehicleCode = "TR-I",
-            //            VehicleName = "BMW 216d GRAN COUPE, Diesel guaranteed, Automatic or similar",
-            //            DepositPrice = 2000,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 26,
-            //            VehicleCode = "TR-I1",
-            //            VehicleName = "Audi A3, Automatic or Similar",
-            //            DepositPrice = 1500,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 27,
-            //            VehicleCode = "TR-MC",
-            //            VehicleName = "Mercedes C Class 200 AMG, Automatic, Diesel guaranteed or similar",
-            //            DepositPrice = 7500,
-            //            VendorMinimumDriverAge = 24,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 28,
-            //            VehicleCode = "TR-PA",
-            //            VehicleName = "BMW 3.18 Automatic or similar",
-            //            DepositPrice = 5000,
-            //            VendorMinimumDriverAge = 24,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 29,
-            //            VehicleCode = "TR-PB",
-            //            VehicleName = "BMW 5.20, Automatic or similar",
-            //            DepositPrice = 10000,
-            //            VendorMinimumDriverAge = 24,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 30,
-            //            VehicleCode = "TR-S",
-            //            VehicleName = "Skoda Kodiaq, Automatic or similar",
-            //            DepositPrice = 2000,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 31,
-            //            VehicleCode = "TR-TK",
-            //            VehicleName = "VW Transporter Kombi, Diesel Guaranteed, Automatic or similar",
-            //            DepositPrice = 1000,
-            //            VendorMinimumDriverAge = 24,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 32,
-            //            VehicleCode = "TR-VQ",
-            //            VehicleName = "Volvo XC90 2.0 B5 Inscription Geartronic  AWD - 7Seater, Automatic or similar",
-            //            DepositPrice = 10000,
-            //            VendorMinimumDriverAge = 30,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 33,
-            //            VehicleCode = "TR-VS",
-            //            VehicleName = "Audi A6, Automatic, Diesel guaranteed or similar",
-            //            DepositPrice = 10000,
-            //            VendorMinimumDriverAge = 24,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 34,
-            //            VehicleCode = "TR-VX",
-            //            VehicleName = "Volvo XC60, Automatic, Diesel guaranteed or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 27,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 35,
-            //            VehicleCode = "TR-Y",
-            //            VehicleName = "Dacia Lodgy, Diesel guaranteed, or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
-            //        new Vehicle
-            //        {
-            //            VehicleId = 36,
-            //            VehicleCode = "TR-YA",
-            //            VehicleName = "Ford Tourneo, Diesel guaranteed, or similar",
-            //            DepositPrice = 750,
-            //            VendorMinimumDriverAge = 21,
-            //            VendorMinimumDrivingLicenseAge=1,
-            //        },
+                    if (string.IsNullOrWhiteSpace(vehicleCode) && string.IsNullOrWhiteSpace(model))
+                        continue;
 
+                    var fuelType = GetExcelValue(row, "Yakıt Türü", "Yakit Turu", "Fuel Type", "Fuel");
+                    var transmissionType = GetExcelValue(row, "Manuel - Otomatik", "Manuel Otomatik", "Transmission");
+                    var bodyType = GetExcelValue(row, "Sedan - Hatchback - Station Vagon - Suv", "Body Type", "Vehicle Type");
 
+                    vehicles.Add(new Vehicle
+                    {
+                        VehicleId = vehicles.Count + 1,
+                        VehicleCode = vehicleCode,
+                        VehicleName = BuildVehicleName(model, fuelType, transmissionType, bodyType),
+                        DepositPrice = GetExcelValue(row, "Depozito", "Deposit", "Deposit Amount").ToFloatNullSafe(),
+                        VendorMinimumDriverAge = GetExcelValue(row, "Minimum Yaş", "Minimum Yas", "Min Age", "Minimum Age").ToIntNullSafe(),
+                        VendorMinimumDrivingLicenseAge = GetExcelValue(row, "Minimum Ehliyet Süresi", "Minimum Ehliyet Suresi", "Min License Age", "Minimum License Age").ToIntNullSafe()
+                    });
+                }
+            }
 
-            //  };
-            #endregion
             return new ServiceResponseBase
             {
                 Success = true,
                 Data = vehicles
             };
+        }
+
+        private static string GetExcelValue(DataRow row, params string[] columnNames)
+        {
+            foreach (var columnName in columnNames)
+            {
+                var normalizedColumnName = NormalizeExcelColumnName(columnName);
+                var column = row.Table.Columns
+                    .Cast<DataColumn>()
+                    .FirstOrDefault(x => NormalizeExcelColumnName(x.ColumnName) == normalizedColumnName);
+
+                if (column != null)
+                    return row[column].ToStringNullSafe();
+            }
+
+            return string.Empty;
+        }
+
+        private static string NormalizeExcelColumnName(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            var normalizedValue = value.Trim().Normalize(NormalizationForm.FormD);
+            var builder = new StringBuilder(normalizedValue.Length);
+
+            foreach (var character in normalizedValue)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(character) == UnicodeCategory.NonSpacingMark)
+                    continue;
+
+                if (char.IsLetterOrDigit(character))
+                    builder.Append(char.ToUpperInvariant(character));
+            }
+
+            return builder.ToString();
+        }
+
+        private static string BuildVehicleName(string model, params string[] details)
+        {
+            var filteredDetails = details
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList();
+
+            if (filteredDetails.Count == 0)
+                return model;
+
+            return $"{model} ({string.Join("-", filteredDetails)}) ";
         }
 
         public string GetAvailabilityRequestBodyEntity(ResponseReservationStepsAdditionalInformation additionalInformation, CurrencyTypes baseVendorRequestCurrencyType)
@@ -537,35 +274,5 @@ namespace KolayCAR.Broker.API.Providers.GreenMotion
             {
                 { "application/xml", GetAvailabilityRequestBodyEntity(additionalınformation, baseVendorRequestCurrencyType) },
             };
-
-        private List<Vehicle> GetVehicleList()
-        {
-            var excelResult = ExcelHelper.ReadExcel(@"Docs\GreenMotion\GreenmotionVehicleList.xlsx");
-            var vehicles = new List<Vehicle>();
-
-            if (excelResult.Rows.Count > 0)
-            {
-                for (int i = 0; i < excelResult.Rows.Count; i++)
-                {
-                    vehicles.Add(new Vehicle
-                    {
-                        VehicleId = i + 1,
-                        VehicleCode = excelResult.Rows[i]["Araç Grubu"].ToStringNullSafe(),
-                        VehicleName = excelResult.Rows[i]["Model"].ToStringNullSafe() + " (" + excelResult.Rows[i]["Yakıt Türü"].ToStringNullSafe() + "-" + excelResult.Rows[i]["Manuel - Otomatik"].ToStringNullSafe() + "-" + excelResult.Rows[i]["Sedan - Hatchback - Station Vagon - Suv"].ToStringNullSafe() + ") ",
-                        DepositPrice = excelResult.Rows[i]["Depozito"].ToFloatNullSafe(),
-                        VendorMinimumDriverAge = excelResult.Rows[i]["Minimum Yaş"].ToIntNullSafe(),
-                        VendorMinimumDrivingLicenseAge = excelResult.Rows[i]["Minimum Ehliyet Süresi"].ToIntNullSafe()
-                        //VehicleId = i + 1,
-                        //VehicleCode = excelResult.Rows[i]["Araç Grubu"].ToStringNullSafe(),
-                        //VehicleName = excelResult.Rows[i]["Araç Grubu Açıklaması"].ToStringNullSafe() + " (" + excelResult.Rows[i]["Yakıt Tipi"].ToStringNullSafe() + "-" + excelResult.Rows[i]["Vites Tipi"].ToStringNullSafe() + "-" + excelResult.Rows[i]["Kasa Tipi"].ToStringNullSafe() + ") ",
-                        //DepositPrice = excelResult.Rows[i]["Depozito Tutarı"].ToFloatNullSafe(),
-                        //VendorMinimumDriverAge = excelResult.Rows[i]["Minimum Kiralama Yaşı"].ToIntNullSafe(),
-                        //VendorMinimumDrivingLicenseAge = excelResult.Rows[i]["Minimum Ehliyet Yaşı"].ToIntNullSafe()
-                    });
-                }
-            }
-
-            return vehicles;
-        }
     }
 }
