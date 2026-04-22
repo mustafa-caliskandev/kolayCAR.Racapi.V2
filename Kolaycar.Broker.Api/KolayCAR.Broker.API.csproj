@@ -33,6 +33,14 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	  </None>
+	  <None Update="dotnet-tools.json">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </None>
+	  <Content Update="dotnet-tools.json">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </Content>
 	  <Content Update="wwwroot\docs\**\*">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
