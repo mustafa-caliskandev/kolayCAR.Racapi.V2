@@ -22,6 +22,8 @@ namespace KolayCAR.Broker.API.Controllers
             _emailService = emailService;
         }
 
+        [HttpPost]
+
         public async Task<IActionResult> Post(
             string fromTitle,
             string toMailAddress,
@@ -63,3 +65,4 @@ namespace KolayCAR.Broker.API.Controllers
         }
     }
 }
+

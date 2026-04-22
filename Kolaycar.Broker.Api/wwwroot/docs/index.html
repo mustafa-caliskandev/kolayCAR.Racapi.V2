@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KolayCAR Broker API Docs</title>
+  <meta name="description" content="KolayCAR Broker API documentation portal.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#getting-started" aria-label="KolayCAR Broker API Docs">
+      <span class="brand-symbol">K</span>
+      <span class="brand-copy"><strong>kolayCAR</strong><small>Broker API</small></span>
+    </a>
+
+    <nav class="topnav" aria-label="Primary navigation">
+      <a href="#getting-started">Getting Started</a>
+      <a href="#authentication">Authentication</a>
+      <a href="#locations">Locations</a>
+      <a href="#search">Search</a>
+      <a href="#reservations">Reservations</a>
+      <a href="#api-reference">API Reference</a>
+    </nav>
+
+    <div class="header-actions">
+      <label class="search-shell" aria-label="Search documentation">
+        <span class="search-icon">/</span>
+        <input id="docs-search" type="search" placeholder="Search docs  Ctrl+K" autocomplete="off">
+      </label>
+      <a class="icon-pill" href="/redoc-raw" target="_blank" rel="noreferrer" title="Open raw Redoc">Raw</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Documentation navigation">
+      <div class="sidebar-block">
+        <p>Guides</p>
+        <a class="is-active" href="#getting-started">Getting Started</a>
+        <a href="#overview">Overview</a>
+        <a href="#quick-start">Quick Start</a>
+        <a href="#authentication">Authentication</a>
+        <a href="#locations">Locations</a>
+        <a href="#search">Search</a>
+        <a href="#reservations">Reservations</a>
+        <a href="#errors">Error Codes</a>
+      </div>
+      <div class="sidebar-block">
+        <p>Reference</p>
+        <a href="#api-reference">API Reference</a>
+        <a href="/swagger" target="_blank" rel="noreferrer">Swagger UI</a>
+        <a href="/redoc-raw" target="_blank" rel="noreferrer">Raw Redoc</a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section id="getting-started" class="doc-section hero" data-title="Getting Started">
+        <div class="last-updated">Last updated from live OpenAPI</div>
+        <div class="hero-header">
+          <div>
+            <p class="overline">Partner integration</p>
+            <h1>Getting Started with KolayCAR Broker API</h1>
+            <p class="lead">A cleaner customer-facing documentation portal for authentication, location data, vehicle search, reservations, and the live API reference.</p>
+          </div>
+          <div class="hero-tools">
+            <button class="copy-button" type="button" data-copy="origin">Copy base URL</button>
+            <a class="outline-button" href="/swagger/v1/swagger.json" target="_blank" rel="noreferrer">Open OpenAPI</a>
+          </div>
+        </div>
+
+        <div class="feature-strip">
+          <article>
+            <span id="endpoint-count">14</span>
+            <small>documented endpoints</small>
+          </article>
+          <article>
+            <span>JWT</span>
+            <small>Bearer authentication</small>
+          </article>
+          <article>
+            <span>JSON</span>
+            <small>request and response format</small>
+          </article>
+        </div>
+      </section>
+
+      <section id="overview" class="doc-section panel" data-title="Overview">
+        <p class="overline">Overview</p>
+        <h2>One flow, documented end to end</h2>
+        <p>KolayCAR Broker API exposes the public rental flow used by partner applications. This portal only shows the endpoints from the Postman document, so customers see a focused integration guide instead of the full internal API surface.</p>
+        <div class="cards-row">
+          <article><strong>1</strong><span>Authenticate and receive a token.</span></article>
+          <article><strong>2</strong><span>Load countries, cities, locations, vehicles, and extras.</span></article>
+          <article><strong>3</strong><span>Create, save, query, or cancel reservations.</span></article>
+        </div>
+      </section>
+
+      <section id="quick-start" class="doc-section panel split" data-title="Quick Start">
+        <div>
+          <p class="overline">Quick Start</p>
+          <h2>Send the token with every protected request</h2>
+          <p>Start with <code>POST /users/authenticate</code>. Use the returned token as a bearer token for reservation and search requests that require authorization.</p>
+        </div>
+        <pre class="code-card"><code>Authorization: Bearer eyJhbGciOi...
+Content-Type: application/json
+Accept: application/json</code></pre>
+      </section>
+
+      <section id="authentication" class="doc-section panel" data-title="Authentication">
+        <p class="overline">Authentication</p>
+        <h2>Authentication</h2>
+        <p>Use the token endpoint to obtain a JWT. Keep credentials server-side and avoid storing tokens in public browser storage when possible.</p>
+        <div class="endpoint-mini"><span class="method post">POST</span><code>/users/authenticate</code></div>
+      </section>
+
+      <section id="locations" class="doc-section panel" data-title="Locations">
+        <p class="overline">Locations</p>
+        <h2>Location and lookup data</h2>
+        <p>Load countries, cities, and rental locations before vehicle search. Most lookup endpoints accept language parameters in the query string.</p>
+        <div class="endpoint-grid static-endpoints">
+          <article><span class="method get">GET</span><code>/locations</code></article>
+          <article><span class="method get">GET</span><code>/locations/countries</code></article>
+          <article><span class="method get">GET</span><code>/locations/cities</code></article>
+        </div>
+      </section>
+
+      <section id="search" class="doc-section panel" data-title="Search">
+        <p class="overline">Search</p>
+        <h2>Vehicle search and extras</h2>
+        <p>Vehicle endpoints return available rental options. Extras endpoints expose optional products and additional services.</p>
+        <div class="endpoint-grid static-endpoints">
+          <article><span class="method get">GET</span><code>/vehicles</code></article>
+          <article><span class="method get">GET</span><code>/vehicles/list</code></article>
+          <article><span class="method post">POST</span><code>/mobileapp/getvehicles</code></article>
+          <article><span class="method get">GET</span><code>/extras</code></article>
+          <article><span class="method get">GET</span><code>/extras/list</code></article>
+        </div>
+      </section>
+
+      <section id="reservations" class="doc-section panel" data-title="Reservations">
+        <p class="overline">Reservations</p>
+        <h2>Reservation lifecycle</h2>
+        <p>Create, save, query, and cancel reservations after the vehicle and customer information is ready.</p>
+        <div class="endpoint-grid static-endpoints">
+          <article><span class="method get">GET</span><code>/reservations</code></article>
+          <article><span class="method post">POST</span><code>/reservations</code></article>
+          <article><span class="method post">POST</span><code>/reservations/save</code></article>
+          <article><span class="method post">POST</span><code>/reservations/v2</code></article>
+          <article><span class="method post">POST</span><code>/reservations/cancel</code></article>
+        </div>
+      </section>
+
+      <section id="errors" class="doc-section panel" data-title="Error Codes">
+        <p class="overline">Error Codes</p>
+        <h2>Error handling</h2>
+        <p>When reporting an integration issue, include the request URL, request body, response body, reservation number if available, and timestamp.</p>
+        <div class="status-row">
+          <article><strong>400</strong><span>Validation or missing input</span></article>
+          <article><strong>401</strong><span>Missing or invalid token</span></article>
+          <article><strong>500</strong><span>Server or vendor-side error</span></article>
+        </div>
+      </section>
+
+      <section id="api-reference" class="doc-section panel api-panel" data-title="API Reference">
+        <div class="reference-head">
+          <div>
+            <p class="overline">API Reference</p>
+            <h2>Live API reference</h2>
+            <p>The cards below are generated from <code>/swagger/v1/swagger.json</code>. You can test endpoints directly on this page without leaving the documentation portal.</p>
+          </div>
+          <a class="outline-button" href="/redoc-raw" target="_blank" rel="noreferrer">Open raw Redoc</a>
+        </div>
+
+        <div class="reference-toolbar">
+          <button class="filter-chip is-selected" type="button" data-method="all">All</button>
+          <button class="filter-chip" type="button" data-method="GET">GET</button>
+          <button class="filter-chip" type="button" data-method="POST">POST</button>
+        </div>
+
+        <div class="auth-request-card">
+          <div class="auth-request-head">
+            <div>
+              <span class="method post">POST</span>
+              <code>/users/authenticate</code>
+            </div>
+            <strong>Get bearer token</strong>
+          </div>
+          <div class="auth-grid">
+            <label>
+              <span>Username</span>
+              <input id="auth-username" type="text" autocomplete="username" placeholder="username">
+            </label>
+            <label>
+              <span>Password</span>
+              <input id="auth-password" type="password" autocomplete="current-password" placeholder="password">
+            </label>
+            <label>
+              <span>Secret key</span>
+              <input id="auth-secret" type="text" autocomplete="off" placeholder="secretKey">
+            </label>
+          </div>
+          <div class="try-actions">
+            <button id="send-auth" class="send-button" type="button">Get token</button>
+            <button id="clear-auth" class="small-button muted" type="button">Clear form</button>
+          </div>
+          <pre id="auth-response" class="response-output compact-output">Token response will appear here.</pre>
+        </div>
+
+        <div class="tester-settings">
+          <div>
+            <label for="bearer-token">Bearer token <span>used by test requests</span></label>
+            <input id="bearer-token" type="password" placeholder="Paste JWT token or use Get token above" autocomplete="off">
+          </div>
+          <button id="save-token" class="small-button" type="button">Save token</button>
+          <button id="clear-token" class="small-button muted" type="button">Clear</button>
+        </div>
+
+        <div id="endpoint-list" class="operation-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <aside class="toc" aria-label="On this page">
+      <p>On this page</p>
+      <a href="#overview">Overview</a>
+      <a href="#quick-start">Quick Start</a>
+      <a href="#authentication">Authentication</a>
+      <a href="#locations">Locations</a>
+      <a href="#search">Search</a>
+      <a href="#reservations">Reservations</a>
+      <a href="#api-reference">API Reference</a>
+    </aside>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied</div>
+  <script src="docs.js"></script>
+</body>
+</html>

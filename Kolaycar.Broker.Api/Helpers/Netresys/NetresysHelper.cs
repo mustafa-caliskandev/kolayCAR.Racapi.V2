@@ -1,4 +1,3 @@
-﻿using Amazon.Runtime.Internal.Transform;
 using KolayCAR.Broker.API.Models;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.NetResys;

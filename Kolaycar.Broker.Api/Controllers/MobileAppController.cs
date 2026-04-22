@@ -1593,7 +1593,9 @@ namespace KolayCAR.Broker.API.Controllers
             {
                 var rezList = await _reservationService.GetCanceledReservations(request.StartDate, request.EndDate);
 
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<Rez, CanceledReservation>());
+                var config = new MapperConfiguration(
+                    cfg => cfg.CreateMap<Rez, CanceledReservation>(),
+                    Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance);
                 var mapper = new Mapper(config);
                 var mappedReservations = mapper.Map<List<CanceledReservation>>(rezList);
 

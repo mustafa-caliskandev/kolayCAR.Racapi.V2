@@ -7,6 +7,7 @@ using KolayCAR.Broker.API.Extensions;
 using KolayCAR.Broker.API.Factories.Abstract;
 using KolayCAR.Broker.API.Factories.Concrete;
 using KolayCAR.Broker.API.Helpers;
+using KolayCAR.Broker.API.Helpers.Swagger;
 using KolayCAR.Broker.API.Helpers.Telegram;
 using KolayCAR.Broker.API.Middleware;
 using KolayCAR.Broker.API.Middleware.Extensions;
@@ -26,6 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
@@ -69,7 +71,15 @@ builder.Services.AddCors();
 builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var postmanEndpointFilter = PostmanEndpointFilter.Load("docRacapi.txt");
+builder.Services.AddSwaggerGen(options =>
+{
+    options.DocInclusionPredicate((documentName, apiDescription) =>
+        !string.IsNullOrWhiteSpace(apiDescription.HttpMethod) &&
+        postmanEndpointFilter.ShouldInclude(apiDescription));
+    options.ResolveConflictingActions(apiDescriptions => System.Linq.Enumerable.First(apiDescriptions));
+    options.OperationFilter<PostmanOperationFilter>();
+});
 
 builder.Services.AddDbContextPool<BrokerContext>(options =>
 {
@@ -93,7 +103,7 @@ builder.Services.AddDbContext<LoggingDbContext>(options =>
 builder.Services.Configure<AppSettings>(appSettingsSection);
 
 // AddAutoMapper - using type of Program since Startup is gone
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 
 
 
@@ -339,6 +349,47 @@ app.UseCors(x => x
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.MapScalarApiReference("/scalar", options =>
+{
+    options
+        .WithTitle("KolayCAR Broker API Docs")
+        .WithTheme(ScalarTheme.DeepSpace)
+        .WithLayout(ScalarLayout.Modern)
+        .WithDarkMode(true)
+        .WithTestRequestButton(true)
+        .WithDownloadButton(true)
+        .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json")
+        .AddDocument("v1", "KolayCAR Broker API");
+});
+app.UseReDoc(options =>
+{
+    options.RoutePrefix = "redoc-raw";
+    options.DocumentTitle = "KolayCAR Broker API Docs";
+    options.SpecUrl("/swagger/v1/swagger.json");
+});
+
+app.Use(async (context, next) =>
+{
+    var requestPath = context.Request.Path.Value ?? string.Empty;
+    var isDocsRoot = string.Equals(requestPath, "/docs", StringComparison.OrdinalIgnoreCase);
+    var isPortalRedocPath = requestPath.StartsWith("/redoc", StringComparison.OrdinalIgnoreCase) &&
+        !requestPath.StartsWith("/redoc-raw", StringComparison.OrdinalIgnoreCase);
+
+    if (isDocsRoot || isPortalRedocPath)
+    {
+        context.Response.Redirect("/docs/");
+        return;
+    }
+
+    if (string.Equals(requestPath, "/docs/", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Request.Path = "/docs/index.html";
+    }
+
+    await next();
+});
+
+app.UseStaticFiles();
 
 app.UseMiddleware<LogEnricherMiddleware>();
 
@@ -389,3 +440,6 @@ static bool IsTelegramEnabled(IConfiguration configuration)
     var telegramBotId = configuration.GetSectionValueString("Telegram", "BotId").Decrypt();
     return !string.IsNullOrWhiteSpace(telegramBotId);
 }
+
+
+

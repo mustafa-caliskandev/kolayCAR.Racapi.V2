@@ -543,7 +543,9 @@ namespace KolayCAR.Broker.API.Helpers
             if (allExtras?.Count > 0 && !string.IsNullOrEmpty(selectedExtras))
             {
                 var selectedExtrasArr = selectedExtras.Split('|');
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<Extra, ReservationExtra>());
+                var config = new MapperConfiguration(
+                    cfg => cfg.CreateMap<Extra, ReservationExtra>(),
+                    Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance);
                 var mapper = new Mapper(config);
 
                 foreach (var selectedExtra in selectedExtrasArr)
