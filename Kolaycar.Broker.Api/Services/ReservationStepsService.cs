@@ -4,6 +4,7 @@ using KolayCAR.Broker.API.Mappers;
 using KolayCAR.Broker.API.Models;
 using KolayCAR.Broker.API.Models.Dtos;
 using KolayCAR.Broker.API.Models.MobileAppDtos.ResponseDtos;
+using KolayCAR.Broker.API.Services.Abstract;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Helpers;
@@ -12,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ApiLocation = KolayCAR.Broker.API.Models.Location;
+using ApiLocationVendor = KolayCAR.Broker.API.Models.Locationvendor;
 using CommonModels = KolayCAR.Broker.Domain.Models;
 
 namespace KolayCAR.Broker.API.Services
@@ -48,15 +51,18 @@ namespace KolayCAR.Broker.API.Services
     {
         private readonly BrokerContext _context;
         private readonly IConfigurationService _configurationService;
+        private readonly ICacheService _cacheService;
         private readonly IResTokenService _resTokenService;
 
         public ReservationStepsService(
             BrokerContext context,
             IConfigurationService configurationService,
+            ICacheService cacheService,
             IResTokenService resTokenService)
         {
             _context = context;
             _configurationService = configurationService;
+            _cacheService = cacheService;
             _resTokenService = resTokenService;
         }
 
@@ -199,34 +205,82 @@ namespace KolayCAR.Broker.API.Services
             return (int)Math.Ceiling((returnDateTime - pickupDateTime).TotalDays);
         }
 
-        public async Task<dynamic> GetVendorPickupLocalLocation(int pickupLocationId, int languageId, CommonModels.Vendor vendor) =>
-            await _context.Location
-               .Join(_context.Locationvendor,
-               l => l.Id,
-               lv => lv.Locallocationid,
-               (l, lv) => new { Location = l, Locationvendor = lv })
-               .Where(x =>
-               x.Location.Id == pickupLocationId &&
-               x.Location.Langid == languageId &&
-               x.Location.Active == true &&
-               x.Locationvendor.Vendorid == vendor.VendorId &&
-               x.Locationvendor.Ispickup == true &&
-               x.Locationvendor.Active == true)
-               .FirstOrDefaultAsync();
+        // Eski hali:
+        // public async Task<dynamic> GetVendorPickupLocalLocation(int pickupLocationId, int languageId, CommonModels.Vendor vendor) =>
+        //     await _context.Location
+        //        .Join(_context.Locationvendor,
+        //        l => l.Id,
+        //        lv => lv.Locallocationid,
+        //        (l, lv) => new { Location = l, Locationvendor = lv })
+        //        .Where(x =>
+        //        x.Location.Id == pickupLocationId &&
+        //        x.Location.Langid == languageId &&
+        //        x.Location.Active == true &&
+        //        x.Locationvendor.Vendorid == vendor.VendorId &&
+        //        x.Locationvendor.Ispickup == true &&
+        //        x.Locationvendor.Active == true)
+        //        .FirstOrDefaultAsync();
+        public async Task<dynamic> GetVendorPickupLocalLocation(int pickupLocationId, int languageId, CommonModels.Vendor vendor)
+        {
+            if (CacheSettings.UseCache)
+            {
+                return await _cacheService.GetOrCreateAsync(
+                    $"{CacheSettings.LocationVendor}-PickupLocalLocation-{pickupLocationId}-{languageId}-{vendor.VendorId}",
+                    () => GetVendorLocalLocation(pickupLocationId, languageId, vendor.VendorId, true));
+            }
 
-        public async Task<dynamic> GetVendorReturnLocalLocation(int returnLocationId, int languageId, CommonModels.Vendor vendor) =>
-            await _context.Location
+            return await GetVendorLocalLocation(pickupLocationId, languageId, vendor.VendorId, true);
+        }
+
+        // Eski hali:
+        // public async Task<dynamic> GetVendorReturnLocalLocation(int returnLocationId, int languageId, CommonModels.Vendor vendor) =>
+        //     await _context.Location
+        //         .Join(_context.Locationvendor,
+        //         l => l.Id,
+        //         lv => lv.Locallocationid,
+        //         (l, lv) => new { Location = l, Locationvendor = lv })
+        //         .Where(x =>
+        //         x.Location.Id == returnLocationId &&
+        //         x.Location.Langid == languageId &&
+        //         x.Location.Active == true &&
+        //         x.Locationvendor.Vendorid == vendor.VendorId &&
+        //         x.Locationvendor.Active == true)
+        //         .FirstOrDefaultAsync();
+        public async Task<dynamic> GetVendorReturnLocalLocation(int returnLocationId, int languageId, CommonModels.Vendor vendor)
+        {
+            if (CacheSettings.UseCache)
+            {
+                return await _cacheService.GetOrCreateAsync(
+                    $"{CacheSettings.LocationVendor}-ReturnLocalLocation-{returnLocationId}-{languageId}-{vendor.VendorId}",
+                    () => GetVendorLocalLocation(returnLocationId, languageId, vendor.VendorId, false));
+            }
+
+            return await GetVendorLocalLocation(returnLocationId, languageId, vendor.VendorId, false);
+        }
+
+        private async Task<ReservationStepLocationCacheItem> GetVendorLocalLocation(int locationId, int languageId, int vendorId, bool isPickup)
+        {
+            var query = _context.Location
                 .Join(_context.Locationvendor,
-                l => l.Id,
-                lv => lv.Locallocationid,
-                (l, lv) => new { Location = l, Locationvendor = lv })
+                    l => l.Id,
+                    lv => lv.Locallocationid,
+                    (l, lv) => new ReservationStepLocationCacheItem
+                    {
+                        Location = l,
+                        Locationvendor = lv
+                    })
                 .Where(x =>
-                x.Location.Id == returnLocationId &&
-                x.Location.Langid == languageId &&
-                x.Location.Active == true &&
-                x.Locationvendor.Vendorid == vendor.VendorId &&
-                x.Locationvendor.Active == true)
-                .FirstOrDefaultAsync();
+                    x.Location.Id == locationId &&
+                    x.Location.Langid == languageId &&
+                    x.Location.Active == true &&
+                    x.Locationvendor.Vendorid == vendorId &&
+                    x.Locationvendor.Active == true);
+
+            if (isPickup)
+                query = query.Where(x => x.Locationvendor.Ispickup == true);
+
+            return await query.FirstOrDefaultAsync();
+        }
 
         public async Task<float> CurrencyExchange(CommonModels.Vendor vendor, float price, CurrencyTypes sourceCurrencyTypes, CurrencyTypes targetCurrencyTypes)
         {
@@ -393,6 +447,12 @@ namespace KolayCAR.Broker.API.Services
             }
             resId = await CreateNewResIdIfExist();
             return resId;
+        }
+
+        private sealed class ReservationStepLocationCacheItem
+        {
+            public ApiLocation Location { get; set; }
+            public ApiLocationVendor Locationvendor { get; set; }
         }
     }
 }

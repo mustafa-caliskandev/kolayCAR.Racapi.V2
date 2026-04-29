@@ -1093,7 +1093,7 @@ namespace KolayCAR.Broker.API.Models
 
             modelBuilder.Entity<Coupon>(entity =>
             {
-                entity.ToTable("COUPON");
+                entity.ToTable("COUPON", tb => tb.UseSqlOutputClause(false));
 
                 #region gkursad - 08.04.2024
                 /*entity.Property(e => e.Id).HasColumnName("ID");

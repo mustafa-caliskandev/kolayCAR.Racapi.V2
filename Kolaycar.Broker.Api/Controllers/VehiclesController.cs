@@ -67,7 +67,6 @@ namespace KolayCAR.Broker.API.Controllers
             string Guid = ""
             )
         {
-
             var getVehiclesRequest = new GetVehiclesRequest
             {
                 VendorType = (VendorTypes)(object)(vendorType),
@@ -137,6 +136,8 @@ namespace KolayCAR.Broker.API.Controllers
                  success: serviceResponse.Success,
                  message: serviceResponse.ServiceMessage ?? serviceResponse.Message);
         }
+
+
 
         [HttpPost]
         [Route("vendor")]

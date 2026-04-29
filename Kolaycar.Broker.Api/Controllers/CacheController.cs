@@ -1,5 +1,6 @@
 ﻿using KolayCAR.Broker.API.Services;
 using KolayCAR.Broker.API.Services.Abstract;
+using KolayCAR.Broker.API.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,13 +22,26 @@ namespace KolayCAR.Broker.API.Controllers
         }
 
         [HttpGet]
-        [Route("clear-cache/{cacheType}")]
+        [Route("clear-cache/{cacheKey}")]
         [Authorize]
-        public async Task<IActionResult> ClearCache([FromRoute] int cacheType)
+        public async Task<IActionResult> ClearCache([FromRoute] string cacheKey)
         {
             try
             {
-                await _cacheService.InvalidateCacheAsync((CacheTypes)(object)cacheType);
+                if (!CacheSettings.IsValidCacheKey(cacheKey))
+                {
+                    return Ok(new
+                    {
+                        Status = false,
+                        Message = "Gecersiz cache key!"
+                    });
+                }
+
+                if (CacheSettings.IsAllKey(cacheKey))
+                    await _cacheService.ClearAllCacheAsync();
+                else
+                    await _cacheService.RemoveByPrefixAsync(cacheKey.Trim());
+
                 return Ok(new
                 {
                     Status = true,

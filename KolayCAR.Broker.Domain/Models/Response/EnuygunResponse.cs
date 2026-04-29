@@ -53,9 +53,9 @@ namespace KolayCAR.Broker.Domain.Models.Response
                 public Raw raw { get; set; }
                 public string currency { get; set; }
                 public string type { get; set; }
-                public double chargePrice { get; set; }
-                public double officePrice { get; set; }
-                public double totalPrice { get; set; }
+                public float chargePrice { get; set; }
+                public float officePrice { get; set; }
+                public float totalPrice { get; set; }
             }
 
             public class Company
@@ -96,16 +96,16 @@ namespace KolayCAR.Broker.Domain.Models.Response
 
             public class Price
             {
-                public double chargePrice { get; set; }
-                public double officePrice { get; set; }
-                public double dailyPrice { get; set; }
-                public double totalPrice { get; set; }
+                public float chargePrice { get; set; }
+                public float officePrice { get; set; }
+                public float dailyPrice { get; set; }
+                public float totalPrice { get; set; }
                 public string currency { get; set; }
             }
 
             public class ProvisionPrice
             {
-                public double price { get; set; }
+                public float price { get; set; }
                 public string currency { get; set; }
             }
 
@@ -129,7 +129,7 @@ namespace KolayCAR.Broker.Domain.Models.Response
                 public int driverAge { get; set; }
                 public int freeCancellationHour { get; set; }
                 public int maxCancellationHour { get; set; }
-                public double cancellationPenalty { get; set; }
+                public float cancellationPenalty { get; set; }
                 public Price price { get; set; }
                 public ProvisionPrice provisionPrice { get; set; }
                 public Vehicle vehicle { get; set; }
@@ -205,10 +205,10 @@ namespace KolayCAR.Broker.Domain.Models.Response
                 public string context { get; set; }
                 public string name { get; set; }
                 public int maxCount { get; set; }
-                public double unitPrice { get; set; }
-                public double chargePrice { get; set; }
-                public double officePrice { get; set; }
-                public double totalPrice { get; set; }
+                public float unitPrice { get; set; }
+                public float chargePrice { get; set; }
+                public float officePrice { get; set; }
+                public float totalPrice { get; set; }
                 public string currency { get; set; }
             }
 

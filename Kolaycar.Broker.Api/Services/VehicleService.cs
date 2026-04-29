@@ -201,6 +201,9 @@ namespace KolayCAR.Broker.API.Services
                 var subVendors = subVendorList.Map();
                 var vendorLocation = await _locationVendorService.GetLocationVendor(getVehicleRequest.PickupLocationId, vendor.VendorId);
 
+                if (vendorLocation == null)
+                    return new(null, false, $"Bu lokasyon aktif değildir, eşleştirmeyi kontrol ediniz!");
+
                 var minuteDiff = (ObjectHelper.CombineDateAndTime(getVehicleRequest.PickupDate, getVehicleRequest.PickupTime) - DateTime.Now).TotalMinutes;
 
                 var earliestTime = vendorLocation?.EarliestResTime ?? vendor?.EarliestResTime;

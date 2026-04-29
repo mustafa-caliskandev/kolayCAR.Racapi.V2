@@ -414,7 +414,7 @@ namespace KolayCAR.Broker.API.Helpers
                     new TemplateField
                     {
                         Field = "{frm_mail_aracsinif_resim}",
-                        Value = reservationMailTemplate.Reservation.VehicleImageUrl
+                        Value = reservationMailTemplate.PortalOwnerDomain + reservationMailTemplate.Reservation.VehicleImageUrl
                     },
                     new TemplateField
                     {

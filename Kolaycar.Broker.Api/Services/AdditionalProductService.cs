@@ -1,6 +1,7 @@
 ﻿using KolayCAR.Broker.API.Models;
 using KolayCAR.Broker.API.Repositories.Abstract;
 using KolayCAR.Broker.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,7 +69,7 @@ public class AdditionalProductService : IAdditionalProductService
                             var totalPrice = extraDailyPrice * rentalDuration;
 
                             if (totalPrice > maxAmount.Value)
-                                extraDailyPrice = (float)(maxAmount.Value / rentalDuration);
+                                extraDailyPrice = TruncateToTwoDecimalPlaces(maxAmount.Value / rentalDuration);
                         }
                     }
 
@@ -98,5 +99,10 @@ public class AdditionalProductService : IAdditionalProductService
             }
         }
         return premiumExtras;
+    }
+
+    private static float TruncateToTwoDecimalPlaces(float value)
+    {
+        return (float)(Math.Truncate((decimal)value * 100) / 100);
     }
 }

@@ -32,47 +32,7 @@ namespace Kolaycar.Broker.Api.Providers.Eren
         {
             var accessToken = await _authProvider.GetTokenAsync(vendor);
 
-            var extras = new List<ErenBookExtra>();
-            if (postReservationRequest.PostReservationRequestV2?.Extras != null)
-            {
-                foreach (var extra in postReservationRequest.PostReservationRequestV2.Extras)
-                {
-                    if (int.TryParse(extra.ExtraCode, out int serviceId))
-                    {
-                        extras.Add(new ErenBookExtra { ServiceId = serviceId });
-                    }
-                }
-            }
-            else if (!string.IsNullOrEmpty(postReservationRequest.ExtraList))
-            {
-                var extraCodes = postReservationRequest.ExtraList.Split(',');
-                foreach (var extra in extraCodes)
-                {
-                    if (int.TryParse(extra.Trim(), out int serviceId))
-                    {
-                        extras.Add(new ErenBookExtra { ServiceId = serviceId });
-                    }
-                }
-            }
-
-            var bookRequest = new ErenBookRequest
-            {
-                BookingReference = localReservation.ReservationNumber,
-                SearchRequestId = reservationToken.APIReferenceCode,
-                QuoteId = reservationToken.APIReferenceCode2,
-                FirstName = postReservationRequest.CustomerName,
-                LastName = postReservationRequest.CustomerSurname,
-                Email = postReservationRequest.CustomerEmail,
-                Phone = postReservationRequest.CustomerTelephone?.Replace(" ", string.Empty),
-                FlightNumber = postReservationRequest.FlightNumberArrival,
-                DriverAge = Math.Max(21, (DateTime.Now.Year - (DateTime.TryParse(postReservationRequest.CustomerBirthDay, out var bday) ? bday.Year : DateTime.Now.Year - 30))), // Calculate or mock driver age
-                IdNumber = postReservationRequest.CustomerPersonalNumber,
-                PassportNumber = postReservationRequest.CustomerPersonalNumber, // Usually one or the other
-                Comment = postReservationRequest.CustomerNote,
-                CollectedPrice = postReservationRequest.PostReservationRequestV2.Payment.PaymentType == PaymentTypes.PayOnDelivery ? 0 : Math.Round(reservationToken.APIDailyPrice * reservationToken.RentalDuration, 3),
-                CollectedExtras = postReservationRequest.PostReservationRequestV2.Payment.ExtraPricePayToDelivery ? 0 : postReservationRequest.PostReservationRequestV2.Extras.Sum(e => e.ApiPrice),
-                Extras = extras.Count > 0 ? extras : null
-            };
+            var bookRequest = GetEntity(postReservationRequest, reservationToken, localReservation);
 
             await _configurationService.WriteLog(new BrokerLogModel
             {
@@ -150,6 +110,80 @@ namespace Kolaycar.Broker.Api.Providers.Eren
             }
 
             return new ServiceResponseBase(localReservation, false, response?.Message ?? "İptal işlemi başarısız.");
+        }
+
+        private ErenBookRequest GetEntity(PostReservationRequest postReservationRequest, ReservationToken reservationToken, Reservation localReservation)
+        {
+            var extras = new List<ErenBookExtra>();
+
+            var requestExtras = postReservationRequest.PostReservationRequestV2?.Extras;
+
+            if (requestExtras?.Any() == true)
+            {
+                foreach (var extra in requestExtras)
+                {
+                    if (int.TryParse(extra.ExtraCode, out int serviceId))
+                    {
+                        extras.Add(new ErenBookExtra { ServiceId = serviceId });
+                    }
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(postReservationRequest.ExtraList))
+            {
+                foreach (var extra in postReservationRequest.ExtraList.Split(','))
+                {
+                    if (int.TryParse(extra.Trim(), out int serviceId))
+                    {
+                        extras.Add(new ErenBookExtra { ServiceId = serviceId });
+                    }
+                }
+            }
+
+            var payment = postReservationRequest.PostReservationRequestV2?.Payment;
+
+            float collectedPrice = 0;
+
+            if (payment != null && payment.PaymentType != PaymentTypes.PayOnDelivery)
+            {
+                if (!payment.OneWayFeePayToDelivery)
+                    collectedPrice += reservationToken.APIOneWayFee;
+
+                collectedPrice += (float)Math.Round(
+                    reservationToken.APIDailyPrice * reservationToken.RentalDuration,
+                    3
+                );
+            }
+
+            var collectedExtras = payment?.ExtraPricePayToDelivery == true
+                ? 0
+                : requestExtras?.Sum(e => e.ApiPrice) ?? 0;
+
+            var birthDateParsed = DateTime.TryParse(postReservationRequest.CustomerBirthDay, out var birthDate);
+
+            var driverAge = birthDateParsed
+                ? DateTime.Now.Year - birthDate.Year
+                : 30;
+
+            driverAge = Math.Max(21, driverAge);
+
+            return new ErenBookRequest
+            {
+                BookingReference = localReservation.ReservationNumber,
+                SearchRequestId = reservationToken.APIReferenceCode,
+                QuoteId = reservationToken.APIReferenceCode2,
+                FirstName = postReservationRequest.CustomerName,
+                LastName = postReservationRequest.CustomerSurname,
+                Email = postReservationRequest.CustomerEmail,
+                Phone = postReservationRequest.CustomerTelephone?.Replace(" ", string.Empty),
+                FlightNumber = postReservationRequest.FlightNumberArrival,
+                DriverAge = driverAge,
+                IdNumber = postReservationRequest.CustomerPersonalNumber,
+                PassportNumber = postReservationRequest.CustomerPersonalNumber,
+                Comment = postReservationRequest.CustomerNote,
+                CollectedPrice = collectedPrice,
+                CollectedExtras = collectedExtras,
+                Extras = extras.Any() ? extras : null
+            };
         }
     }
 }

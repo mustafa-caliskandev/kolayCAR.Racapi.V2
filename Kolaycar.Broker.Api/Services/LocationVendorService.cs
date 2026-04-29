@@ -29,7 +29,7 @@ namespace KolayCAR.Broker.API.Services
         {
             if (CacheSettings.UseCache)
             {
-                var locationVendors = await _cacheService.GetOrCreateAsync($"{CacheSettings.LocationKey}-LocationVendor-{vendorId}", () => _locationVendorRepository.GetLocationVendorByVendorId(vendorId));
+                var locationVendors = await _cacheService.GetOrCreateAsync($"{CacheSettings.LocationVendor}-LocationVendor-{vendorId}", () => _locationVendorRepository.GetLocationVendorByVendorId(vendorId));
                 return locationVendors.Where(e => e.Locallocationid == pickupLocationId && e.Active == true).FirstOrDefault();
             }
             else

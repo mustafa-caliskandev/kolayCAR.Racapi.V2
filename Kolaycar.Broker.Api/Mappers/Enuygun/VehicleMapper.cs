@@ -4,84 +4,67 @@ using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace KolayCAR.Broker.API.Mappers.Enuygun
 {
     public static class VehicleMapper
     {
-
         public static List<Vehicle> Map(this List<EnuygunResponse.Search.Reservation> apiVehicles, ResponseReservationStepsAdditionalInformation additionalInformation, CurrencyTypes currency, Vendor vendor, string requestID, List<ExchangeRates> exchangeRates)
         {
-
             var _vehicles = new List<Vehicle>();
 
             foreach (var item in apiVehicles)
             {
-                _vehicles.Add(item.Map(additionalInformation, currency, vendor, requestID, exchangeRates));
+                var mappedVehicle = item.Map(additionalInformation, currency, vendor, requestID, exchangeRates);
+                if (mappedVehicle != null)
+                    _vehicles.Add(mappedVehicle);
             }
 
             return _vehicles;
         }
 
-
-
         public static Vehicle Map(this EnuygunResponse.Search.Reservation apiVehicle, ResponseReservationStepsAdditionalInformation additionalInformation, CurrencyTypes currency, Vendor vendor, string requestID, List<ExchangeRates> exchangeRates)
         {
-            //var TotalPrice = apiVehicle.breakdowns[0].type == "reservation" ? apiVehicle.breakdowns[0].chargePrice.ToFloatNullSafe() : 0;
+            if (apiVehicle?.vehicle == null)
+                return null;
 
-            //var TotalPrice = apiVehicle.breakdowns[0].type == "reservation" ? apiVehicle.breakdowns[0].raw.totalPrice : 0;
-            var apiCurrency = (CurrencyTypes)Enum.Parse(typeof(CurrencyTypes), apiVehicle.provisionPrice.currency);
-            var TotalPrice = apiVehicle.breakdowns[0].type == "reservation" ? apiVehicle.breakdowns[0].totalPrice.ToFloatNullSafe() : 0;
-            var depositPrice = CalculationHelper.CurrencyExchange(exchangeRates, vendor, apiVehicle.provisionPrice.price.ToLongNullSafe(), apiCurrency, currency);
-            float oneWayPrice = 0;
-            bool IsPayOnDeliveryOnewayFee = false;
+            var reservationBreakdown = apiVehicle.breakdowns?.FirstOrDefault(e => e?.type == "reservation");
+            var dropPrice = apiVehicle.breakdowns?.FirstOrDefault(e => e?.type == "drop");
 
+            var totalPrice = apiVehicle.price.totalPrice;
 
-            //if (apiVehicle.breakdowns[1].type == "drop")
-            //{
-            //    if (apiVehicle.breakdowns[1].chargePrice.ToFloatNullSafe() > 0 && apiVehicle.breakdowns[1].officePrice.ToFloatNullSafe() == 0)
-            //    {
-            //        oneWayPrice = apiVehicle.breakdowns[1].chargePrice.ToFloatNullSafe();
-            //        IsPayOnDeliveryOnewayFee = false;
-            //    }
-            //    else if (apiVehicle.breakdowns[1].chargePrice.ToFloatNullSafe() == 0 && apiVehicle.breakdowns[1].officePrice.ToFloatNullSafe() > 0)
-            //    {
-            //        oneWayPrice = apiVehicle.breakdowns[1].officePrice.ToFloatNullSafe();
-            //        IsPayOnDeliveryOnewayFee = true;
-            //    }
-            //    else
-            //    {
-            //        oneWayPrice = 0;
-            //        IsPayOnDeliveryOnewayFee = false;
-            //    }
-            //}
+            var vehicleDailyPrice = Math.Round(reservationBreakdown.totalPrice / apiVehicle.days, 2).ToFloatNullSafe();
 
-            if (apiVehicle.breakdowns[1].type == "drop")
+            float depositPrice = 0;
+
+            if (apiVehicle.provisionPrice != null && !string.IsNullOrWhiteSpace(apiVehicle.provisionPrice.currency) &&
+                Enum.TryParse(apiVehicle.provisionPrice.currency, true, out CurrencyTypes depositCurrency))
             {
-                oneWayPrice = apiVehicle.breakdowns[1].raw.totalPrice.ToFloatNullSafe();
-
+                depositPrice = CalculationHelper.CurrencyExchange(exchangeRates, vendor, apiVehicle.provisionPrice.price.ToLongNullSafe(), depositCurrency, currency);
             }
 
-            string vendorName = vendor.ShowSubVendorLogo == true ? apiVehicle.company.name : vendor.VendorName;
-            string vendorLogo = vendor.ShowSubVendorLogo == true ? apiVehicle.company.logoUri : vendor.Logo;
+            var onewayFee = dropPrice?.totalPrice ?? 0;
 
+            var companyName = apiVehicle.company?.name ?? string.Empty;
+            var companyLogo = apiVehicle.company?.logoUri ?? string.Empty;
+            var vehicleImageUrl = apiVehicle.vehicle.imageUrl ?? string.Empty;
 
+            string vendorName = vendor.ShowSubVendorLogo == true && !string.IsNullOrWhiteSpace(companyName) ? companyName : vendor.VendorName;
+            string vendorLogo = vendor.ShowSubVendorLogo == true && !string.IsNullOrWhiteSpace(companyLogo) ? companyLogo : vendor.Logo;
 
             var vehicle = new Vehicle
             {
-                VehicleId = apiVehicle.vehicle.matchCode.ToIntNullSafe(), //Bu kısım sorulacak.
+                VehicleId = 0,
                 VehicleCode = apiVehicle.vehicle.matchCode,
                 VendorId = additionalInformation.Vendor.VendorId,
                 VendorName = vendorName,
                 ApiVendorName = apiVehicle.company.name,
-                //SpecialVendorName = apiVehicle.company.name,
-                //SpecialVendorLogo = apiVehicle.company.logoUri,  
-                //VendorLogo = additionalInformation.Vendor.Logo,
                 VendorLogo = vendorLogo,
                 VendorEmail = additionalInformation.Vendor.VendorEmail,
                 VendorPhone = additionalInformation.Vendor.VendorPhone,
-                VehicleName = apiVehicle.vehicle.brand + " " + apiVehicle.vehicle.name,
+                VehicleName = (apiVehicle.vehicle.brand + " " + apiVehicle.vehicle.name).Trim(),
                 PickupLocationId = additionalInformation.PickupLocationId,
                 PickupLocationName = additionalInformation.PickupLocationName,
                 ReturnLocationId = additionalInformation.ReturnLocationId,
@@ -89,28 +72,11 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 PickupDateTime = additionalInformation.PickupDateTime,
                 ReturnDateTime = additionalInformation.ReturnDateTime,
                 RentalDuration = apiVehicle.days,
-                //DailyPrice = apiVehicle.price.dailyPrice.ToFloatNullSafe(),
-                //OneWayFee = apiVehicle.breakdowns[1].type == "drop" ? 
-                //    apiVehicle.breakdowns[1].chargePrice.ToFloatNullSafe() > 0 && apiVehicle.breakdowns[1].totalPrice.ToFloatNullSafe() == 0 ?
-                //     apiVehicle.breakdowns[1].chargePrice.ToFloatNullSafe() : 
-                //     apiVehicle.breakdowns[1].chargePrice.ToFloatNullSafe() == 0 && apiVehicle.breakdowns[1].totalPrice.ToFloatNullSafe() > 0 ?
-                //     apiVehicle.breakdowns[1].officePrice.ToFloatNullSafe() : 0
-                //     : 0,
-
-                //TotalPrice = apiVehicle.price.totalPrice.ToFloatNullSafe(),
-                OneWayFee = oneWayPrice,
-                IsOneWayFeePOA = IsPayOnDeliveryOnewayFee,
-                TotalPrice = TotalPrice,
-                DailyPrice = TotalPrice / apiVehicle.days,
-                ApiDailyPrice = TotalPrice / apiVehicle.days,
+                OneWayFee = onewayFee,
+                TotalPrice = apiVehicle.price.totalPrice,
+                DailyPrice = vehicleDailyPrice,
                 IsAvailable = true,
-                VehicleImages = new List<VehicleImage>
-                {
-                    new VehicleImage
-                    {
-                        Url =apiVehicle.vehicle.imageUrl,
-                    }
-                },
+                VehicleImages = new() { new() { Url = apiVehicle.vehicle.imageUrl } },
                 VehicleCategoryType = GetEnUygunVehicleCategoryType(apiVehicle.vehicle.@class),
                 PassangerQuantityType = (PassangerQuantityTypes)apiVehicle.vehicle.chair,
                 PassangerQuantityName = apiVehicle.vehicle.chair.ToStringNullSafe() + " Kişi",
@@ -121,8 +87,7 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 IsThereAirCondition = true,
                 VendorMinimumDriverAge = apiVehicle.driverAge,
                 VendorMinimumDrivingLicenseAge = apiVehicle.licenceYear,
-                TotalPricePayNow = TotalPrice,
-                //DepositPrice = apiVehicle.provisionPrice.price.ToFloatNullSafe(),
+                TotalPricePayNow = totalPrice,
                 DepositPrice = depositPrice,
                 TotalKMLimit = apiVehicle.limitedKm,
                 DailyKMLimit = apiVehicle.dailyLimitedKm,
@@ -133,15 +98,11 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 VehicleModelName = apiVehicle.vehicle.name,
                 VendorType = VendorTypes.EnUygun,
                 ShortAddress = "Request Id = " + requestID + " Reservation ID = " + apiVehicle.referenceId,
-                //IsPayOnDelivery = apiVehicle.breakdowns[0].officePrice.ToFloatNullSafe() > 0  ? true : false,
                 RentalWorkingTypes = vendor.RentalWorkingType,
                 ProfitMarkupDailyPrice = vendor.ProfitMarkupDailyPrice,
-
             };
-
             return vehicle;
         }
-
 
         private static VehicleCategoryTypes GetEnUygunVehicleCategoryType(string vehicleCategoryType)
         {
@@ -162,7 +123,6 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 default: return VehicleCategoryTypes.None;
             }
         }
-
         private static FuelTypes GetEnUygunFuelType(string fuelType)
         {
             switch (fuelType)
@@ -177,7 +137,6 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 default: return FuelTypes.None;
             }
         }
-
         private static TransmissionTypes GetEnUygunTransmissionType(string transmissionType)
         {
             switch (transmissionType)
@@ -187,7 +146,6 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 default: return TransmissionTypes.None;
             }
         }
-
         private static DeliveryType GetEnUygunDeliveryType(string type)
         {
             switch (type)
@@ -197,8 +155,5 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 default: return DeliveryType.None;
             }
         }
-
-
     }
-
 }

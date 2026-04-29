@@ -400,6 +400,7 @@ namespace KolayCAR.Broker.API.CompiledModels
             runtimeEntityType.AddAnnotation("Relational:TableName", "COUPON");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
+            runtimeEntityType.AddAnnotation("SqlServer:UseSqlOutputClause", false);
 
             Customize(runtimeEntityType);
         }
