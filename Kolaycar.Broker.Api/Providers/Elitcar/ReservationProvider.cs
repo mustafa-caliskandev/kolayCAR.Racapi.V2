@@ -43,7 +43,7 @@ namespace KolayCAR.Broker.API.Providers.Elitcar
 
             Serilog.Log.Error("{@ElitcarPostReservationRequestParameters}", postBookingSaveRequestBodyEntity);
 
-            var result = await RestManager.PostAsync<ElitcarRequestBase.PostReservationRequest, ElitcarResponseBase>(
+            var result = await RestManager.PostAsyncResult<ElitcarRequestBase.PostReservationRequest, ElitcarResponseBase>(
                 requestPath: $"reservation/create",
                 headers: AuthProvider.CreateHeaderWithContentType(),
                 entity: postBookingSaveRequestBodyEntity,
@@ -55,11 +55,11 @@ namespace KolayCAR.Broker.API.Providers.Elitcar
 
             Serilog.Log.Error("{@ElitcarPostReservationResult}", result);
 
-            if (result != null && result.id > 0 && !string.IsNullOrEmpty(result.pnr))
+            if (result?.Data != null && result.Data.id > 0 && !string.IsNullOrEmpty(result.Data.pnr))
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.pnr;
-                localReservation.APIReferenceCode2 = result.id.ToStringNullSafe();
+                localReservation.APIReservationNumber = result.Data.pnr;
+                localReservation.APIReferenceCode2 = result.Data.id.ToStringNullSafe();
 
                 var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@ElitcarGetLocationsResponse}", location);
@@ -90,15 +90,7 @@ namespace KolayCAR.Broker.API.Providers.Elitcar
                 };
             }
 
-            Serilog.Log.Error("Elitcar servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = "Elitcar servisinden herhangi bir veri alınamadı!";
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Elitcar servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         public async Task<ServiceResponseBase> PostCancelReservation(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Reservation localReservation)
@@ -114,7 +106,7 @@ namespace KolayCAR.Broker.API.Providers.Elitcar
 
             Serilog.Log.Error("{@ElitcarPostCancelReservationsRequestParameters}", postCancelRequestBodyEntity);
 
-            var result = await RestManager.PutAsync<ElitcarRequestBase.CancelReservation>(
+            var result = await RestManager.PutAsyncResult<ElitcarRequestBase.CancelReservation>(
                 requestPath: $"reservation/cancel",
                 entity: postCancelRequestBodyEntity,
                 headers: AuthProvider.CreateHeaderWithContentType(),
@@ -126,7 +118,7 @@ namespace KolayCAR.Broker.API.Providers.Elitcar
 
             Serilog.Log.Error("{@ElitcarPostCancelReservationsResponse}", result);
 
-            if (result != null && result.id > 0 && !string.IsNullOrEmpty(result.pnr))
+            if (result?.Data != null && result.Data.id > 0 && !string.IsNullOrEmpty(result.Data.pnr))
             {
                 localReservation.APIReservationCancel = true;
 
@@ -137,12 +129,7 @@ namespace KolayCAR.Broker.API.Providers.Elitcar
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Elitcar servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         private ElitcarRequestBase.CancelReservation PostCancelRequestBodyEntity(Reservation localReservation, Vendor vendor) =>

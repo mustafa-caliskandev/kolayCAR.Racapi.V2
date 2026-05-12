@@ -48,7 +48,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
 
             if (auth?.Status == "OK")
             {
-                var result = await RestManager.PostAsync<EnuygunRequest.Reservation.Cancel, EnuygunResponse.Reservation.Cancel>(
+                var result = await RestManager.PostAsyncResult<EnuygunRequest.Reservation.Cancel, EnuygunResponse.Reservation.Cancel>(
                         requestPath: "/api/v1/cancel",
                         headers: AuthProvider.CreateHeaderWithToken(auth.Data.Token),
                         entity: reservationCancelRequest,
@@ -62,7 +62,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
 
                 Serilog.Log.Error("{@EnuygunPostCancelReservationsResponse}", result);
 
-                if (result?.status == "OK")
+                if (result?.Data?.status == "OK")
                 {
                     localReservation.APIReservationCancel = true;
 
@@ -73,11 +73,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
                     };
                 }
 
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Message = result?.userMessage
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "rezervasyon iptal servisi başarısız!");
 
             }
 
@@ -109,7 +105,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
             if (auth?.Status == "OK")
             {
 
-                var result = await RestManager.PostAsync<EnuygunRequest.Reservation.Root, EnuygunResponse.Reservation.Root>(
+                var result = await RestManager.PostAsyncResult<EnuygunRequest.Reservation.Root, EnuygunResponse.Reservation.Root>(
                     requestPath: "/api/v1/book",
                     headers: AuthProvider.CreateHeaderWithToken(auth.Data.Token),
                     entity: reservationRequest,
@@ -125,10 +121,10 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
 
                 localReservation.ReservationPostedToAPI = true;
 
-                if (result?.status == "OK")
+                if (result?.Data?.status == "OK")
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.data.orderId;
+                    localReservation.APIReservationNumber = result.Data.data.orderId;
                     localReservation.APIVendorName = vendor.VendorName;
 
                     var officeInfo = reservationToken.APIReferenceCode3?.Split("|");
@@ -165,11 +161,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
 
                 }
 
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Message = "Enuygun için rezervasyon gerçekleşmedi (Message = )" + result?.userMessage + ")"
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "için rezervasyon gerçekleşmedi!");
 
             }
 

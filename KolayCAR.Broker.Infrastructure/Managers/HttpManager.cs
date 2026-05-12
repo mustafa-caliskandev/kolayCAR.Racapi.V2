@@ -137,26 +137,14 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                 client.SetHeaders(headers);
                 requestPath += parameters.ToQueryString(encode);
                 var response = await client.GetAsync(requestPath);
-                var serialize = await response.Content.ReadAsStringAsync();
-
-                if (_dbHelper != null && brokerLogModel != null)
-                {
-                    brokerLogModel.Content = serialize;
-                    _dbHelper.WriteLog(brokerLogModel);
-                }
-
-                return HttpResult<T>.Result(
-                               data: JsonConvert.DeserializeObject<T>(serialize),
-                               httpResultType: response.StatusCode,
-                               success: response.IsSuccessStatusCode,
-                               message: response.RequestMessage.ToString());
+                return await CreateHttpResult<T>(response, brokerLogModel, isReservationRequest);
             }
             catch (Exception ex)
             {
                 if (isReservationRequest)
                     Serilog.Log.Error("{@HttpManagerGetAsync2Error}", client.BaseAddress.AbsoluteUri + " - " + ex.ToJson());
 
-                return default(HttpResult<T>);
+                return HttpResult<T>.Catch(ex.Message);
             }
         }
 
@@ -449,6 +437,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
            where TRes : class
         {
 
+
             try
             {
                 client.SetHeaders(headers);
@@ -511,25 +500,14 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                 client.SetHeaders(headers);
                 requestPath += parameters.ToQueryString();
                 var response = await client.PostAsync(requestPath, content);
-                var result = await response.Content.ReadAsStringAsync();
-
-                if (_dbHelper != null && brokerLogModel != null)
-                {
-                    brokerLogModel.Content = result;
-                    _dbHelper.WriteLog(brokerLogModel);
-                }
-                return HttpResult<TRes>.Result(
-                    data: JsonConvert.DeserializeObject<TRes>(result),
-                    httpResultType: HttpStatusCode.OK,
-                    success: response.IsSuccessStatusCode,
-                    message: response.RequestMessage.ToString());
+                return await CreateHttpResult<TRes>(response, brokerLogModel, isReservationRequest);
             }
             catch (Exception ex)
             {
                 if (isReservationRequest)
                     Serilog.Log.Error("{@HttpManagerPostAsyncError}", ex.ToJson());
 
-                return default(HttpResult<TRes>);
+                return HttpResult<TRes>.Catch(ex.Message);
             }
         }
         public async Task<TRes> PostAsyncWithModel<Treq, TRes>(string requestPath, Treq entity = null, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false)
@@ -584,6 +562,45 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                 return default(TRes);
             }
         }
+        public async Task<HttpResult<TRes>> PostAsyncWithModelResult<TReq, TRes>(string requestPath, TReq entity = null, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false)
+            where TReq : class
+            where TRes : class
+        {
+            try
+            {
+                client.SetHeaders(headers);
+                requestPath += parameters.ToQueryString();
+                var response = await client.PostAsJsonAsync(requestPath, entity);
+
+                return await CreateHttpResult<TRes>(response, brokerLogModel, isReservationRequest);
+            }
+            catch (Exception ex)
+            {
+                if (isReservationRequest)
+                    Serilog.Log.Error("{@HttpManagerPostAsyncWithModelResultError}", ex.ToJson());
+
+                return HttpResult<TRes>.Catch(ex.Message);
+            }
+        }
+        public async Task<HttpResult<TRes>> PostAsyncWithModelResult<TRes>(string requestPath, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false)
+            where TRes : class
+        {
+            try
+            {
+                client.SetHeaders(headers);
+                requestPath += parameters.ToQueryString();
+                var response = await client.PostAsync(requestPath, null);
+
+                return await CreateHttpResult<TRes>(response, brokerLogModel, isReservationRequest);
+            }
+            catch (Exception ex)
+            {
+                if (isReservationRequest)
+                    Serilog.Log.Error("{@HttpManagerPostAsyncWithModelResultError}", ex.ToJson());
+
+                return HttpResult<TRes>.Catch(ex.Message);
+            }
+        }
 
         public async Task<HttpStatusCode> DeleteAsync<T>(string requestPath, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, T entity = null, bool isReservationRequest = false)
     where T : class
@@ -606,6 +623,46 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                     Serilog.Log.Error("{@HttpManagerDeleteAsyncError}", ex.ToJson());
 
                 return HttpStatusCode.InternalServerError;
+            }
+        }
+
+        public async Task<HttpResult<string>> DeleteAsyncResult<T>(string requestPath, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, T entity = null, bool isReservationRequest = false)
+            where T : class
+        {
+            try
+            {
+                client.SetHeaders(headers);
+                requestPath += parameters.ToQueryString();
+                var request = new HttpRequestMessage(HttpMethod.Delete, requestPath)
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(entity), Encoding.UTF8, "application/json")
+                };
+
+                var response = await client.SendAsync(request);
+                var result = await response.Content.ReadAsStringAsync();
+
+                if (_dbHelper != null && brokerLogModel != null)
+                {
+                    brokerLogModel.Content = result;
+                    _dbHelper.WriteLog(brokerLogModel);
+                }
+
+                var responseMessage = VendorResponseMessageHelper.ExtractMessage(result);
+
+                return HttpResult<string>.Result(
+                    data: result,
+                    httpResultType: response.StatusCode,
+                    success: response.IsSuccessStatusCode,
+                    message: !string.IsNullOrWhiteSpace(responseMessage) ? responseMessage : response.ReasonPhrase,
+                    rawContent: result,
+                    serviceMessage: response.IsSuccessStatusCode ? null : result);
+            }
+            catch (Exception ex)
+            {
+                if (isReservationRequest)
+                    Serilog.Log.Error("{@HttpManagerDeleteAsyncResultError}", ex.ToJson());
+
+                return HttpResult<string>.Catch(ex.Message);
             }
         }
         public async Task<TRes> PostAsyncWithModelNullValueHandling<TReq, TRes>(string requestPath, TReq entity = null, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false) where TReq : class where TRes : class
@@ -643,6 +700,33 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                 return default(TRes);
             }
         }
+        public async Task<HttpResult<TRes>> PostAsyncWithModelNullValueHandlingResult<TReq, TRes>(string requestPath, TReq entity = null, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false) where TReq : class where TRes : class
+        {
+            try
+            {
+                client.SetHeaders(headers);
+                if (parameters != null)
+                    requestPath += parameters.ToQueryString();
+                string json = null;
+                if (entity != null)
+                {
+                    json = JsonConvert.SerializeObject(entity, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                }
+
+                using (var content = json != null ? new StringContent(json, Encoding.UTF8, "application/json") : null)
+                using (var response = await client.PostAsync(requestPath, content))
+                {
+                    return await CreateHttpResult<TRes>(response, brokerLogModel, isReservationRequest);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (isReservationRequest)
+                    Serilog.Log.Error("{@HttpManagerPostAsyncWithModelNullValueHandlingResultError}", ex.ToJson());
+
+                return HttpResult<TRes>.Catch(ex.Message);
+            }
+        }
         public async Task<TRes> PostAsyncWithUrlEncoded<TReq, TRes>(string requestPath, List<KeyValuePair<string, string>> entity = null, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, bool isPlainTextResponse = false, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false)
           where TReq : class
           where TRes : class
@@ -676,6 +760,70 @@ namespace KolayCAR.Broker.Infrastructure.Managers
 
                 return default;
             }
+        }
+        public async Task<HttpResult<TRes>> PostAsyncWithUrlEncodedResult<TReq, TRes>(string requestPath, List<KeyValuePair<string, string>> entity = null, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false)
+            where TReq : class
+            where TRes : class
+        {
+            try
+            {
+                client.SetHeaders(headers);
+                requestPath += parameters.ToQueryString();
+                var response = await client.PostAsync(requestPath, new FormUrlEncodedContent(entity ?? new()));
+
+                return await CreateHttpResult<TRes>(response, brokerLogModel, isReservationRequest);
+            }
+            catch (Exception ex)
+            {
+                if (isReservationRequest)
+                    Serilog.Log.Error("{@HttpManagerPostAsyncWithUrlEncodedResultError}", ex.ToJson());
+
+                return HttpResult<TRes>.Catch(ex.Message);
+            }
+        }
+
+        private async Task<HttpResult<TRes>> CreateHttpResult<TRes>(HttpResponseMessage response, BrokerLogModel brokerLogModel, bool isReservationRequest) where TRes : class
+        {
+            var result = await response.Content.ReadAsStringAsync();
+
+            if (_dbHelper != null && brokerLogModel != null)
+            {
+                brokerLogModel.Content = result;
+                _dbHelper.WriteLog(brokerLogModel);
+            }
+
+            var responseMessage = VendorResponseMessageHelper.ExtractMessage(result);
+            var isErrorResponse = VendorResponseMessageHelper.IsErrorResponse(result);
+            var deserializeSuccess = true;
+            var deserializeErrorMessage = string.Empty;
+            TRes data = default;
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(result))
+                    data = JsonConvert.DeserializeObject<TRes>(result);
+            }
+            catch (Exception ex)
+            {
+                deserializeSuccess = false;
+                deserializeErrorMessage = ex.Message;
+
+                if (isReservationRequest)
+                    Serilog.Log.Error("{@HttpManagerDeserializeModelError}", ex.ToJson());
+            }
+
+            var isDefaultMappedResponse = deserializeSuccess && VendorResponseMessageHelper.IsDefaultMappedResponse(result, data);
+            var hasVendorErrorResponse = isErrorResponse || isDefaultMappedResponse;
+
+            return HttpResult<TRes>.Result(
+                data: data,
+                httpResultType: response.StatusCode,
+                success: response.IsSuccessStatusCode && !hasVendorErrorResponse,
+                message: !string.IsNullOrWhiteSpace(responseMessage) ? responseMessage : response.ReasonPhrase,
+                rawContent: result,
+                deserializeSuccess: deserializeSuccess,
+                deserializeErrorMessage: deserializeErrorMessage,
+                serviceMessage: !deserializeSuccess || !response.IsSuccessStatusCode || hasVendorErrorResponse ? result : null);
         }
     }
 }

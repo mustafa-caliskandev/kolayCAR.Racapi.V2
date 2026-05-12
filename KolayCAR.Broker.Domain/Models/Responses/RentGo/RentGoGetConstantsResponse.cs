@@ -90,10 +90,10 @@ namespace KolayCAR.Broker.Domain.Models.Responses.RentGo
         public string Content { get; set; }
 
         [JsonProperty("price")]
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         [JsonProperty("maxPrice")]
-        public decimal MaxPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
 
         [JsonProperty("declarationLimit")]
         public decimal? DeclarationLimit { get; set; }
@@ -114,10 +114,10 @@ namespace KolayCAR.Broker.Domain.Models.Responses.RentGo
         public int MaxQty { get; set; }
 
         [JsonProperty("price")]
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         [JsonProperty("maxPrice")]
-        public decimal MaxPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
 
         [JsonProperty("type")]
         public int Type { get; set; }

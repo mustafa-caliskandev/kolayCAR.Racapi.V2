@@ -57,6 +57,7 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                 IsThereAirCondition = true,
                 VendorMinimumDriverAge = ToNullableInt(vehicle.META_DATA?.MIN_AGE ?? vehicle.MIN_AGE) ?? 0,
                 VendorMinimumDrivingLicenseAge = ToNullableInt(vehicle.META_DATA?.MIN_LICENSE_AGE ?? vehicle.MIN_LICENSE_AGE) ?? 0,
+                YoungDriverMinAge = ToNullableInt(vehicle.META_DATA?.MIN_YOUNG_AGE) ?? null,
                 DailyKMLimit = dailyKmLimit,
                 TotalKMLimit = CalculateTotalKmLimit(dailyKmLimit, monthlyKmLimit, rentalDuration),
                 DailyPricePayNow = dailyPrice,

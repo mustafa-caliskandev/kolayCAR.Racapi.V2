@@ -284,7 +284,10 @@ namespace KolayCAR.Broker.API.Services
 
                                         localExtra.Code = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{localExtra.ExtraId}~{localExtra.ExtraCode}"));
 
-                                        reservationToken.CyrptExtras.Add(localExtra.Map());
+                                        var cyrptExtra = localExtra.Map();
+
+                                        if (!reservationToken.CyrptExtras.Any(e => e.I == cyrptExtra.I && e.C == cyrptExtra.C))
+                                            reservationToken.CyrptExtras.Add(cyrptExtra);
                                     }
                                 }
 
@@ -293,7 +296,7 @@ namespace KolayCAR.Broker.API.Services
                         }
                         else
                         {
-                            if (extrasData?.Extras != null)
+                            if (extrasData?.Extras != null && reservationToken.CyrptExtras.Count == 0)
                                 foreach (var localExtra in extrasData?.Extras)
                                     reservationToken.CyrptExtras.Add(localExtra.Map());
                         }
@@ -347,7 +350,11 @@ namespace KolayCAR.Broker.API.Services
                             foreach (var extra in premiumPackets)
                             {
                                 extra.Code = $"{Convert.ToBase64String(Encoding.UTF8.GetBytes(extra.ExtraId + "~" + extra.ExtraCode))}";
-                                reservationToken.CyrptExtras.Add(extra.Map());
+
+                                var cyrptExtra = extra.Map();
+
+                                if (!reservationToken.CyrptExtras.Any(e => e.CD == cyrptExtra.CD))
+                                    reservationToken.CyrptExtras.Add(cyrptExtra);
                             }
 
                             extrasData.Extras = extrasData.Extras.Concat(premiumPackets).GroupBy(x => x.ExtraId).Select(g => g.First()).ToList();

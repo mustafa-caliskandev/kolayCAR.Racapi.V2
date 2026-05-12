@@ -43,7 +43,7 @@ namespace Kolaycar.Broker.Api.Providers.Eren
 
             Serilog.Log.Error("{@ErenPostReservationRequestParameters}", bookRequest);
 
-            var response = await _httpManager.PostAsyncWithModel<ErenBookRequest, ErenBookResponse>(
+            var response = await _httpManager.PostAsyncWithModelResult<ErenBookRequest, ErenBookResponse>(
                 "/v1/book",
                 bookRequest,
                 headers: accessToken,
@@ -59,16 +59,15 @@ namespace Kolaycar.Broker.Api.Providers.Eren
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
 
-            if (response != null && response.Status?.ToLower() == "success")
+            if (response?.Data != null && response.Data.Status?.ToLower() == "success")
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = response.BookingNumber;
+                localReservation.APIReservationNumber = response.Data.BookingNumber;
 
-                return new ServiceResponseBase(localReservation, true, response.Message ?? "Rezervasyon başarılı.");
+                return new ServiceResponseBase(localReservation, true, response.Data.Message ?? "Rezervasyon başarılı.");
             }
 
-            localReservation.APIMessage = response?.Message ?? $"{vendor.VendorName} servisinden rezervasyon onaylanmadı!";
-            return new ServiceResponseBase(localReservation, false, response?.Message ?? $"{vendor.VendorName} rezervasyon hatası!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, response, "rezervasyon hatası!");
         }
 
         public async Task<ServiceResponseBase> PostCancelReservation(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Reservation localReservation)
@@ -90,7 +89,7 @@ namespace Kolaycar.Broker.Api.Providers.Eren
                 LogType = BrokerLogTypes.ReservationCancelVendorAPIRequest
             });
 
-            var response = await _httpManager.PostAsyncWithModel<ErenCancelRequest, ErenCancelResponse>(
+            var response = await _httpManager.PostAsyncWithModelResult<ErenCancelRequest, ErenCancelResponse>(
                 "/v1/cancel",
                 cancelRequest,
                 headers: accessToken,
@@ -103,13 +102,13 @@ namespace Kolaycar.Broker.Api.Providers.Eren
 
             Serilog.Log.Error("{@ErenPostCancelReservationResponse}", response);
 
-            if (response != null && response.Status?.ToLower() == "success")
+            if (response?.Data != null && response.Data.Status?.ToLower() == "success")
             {
                 localReservation.APIReservationCancel = true;
-                return new ServiceResponseBase(localReservation, true, response.Message ?? "İptal işlemi başarılı.");
+                return new ServiceResponseBase(localReservation, true, response.Data.Message ?? "İptal işlemi başarılı.");
             }
 
-            return new ServiceResponseBase(localReservation, false, response?.Message ?? "İptal işlemi başarısız.");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, response, "iptal işlemi başarısız.");
         }
 
         private ErenBookRequest GetEntity(PostReservationRequest postReservationRequest, ReservationToken reservationToken, Reservation localReservation)

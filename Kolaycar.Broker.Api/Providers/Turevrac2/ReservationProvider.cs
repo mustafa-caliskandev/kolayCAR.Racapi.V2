@@ -63,7 +63,7 @@ namespace KolayCAR.Broker.API.Providers.Turevrac2
                 return new ServiceResponseBase(localReservation, true);
             }
 
-            return new ServiceResponseBase(localReservation, false, "Turevrac servisi rezervasyon iptali başarısız!");
+            return CreateVendorErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -103,7 +103,7 @@ namespace KolayCAR.Broker.API.Providers.Turevrac2
                         if (result.Data[0].success == false)
                         {
                             Serilog.Log.Error($"Turevrac2 - {vendor.VendorName} servisi rezervasyonu reddetti!");
-                            return new ServiceResponseBase(localReservation, false, "Turevrac2 servisi rezervasyonu reddetti!");
+                            return CreateVendorErrorResponse(localReservation, vendor, result, "servisi rezervasyonu reddetti!");
                         }
                         localReservation.APIReservationSuccessfully = true;
                         localReservation.APIReservationNumber = result.Data[0].rez_id;
@@ -136,16 +136,28 @@ namespace KolayCAR.Broker.API.Providers.Turevrac2
                         return new ServiceResponseBase(localReservation, true);
                     }
 
-                Serilog.Log.Error(vendor.VendorName + " servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = vendor.VendorName + " servisinden herhangi bir veri alınamadı!";
-
-                return new ServiceResponseBase(localReservation, false, vendor.VendorName + " servisinden herhangi bir veri alınamadı!");
+                return CreateVendorErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
             }
             catch (System.Exception ex)
             {
                 Serilog.Log.Error("{@Turevrac2PostReservationError}", $"{vendor.VendorName} - {localReservation.ReservationNumber} - {ex.ToJson()}");
                 return new ServiceResponseBase(localReservation, false, vendor.VendorName + " servisinden herhangi bir veri alınamadı!");
             }
+        }
+
+        private static ServiceResponseBase CreateVendorErrorResponse<T>(Reservation localReservation, Vendor vendor, HttpResult<T> result, string fallbackMessage) where T : class
+        {
+            var supplierMessage = VendorReservationResponseHelper.GetSupplierMessage(result);
+
+            if (!string.IsNullOrWhiteSpace(supplierMessage))
+                localReservation.APIMessage = supplierMessage;
+
+            return new ServiceResponseBase(
+                localReservation,
+                false,
+                $"{vendor.VendorName} {fallbackMessage}",
+                serviceMessage: supplierMessage,
+                serviceCode: result != null ? ((int)result.HttpStatusCode).ToString() : string.Empty);
         }
 
         private IDictionary<string, object> PostReservationRequestParameters(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, float paidAmount, Vendor vendor, Reservation localReservation)

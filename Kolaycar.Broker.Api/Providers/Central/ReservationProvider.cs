@@ -40,7 +40,7 @@ namespace KolayCAR.Broker.API.Providers.Central
 
             Serilog.Log.Error("{@CentralPostCancelReservationsRequestParameters}", postCancelReservationsRequestParameters);
 
-            var result = await RestManager.GetAsync<CentralResponseBase.CentralCancelReservation>(
+            var result = await RestManager.GetAsyncResult<CentralResponseBase.CentralCancelReservation>(
             requestPath: $"operation/API/ReservationCancel.php",
             parameters: postCancelReservationsRequestParameters,
             brokerLogModel: new BrokerLogModel
@@ -51,7 +51,7 @@ namespace KolayCAR.Broker.API.Providers.Central
             isReservationRequest: true);
 
             Serilog.Log.Error("{@CentralPostCancelReservationsResponse}", result);
-            if (result != null && result.cevap == "success")
+            if (result?.Data?.cevap == "success")
             {
                 localReservation.APIReservationCancel = true;
 
@@ -62,12 +62,7 @@ namespace KolayCAR.Broker.API.Providers.Central
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Central servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -90,7 +85,7 @@ namespace KolayCAR.Broker.API.Providers.Central
 
             Serilog.Log.Error("{@CentralPostReservationRequestParameters}", postReservationRequestParameters);
 
-            var result = await RestManager.GetAsync<CentralResponseBase.CentralReservation>(
+            var result = await RestManager.GetAsyncResult<CentralResponseBase.CentralReservation>(
             requestPath: $"operation/API/Reservation.php",
             parameters: postReservationRequestParameters,
             brokerLogModel: new BrokerLogModel
@@ -105,10 +100,10 @@ namespace KolayCAR.Broker.API.Providers.Central
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
 
-            if (result != null && !string.IsNullOrEmpty(result.ReservationId))
+            if (result?.Data != null && !string.IsNullOrEmpty(result.Data.ReservationId))
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.ReservationId;
+                localReservation.APIReservationNumber = result.Data.ReservationId;
 
                 var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@CentralGetLocationsResponse}", location);
@@ -139,15 +134,7 @@ namespace KolayCAR.Broker.API.Providers.Central
                 };
             }
 
-            Serilog.Log.Error("Central rezervasyonu başarısız!");
-            localReservation.APIMessage = result.mesaj;
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Central servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         private Dictionary<string, object> PostReservationRequestParameters(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, float paidAmount, Reservation localReservation)

@@ -33,14 +33,14 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 new Dictionary<string, object>
                 {
                     { "Content-Type", "application/json" },
-                    { "Authorization", $"Bearer {vendor.ApiKey + vendor.ApiPassword + vendor.ApiClientId}" },
+                    { "Authorization", $"Bearer {vendor.ApiKey}" },
                 }
             );
 
             if (response?.Versions?.Any() == true)
                 return new(response.Versions.Map(vendor), true);
 
-            return new(null, false, "Lokasyon bilgisi alınamadı!");
+            return new(null, false, "Araç listesi alınamadı!");
         }
 
         public async Task<ServiceResponseBase> GetVehicles(GetVehiclesRequest getVehiclesRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, List<ExchangeRates> exchangeRates, List<Vehicle> localVehicles, List<SubVendor> subVendors, CurrencyTypes baseVendorRequestCurrencyType, List<ProfitMarkup> profitMarkups = null)

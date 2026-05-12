@@ -1932,6 +1932,8 @@ namespace KolayCAR.Broker.API.Models
                 entity.Property(e => e.Labeladi).HasColumnName("LABELADI");
 
                 entity.Property(e => e.LabelKodu).HasColumnName("LABELKODU");
+
+                entity.Property(e => e.TypeId).HasColumnName("TYPEID");
             });
 
             modelBuilder.Entity<Location>(entity =>

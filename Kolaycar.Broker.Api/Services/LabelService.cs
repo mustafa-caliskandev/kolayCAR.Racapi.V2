@@ -25,17 +25,47 @@ namespace KolayCAR.Broker.API.Services
         }
         public async Task<List<Label>> GetAllLabelsByLanguageId(int languageId)
         {
-            if (CacheSettings.UseCache)
-                return await _cacheService.GetOrCreateAsync($"Label-{languageId}", () => _context.Label.Where(x => x.Dilid == languageId).ToListAsync());
+            try
+            {
+                if (CacheSettings.UseCache)
+                    return await _cacheService.GetOrCreateAsync($"Label-{languageId}", () => GetSafeLabelQuery().Where(x => x.Dilid == languageId).ToListAsync());
 
-            return await _context.Label.Where(x => x.Dilid == languageId).ToListAsync();
+                return await GetSafeLabelQuery().Where(x => x.Dilid == languageId).ToListAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Serilog.Log.Error("{@LabelServiceGetAllLabelsByLanguageIdError}", ex.Message);
+                return new List<Label>();
+            }
         }
         public async Task<Label> GetLabelByCodeAndLanguageId(string labelCode, int languageId)
         {
-            if (CacheSettings.UseCache)
-                return await _cacheService.GetOrCreateAsync($"Label-{labelCode}-{languageId}", () => _context.Label.Where(x => x.LabelKodu == labelCode && x.Dilid == languageId).FirstOrDefaultAsync());
+            try
+            {
+                if (CacheSettings.UseCache)
+                    return await _cacheService.GetOrCreateAsync($"Label-{labelCode}-{languageId}", () => GetSafeLabelQuery().Where(x => x.LabelKodu == labelCode && x.Dilid == languageId).FirstOrDefaultAsync());
 
-            return await _context.Label.Where(x => x.LabelKodu == labelCode && x.Dilid == languageId).FirstOrDefaultAsync();
+                return await GetSafeLabelQuery().Where(x => x.LabelKodu == labelCode && x.Dilid == languageId).FirstOrDefaultAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Serilog.Log.Error("{@LabelServiceGetLabelByCodeAndLanguageIdError}", ex.Message);
+                return null;
+            }
+        }
+
+        private IQueryable<Label> GetSafeLabelQuery()
+        {
+            return _context.Label
+                .AsNoTracking()
+                .Select(x => new Label
+                {
+                    Labelid = x.Labelid,
+                    Dilid = x.Dilid,
+                    Labeladi = x.Labeladi,
+                    LabelKodu = x.LabelKodu,
+                    TypeId = x.TypeId
+                });
         }
     }
 }

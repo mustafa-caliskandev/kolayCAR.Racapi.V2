@@ -63,9 +63,9 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                 if (result?.Data != null && (bool)result?.Success)
                 {
                     localReservation.APIReservationCancel = result.Data.APIReservationCancel;
-                    return new ServiceResponseBase(localReservation, result.Success, "", result.Message);
+                    return new ServiceResponseBase(localReservation, result.Success, "", result.ServiceMessage ?? result.Message);
                 }
-                return new ServiceResponseBase(localReservation, result.Success, result.Message);
+                return new ServiceResponseBase(localReservation, result.Success, result.Message, result.ServiceMessage ?? result.Message);
             }
             return new ServiceResponseBase(localReservation, auth.Success, "Kimlik doğrulama işlemi başarısız!", auth.Message);
         }
@@ -127,7 +127,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                     Serilog.Log.Error("{@BrokerPostReservationResult}", result);
 
                     localReservation.ReservationPostedToAPI = true;
-                    localReservation.APIMessage = result.Message;
+                    localReservation.APIMessage = result.ServiceMessage ?? result.Message;
 
                     if (result.Data != null && result.Success)
                     {
@@ -154,9 +154,9 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                         localReservation.APIVendorPickupPhone = reservation.APIVendorPickupPhone;
                         localReservation.APIVendorReturnPhone = reservation.APIVendorReturnPhone;
 
-                        return new ServiceResponseBase(localReservation, result.Success, "", result.Message);
+                        return new ServiceResponseBase(localReservation, result.Success, "", result.ServiceMessage ?? result.Message);
                     }
-                    return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} servisine ulaşılamadı!", result.Message);
+                    return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} servisine ulaşılamadı!", result.ServiceMessage ?? result.Message);
                 }
                 catch (Exception ex)
                 {
@@ -202,7 +202,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                     Serilog.Log.Error("{@BrokerPostReservationResult}", result);
 
                     localReservation.ReservationPostedToAPI = true;
-                    localReservation.APIMessage = result.Message;
+                    localReservation.APIMessage = result.ServiceMessage ?? result.Message;
 
                     if (result.Data != null && result.Success)
                     {
@@ -229,9 +229,9 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                         localReservation.APIVendorPickupPhone = reservation.APIVendorPickupPhone;
                         localReservation.APIVendorReturnPhone = reservation.APIVendorReturnPhone;
 
-                        return new ServiceResponseBase(localReservation, result.Success, "", result.Message);
+                        return new ServiceResponseBase(localReservation, result.Success, "", result.ServiceMessage ?? result.Message);
                     }
-                    return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} servisine ulaşılamadı!", result.Message);
+                    return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} servisine ulaşılamadı!", result.ServiceMessage ?? result.Message);
                 }
                 Serilog.Log.Error("{@KolayCarBrokerReservationAuthError}", auth.ToJson());
                 return new ServiceResponseBase(null, auth.Success, "Kimlik doğrulama işlemi başarısız!", auth.Message);

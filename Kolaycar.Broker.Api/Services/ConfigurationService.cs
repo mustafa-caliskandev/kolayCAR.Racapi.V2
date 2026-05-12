@@ -131,16 +131,69 @@ namespace KolayCAR.Broker.API.Services
             };
         }
 
+        public async Task<string> GetLabel2(int labelId, LanguageTypes languageType)
+        {
+            try
+            {
+                if (CacheSettings.UseCache)
+                {
+                    var label = await _cacheService.GetOrCreateAsync(
+                        $"Label-{labelId}-{languageType}",
+                        () => GetSafeLabelQuery()
+                            .Where(x => x.Labelid == labelId && x.Dilid == ((int)languageType) + 1)
+                            .FirstOrDefaultAsync(),
+                        TimeSpan.FromDays(1));
+
+                    return label?.Labeladi.ToStringNullSafe();
+                }
+
+                var result = await GetSafeLabelQuery()
+                    .Where(x => x.Labelid == labelId && x.Dilid == ((int)languageType) + 1)
+                    .FirstOrDefaultAsync();
+
+                return result?.Labeladi.ToStringNullSafe();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@ConfigurationServiceGetLabel2Error}", ex.Message);
+                return string.Empty;
+            }
+        }
+
         public async Task<string> GetLabel(int labelId, LanguageTypes languageType)
         {
-            if (CacheSettings.UseCache)
+            try
             {
-                var labels = await _cacheService.GetOrCreateAsync($"Label-{labelId}-{languageType.ToString()}", () => _context.Label.Where(x => x.Labelid == labelId && x.Dilid == ((int)languageType) + 1).FirstOrDefaultAsync(), TimeSpan.FromDays(1));
-                return labels?.Labeladi.ToStringNullSafe();
-            }
+                if (CacheSettings.UseCache)
+                {
+                    var labels = await _cacheService.GetOrCreateAsync(
+                        $"Label-{languageType}",
+                        () => GetSafeLabelQuery()
+                            .Where(x => x.TypeId == 2 && x.Dilid == ((int)languageType) + 1)
+                            .ToListAsync(),
+                        TimeSpan.FromDays(1));
 
-            var label = await _context.Label.Where(x => x.Labelid == labelId && x.Dilid == ((int)languageType) + 1).FirstOrDefaultAsync();
-            return label?.Labeladi.ToStringNullSafe();
+                    var labelValue = labels?.FirstOrDefault(e => e.Labelid == labelId)?.Labeladi.ToStringNullSafe();
+
+                    if (string.IsNullOrEmpty(labelValue))
+                    {
+                        var labelVal = await GetSafeLabelQuery().Where(x => x.Labelid == labelId && x.Dilid == ((int)languageType) + 1).FirstOrDefaultAsync();
+                        return labelVal?.Labeladi.ToStringNullSafe();
+                    }
+                    return labelValue;
+                }
+
+                var label = await GetSafeLabelQuery()
+                    .Where(x => x.Labelid == labelId && x.TypeId == 2 && x.Dilid == ((int)languageType) + 1)
+                    .FirstOrDefaultAsync();
+
+                return label?.Labeladi.ToStringNullSafe();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@ConfigurationServiceGetLabelError}", ex.Message);
+                return string.Empty;
+            }
         }
 
         public async Task<string> GetFormContent(int contentId, LanguageTypes languageType)
@@ -205,6 +258,20 @@ namespace KolayCAR.Broker.API.Services
                 return await _cacheService.GetOrCreateAsync($"{CacheSettings.ConfigurationKey}-ConfigurationList", _configurationRepository.GetAllAsync);
 
             return await _configurationRepository.GetAllAsync();
+        }
+
+        private IQueryable<Models.Label> GetSafeLabelQuery()
+        {
+            return _context.Label
+                .AsNoTracking()
+                .Select(x => new Models.Label
+                {
+                    Labelid = x.Labelid,
+                    Dilid = x.Dilid,
+                    Labeladi = x.Labeladi,
+                    LabelKodu = x.LabelKodu,
+                    TypeId = x.TypeId
+                });
         }
     }
 }

@@ -58,7 +58,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
 
                 Serilog.Log.Error("{@Yolcu360CanselReservationRequestBody}", reservationCancelRequestBody);
 
-                var result = await RestManager.PostAsync<Yolcu360RequestBase.ReservationCancelRequestBody.RentalOrderParameters, Yolcu360CancelReservationResponseBase.RentalOrderCancellationResponse>(
+                var result = await RestManager.PostAsyncResult<Yolcu360RequestBase.ReservationCancelRequestBody.RentalOrderParameters, Yolcu360CancelReservationResponseBase.RentalOrderCancellationResponse>(
                     headers: AuthProvider.CreateHeaderWithCookie(cookie),
                     requestPath: "car/order/cancel/",
                     entity: reservationCancelRequestBody,
@@ -71,7 +71,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
 
                 Serilog.Log.Error("{@Yolcu360CancelReservationResult}", result);
 
-                if (result != null && result.cancelled)
+                if (result?.Data != null && result.Data.cancelled)
                 {
                     localReservation.APIReservationCancel = true;
 
@@ -81,6 +81,8 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
                         Data = localReservation
                     };
                 }
+
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "rezervasyon iptal servisi başarısız!");
 
             }
 
@@ -109,7 +111,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
 
                 Serilog.Log.Error("{@Yolcu360ReservationRequestBody}", reservationRequestBody);
 
-                var result = await RestManager.PostAsync<object, YolcuReservationResponseBase.Root>(
+                var result = await RestManager.PostAsyncResult<object, YolcuReservationResponseBase.Root>(
                     requestPath: "car/order/credit/",
                     headers: AuthProvider.CreateReservationHeaderWithSessionId(cookie),
                     entity: reservationRequestBody,
@@ -126,38 +128,38 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
                 localReservation.ReservationPostedToAPI = true;
                 localReservation.APIVendorName = vendor.VendorName;
 
-                if (result?.id != null)
+                if (result?.Data?.id != null)
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = !string.IsNullOrEmpty(result.vendorReservationId) ? result.vendorReservationId : result.id;
-                    localReservation.APIReferenceCode2 = result.id;
+                    localReservation.APIReservationNumber = !string.IsNullOrEmpty(result.Data.vendorReservationId) ? result.Data.vendorReservationId : result.Data.id;
+                    localReservation.APIReferenceCode2 = result.Data.id;
 
 
-                    if (result.listing != null
-                        && result.listing.office != null
-                        && result.listing.office.address != null
-                        && !string.IsNullOrEmpty(result.listing.office.address.line)
-                        && result.listing.dropoffLocation != null
-                        && result.listing.dropoffLocation.address != null
-                        && !string.IsNullOrEmpty(result.listing.dropoffLocation.address.line)
+                    if (result.Data.listing != null
+                        && result.Data.listing.office != null
+                        && result.Data.listing.office.address != null
+                        && !string.IsNullOrEmpty(result.Data.listing.office.address.line)
+                        && result.Data.listing.dropoffLocation != null
+                        && result.Data.listing.dropoffLocation.address != null
+                        && !string.IsNullOrEmpty(result.Data.listing.dropoffLocation.address.line)
                         )
                     {
                         try
                         {
-                            localReservation.PickupOfficeWorkingHours = GetOfficeWorkingHours(result.listing.office.openingHours, localReservation.PickupDate);
-                            localReservation.ReturnOfficeWorkingHours = GetOfficeWorkingHours(result.listing.dropoffLocation.openingHours, localReservation.ReturnDate);
-                            localReservation.APIVendorPickupAddress = result.listing.office.address.line;
-                            localReservation.APIVendorPickupPhone = result.listing.office.phones?[0].dialCode + result.listing.office.phones?[0].number;
+                            localReservation.PickupOfficeWorkingHours = GetOfficeWorkingHours(result.Data.listing.office.openingHours, localReservation.PickupDate);
+                            localReservation.ReturnOfficeWorkingHours = GetOfficeWorkingHours(result.Data.listing.dropoffLocation.openingHours, localReservation.ReturnDate);
+                            localReservation.APIVendorPickupAddress = result.Data.listing.office.address.line;
+                            localReservation.APIVendorPickupPhone = result.Data.listing.office.phones?[0].dialCode + result.Data.listing.office.phones?[0].number;
 
-                            localReservation.APIVendorReturnAddress = result.listing.dropoffLocation.address.line;
-                            localReservation.APIVendorReturnPhone = result.listing.dropoffLocation.phones?[0].dialCode + result.listing.dropoffLocation.phones?[0].number;
+                            localReservation.APIVendorReturnAddress = result.Data.listing.dropoffLocation.address.line;
+                            localReservation.APIVendorReturnPhone = result.Data.listing.dropoffLocation.phones?[0].dialCode + result.Data.listing.dropoffLocation.phones?[0].number;
                         }
                         catch (Exception ex)
                         {
                             Serilog.Log.Error("{@Yolcu360ContactInformationError}", ex.ToJson());
                         }
 
-                        var deliveryType = result.listing.office.deliveryType;
+                        var deliveryType = result.Data.listing.office.deliveryType;
                         localReservation.IsOffice = deliveryType == "meetAndGreet" ? false : deliveryType == "inTerminalOffice" ? true : false;
                     }
                     else
@@ -244,6 +246,8 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
                     //}
                     #endregion
                 }
+
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "rezervasyon servisine ulaşılamadı.");
             }
 
             return new ServiceResponseBase

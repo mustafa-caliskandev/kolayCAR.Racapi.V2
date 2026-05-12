@@ -462,10 +462,12 @@ namespace KolayCAR.Broker.API.Controllers
             Serilog.Log.Error("{@PostReservationVendorAPIResult}", serviceReservation);
 
             var serviceReservationData = serviceReservation.Data as Reservation;
+            var vendorReservationMessage = GetVendorReservationMessage(serviceReservation, "Rezervasyon tedarikçi API tarafına iletilemedi!");
+            var isVendorReservationSuccess = serviceReservation.Success && serviceReservationData?.APIReservationSuccessfully == true;
 
             var configurations = await _configurationService.GetConfigurations();
 
-            if (configurations.AutoCancel && !serviceReservationData.APIReservationSuccessfully)
+            if (configurations.AutoCancel && serviceReservationData?.APIReservationSuccessfully != true)
             {
                 var postCancelReservationRequest = new PostCancelReservationRequest
                 {
@@ -492,8 +494,9 @@ namespace KolayCAR.Broker.API.Controllers
                      data: null,
                      httpResultType: HttpStatusCode.BadGateway,
                      success: false,
-                     message: "Rezervasyon tedarikçi API tarafına iletilemedi!",
-                     resultCode: ResultCodes.Error);
+                     message: vendorReservationMessage,
+                     resultCode: ResultCodes.Error,
+                     serviceMessage: GetVendorServiceMessage(serviceReservation));
 
                 await _configurationService.WriteLog(new BrokerLogModel
                 {
@@ -539,7 +542,16 @@ namespace KolayCAR.Broker.API.Controllers
 
             var resultReservation = _agencyService.ChechAgencyRestricted<RestrictedReservation>(reservationData);
 
-            return await CreateAndLogErrorResult(resultReservation, HttpStatusCode.OK, localResponse.Data != null, localResponse.Message ?? serviceReservation.Message, ResultCodes.Success, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
+            return await CreateAndLogErrorResult(
+                resultReservation,
+                HttpStatusCode.OK,
+                localResponse.Data != null && isVendorReservationSuccess,
+                isVendorReservationSuccess ? localResponse.Message ?? vendorReservationMessage : vendorReservationMessage,
+                ResultCodes.Success,
+                "{@PostReservationResponse}",
+                reservationNumber,
+                BrokerLogTypes.ReservationResponse,
+                GetVendorServiceMessage(serviceReservation));
         }
 
         public async Task<ActionResult<HttpResult<object>>> PostReservation(PostReservationRequest postReservationRequest)
@@ -720,6 +732,8 @@ namespace KolayCAR.Broker.API.Controllers
                         Serilog.Log.Error("{@PostReservationVendorAPIResult}", serviceReservation);
 
                         var serviceReservationData = serviceReservation.Data as Reservation;
+                        var vendorReservationMessage = GetVendorReservationMessage(serviceReservation, "Rezervasyon tedarikçi API tarafına iletilemedi!");
+                        var isVendorReservationSuccess = serviceReservation.Success && serviceReservationData?.APIReservationSuccessfully == true;
                         await _reservationService.SetVendorLocalContactInformations(serviceReservationData);
 
                         serviceReservation.Data = _reservationService.UpdateReservationWhenPostReservationToServiceSuccessfully(serviceReservation.Data as Reservation);
@@ -728,7 +742,7 @@ namespace KolayCAR.Broker.API.Controllers
 
                         var configurations = await _configurationService.GetConfigurations();
 
-                        if (configurations.AutoCancel && !serviceReservationData.APIReservationSuccessfully)
+                        if (configurations.AutoCancel && serviceReservationData?.APIReservationSuccessfully != true)
                         {
                             var postCancelReservationRequest = new PostCancelReservationRequest
                             {
@@ -755,8 +769,9 @@ namespace KolayCAR.Broker.API.Controllers
                                  data: null,
                                  httpResultType: HttpStatusCode.BadGateway,
                                  success: false,
-                                 message: "Rezervasyon tedarikçi API tarafına iletilemedi!",
-                                 resultCode: ResultCodes.Error);
+                                 message: vendorReservationMessage,
+                                 resultCode: ResultCodes.Error,
+                                 serviceMessage: GetVendorServiceMessage(serviceReservation));
 
                             await _configurationService.WriteLog(new BrokerLogModel
                             {
@@ -793,7 +808,16 @@ namespace KolayCAR.Broker.API.Controllers
 
                         var resultReservation = _agencyService.ChechAgencyRestricted<RestrictedReservation>(reservationData);
 
-                        return await CreateAndLogErrorResult(resultReservation, HttpStatusCode.OK, localResponse.Data != null, localResponse.Message ?? serviceReservation.Message, ResultCodes.Success, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
+                        return await CreateAndLogErrorResult(
+                            resultReservation,
+                            HttpStatusCode.OK,
+                            localResponse.Data != null && isVendorReservationSuccess,
+                            isVendorReservationSuccess ? localResponse.Message ?? vendorReservationMessage : vendorReservationMessage,
+                            ResultCodes.Success,
+                            "{@PostReservationResponse}",
+                            reservationNumber,
+                            BrokerLogTypes.ReservationResponse,
+                            GetVendorServiceMessage(serviceReservation));
                     }
                     else
                         return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, localResponse.Message, ResultCodes.Error, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
@@ -1260,19 +1284,34 @@ namespace KolayCAR.Broker.API.Controllers
                 { "Authorization", $"Bearer {bearer}" }
             };
 
-        public async Task<HttpResult<object>> CreateAndLogErrorResult(object data, HttpStatusCode httpStatusCode, bool success, string message, ResultCodes resultCode, string logKey, string reservationNumber, BrokerLogTypes brokerLogType)
+        public async Task<HttpResult<object>> CreateAndLogErrorResult(object data, HttpStatusCode httpStatusCode, bool success, string message, ResultCodes resultCode, string logKey, string reservationNumber, BrokerLogTypes brokerLogType, string serviceMessage = null)
         {
             var response = HttpResult<object>.Result(
               data: data,
               httpResultType: httpStatusCode,
               success: success,
               message: message,
-              resultCode: resultCode);
+              resultCode: resultCode,
+              serviceMessage: serviceMessage);
 
             Serilog.Log.Error(logKey, response);
             await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, response.ToJson(), brokerLogType));
 
             return response;
+        }
+
+        private static string GetVendorReservationMessage(ServiceResponseBase serviceReservation, string fallbackMessage = "")
+            => serviceReservation?.Message ?? fallbackMessage;
+
+        private static string GetVendorServiceMessage(ServiceResponseBase serviceReservation)
+        {
+            if (!string.IsNullOrWhiteSpace(serviceReservation?.ServiceMessage))
+                return serviceReservation.ServiceMessage;
+
+            if (serviceReservation?.Data is Reservation reservation && !string.IsNullOrWhiteSpace(reservation.APIMessage))
+                return reservation.APIMessage;
+
+            return null;
         }
     }
 }

@@ -42,7 +42,7 @@ namespace KolayCAR.Broker.API.Providers.Dailydrive
 
             Serilog.Log.Error("{@DailydrivePostCancelReservationRequest}", content);
 
-            var result = await RestManager.PostAsyncHttpContent<ReservationCancelResponseBody>(
+            var result = await RestManager.PostAsyncHttpContentResult<ReservationCancelResponseBody>(
                 entity: content,
                 requestPath: "",
                 headers: GetHeaderRequestParameters(vendor),
@@ -52,8 +52,8 @@ namespace KolayCAR.Broker.API.Providers.Dailydrive
                     LogType = BrokerLogTypes.ReservationCancelVendorAPIResponse
                 }, isReservationRequest: true);
 
-            if (result?.SOAPENVEnvelope?.SOAPENVBody?.Ns2CancelReservationResponse?.Ns2OperationResult != null
-                && result?.SOAPENVEnvelope?.SOAPENVBody?.Ns2CancelReservationResponse?.Ns2OperationResult?.Ns2Success == "true"
+            if (result?.Data?.SOAPENVEnvelope?.SOAPENVBody?.Ns2CancelReservationResponse?.Ns2OperationResult != null
+                && result?.Data?.SOAPENVEnvelope?.SOAPENVBody?.Ns2CancelReservationResponse?.Ns2OperationResult?.Ns2Success == "true"
                 )
             {
                 localReservation.APIReservationCancel = true;
@@ -65,12 +65,7 @@ namespace KolayCAR.Broker.API.Providers.Dailydrive
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Dailydrive servisinde iptal edilemedi"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinde iptal edilemedi");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -88,7 +83,7 @@ namespace KolayCAR.Broker.API.Providers.Dailydrive
 
             Serilog.Log.Error("{@DailydrivePostReservationRequestParameters}", content);
 
-            var result = await RestManager.PostAsyncHttpContent<ReservationResponseBody>(
+            var result = await RestManager.PostAsyncHttpContentResult<ReservationResponseBody>(
                 entity: content,
                 requestPath: "",
                 headers: GetHeaderRequestParameters(vendor),
@@ -101,21 +96,21 @@ namespace KolayCAR.Broker.API.Providers.Dailydrive
 
             Serilog.Log.Error("{@DailydrivePostReservationResult}", result);
 
-            if (result?.SOAPENVEnvelope?.SOAPENVBody?.Ns2InsertReservationResponse?.Ns2OperationResult != null
-                && result?.SOAPENVEnvelope?.SOAPENVBody?.Ns2InsertReservationResponse?.Ns2OperationResult?.Ns2Success == "true"
+            if (result?.Data?.SOAPENVEnvelope?.SOAPENVBody?.Ns2InsertReservationResponse?.Ns2OperationResult != null
+                && result?.Data?.SOAPENVEnvelope?.SOAPENVBody?.Ns2InsertReservationResponse?.Ns2OperationResult?.Ns2Success == "true"
                 )
             {
                 //var paidAmount = localReservation.CouponDiscountAmount > 0 ? localReservation.PaidAmount + localReservation.APIPaidAmount : localReservation.PaidAmount;
                 var paidAmount = localReservation.APIPaidAmount;
                 var reservationPayServiceContent = GetReservationPayServiceContent(postReservationRequest,
-                            result.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResNo,
-                            result.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResCorpNo,
+                            result.Data.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResNo,
+                            result.Data.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResCorpNo,
                             paidAmount,
                             vendor);
 
                 Serilog.Log.Error("{@DailydrivePayServiceRequest", reservationPayServiceContent);
 
-                var payServiceResult = await RestManager.PostAsyncHttpContent<SendBankTransactionResponse>(
+                var payServiceResult = await RestManager.PostAsyncHttpContentResult<SendBankTransactionResponse>(
                     entity: reservationPayServiceContent,
                     requestPath: "",
                     headers: GetHeaderRequestParameters(vendor),
@@ -126,7 +121,7 @@ namespace KolayCAR.Broker.API.Providers.Dailydrive
                 Serilog.Log.Error("{@DailydrivePayServiceResponse}", payServiceResult);
 
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResNo + "-" + result.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResCorpNo;
+                localReservation.APIReservationNumber = result.Data.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResNo + "-" + result.Data.SOAPENVEnvelope.SOAPENVBody.Ns2InsertReservationResponse.Ns2OperationResult.Ns2ResCorpNo;
 
                 var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
 
@@ -161,12 +156,7 @@ namespace KolayCAR.Broker.API.Providers.Dailydrive
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Dailydrive servisine ulaşılamadı"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisine ulaşılamadı");
         }
 
         private static StringContent GetReservationPayServiceContent(PostReservationRequest postReservationRequest, string resNo, string resCorpNo, float paidAmount, Vendor vendor)

@@ -86,7 +86,6 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     {
                         Success = postCancelReservationResponseObject.RETURNCODE == 0,
                         ServiceCode = postCancelReservationResponseObject.RETURNCODE.ToString(),
-                        ServiceMessage = postCancelReservationResponseObject.MESSAGE,
                         Data = localReservation
                     };
                 }
@@ -98,7 +97,6 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     {
                         Success = postCancelReservationResponseObject.RETURNCODE == 2049,
                         ServiceCode = postCancelReservationResponseObject.RETURNCODE.ToString(),
-                        ServiceMessage = postCancelReservationResponseObject.MESSAGE,
                         Data = localReservation
                     };
                 }
@@ -390,7 +388,6 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                 }
 
                 localReservation.ReservationPostedToAPI = true;
-                localReservation.APIMessage = $"{postReservationResponseObject.MESSAGE} - CODE: {postReservationResponseObject.RETURNCODE}";
 
                 if (postReservationResponseObject.RETURNCODE == 0)
                 {
@@ -411,12 +408,12 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     {
                         Success = localReservation != null && postReservationResponseObject.RETURNCODE == 0,
                         ServiceCode = postReservationResponseObject.RETURNCODE.ToString(),
-                        ServiceMessage = postReservationResponseObject.MESSAGE,
                         Data = localReservation
                     };
                 }
 
                 Serilog.Log.Error("KolayCAR rezervasyonu başarısız!");
+                localReservation.APIMessage = $"{postReservationResponseObject.MESSAGE} - CODE: {postReservationResponseObject.RETURNCODE}";
                 return new ServiceResponseBase
                 {
                     Success = false,

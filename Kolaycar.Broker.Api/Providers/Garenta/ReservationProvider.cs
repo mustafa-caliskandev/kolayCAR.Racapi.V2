@@ -42,7 +42,7 @@ namespace KolayCAR.Broker.API.Providers.Garenta
 
             Serilog.Log.Error("{@GarentaPostCancelReservationRequestParameters}", postCancelReservationRequestBodyEntity);
 
-            var result = await RestManager.PostAsync<GarentaRequestBase, GarentaResponseBase>(
+            var result = await RestManager.PostAsyncResult<GarentaRequestBase, GarentaResponseBase>(
                 requestPath: string.Empty,
                 entity: postCancelReservationRequestBodyEntity,
                 headers: AuthProvider.CreateAuthHeaderWithContentType(vendor),
@@ -55,12 +55,12 @@ namespace KolayCAR.Broker.API.Providers.Garenta
 
             Serilog.Log.Error("{@GarentaPostCancelReservationResult}", result);
 
-            if (result != null &&
-                result.EXPORT != null &&
-                result.EXPORT.ES_OUTPUT != null &&
-                result.EXPORT.ES_OUTPUT.SUCCESS != null &&
-                !string.IsNullOrEmpty(result.EXPORT.ES_OUTPUT.SUCCESS.SUCCESS) &&
-                result.EXPORT.ES_OUTPUT.SUCCESS.SUCCESS == "X")
+            if (result?.Data != null &&
+                result.Data.EXPORT != null &&
+                result.Data.EXPORT.ES_OUTPUT != null &&
+                result.Data.EXPORT.ES_OUTPUT.SUCCESS != null &&
+                !string.IsNullOrEmpty(result.Data.EXPORT.ES_OUTPUT.SUCCESS.SUCCESS) &&
+                result.Data.EXPORT.ES_OUTPUT.SUCCESS.SUCCESS == "X")
             {
                 localReservation.APIReservationCancel = true;
 
@@ -71,12 +71,7 @@ namespace KolayCAR.Broker.API.Providers.Garenta
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Garenta servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -92,7 +87,7 @@ namespace KolayCAR.Broker.API.Providers.Garenta
 
             Serilog.Log.Error("{@GarentaPostReservationRequestParameters}", postReservationRequestBodyEntity);
 
-            var result = await RestManager.PostAsync<GarentaRequestBase, GarentaResponseBase>(
+            var result = await RestManager.PostAsyncResult<GarentaRequestBase, GarentaResponseBase>(
                 requestPath: string.Empty,
                 entity: postReservationRequestBodyEntity,
                 headers: AuthProvider.CreateAuthHeaderWithContentType(vendor),
@@ -105,14 +100,14 @@ namespace KolayCAR.Broker.API.Providers.Garenta
 
             Serilog.Log.Error("{@GarentaPostReservationResult}", result);
 
-            if (result != null &&
-                result.EXPORT != null &&
-                result.EXPORT.ES_OUTPUT != null &&
-                result.EXPORT.ES_OUTPUT.RESERV_INFO != null &&
-                !string.IsNullOrEmpty(result.EXPORT.ES_OUTPUT.RESERV_INFO.PNR_CODE))
+            if (result?.Data != null &&
+                result.Data.EXPORT != null &&
+                result.Data.EXPORT.ES_OUTPUT != null &&
+                result.Data.EXPORT.ES_OUTPUT.RESERV_INFO != null &&
+                !string.IsNullOrEmpty(result.Data.EXPORT.ES_OUTPUT.RESERV_INFO.PNR_CODE))
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.EXPORT.ES_OUTPUT.RESERV_INFO.PNR_CODE;
+                localReservation.APIReservationNumber = result.Data.EXPORT.ES_OUTPUT.RESERV_INFO.PNR_CODE;
 
                 var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@GarentaGetLocationsResponse}", location);
@@ -143,28 +138,7 @@ namespace KolayCAR.Broker.API.Providers.Garenta
                     Data = localReservation
                 };
             }
-            else if (result != null &&
-                result.EXPORT != null &&
-                result.EXPORT.ES_OUTPUT != null &&
-                result.EXPORT.ES_OUTPUT.MESSAGE != null &&
-                result.EXPORT.ES_OUTPUT.MESSAGE.Any() &&
-                !string.IsNullOrEmpty(result.EXPORT.ES_OUTPUT.MESSAGE[0].MESSAGE))
-            {
-                Serilog.Log.Error("Garenta servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = result.EXPORT.ES_OUTPUT.MESSAGE[0].MESSAGE;
-            }
-            else
-            {
-                Serilog.Log.Error("Garenta servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = "Garenta servisinden herhangi bir veri alınamadı!";
-            }
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Garenta servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         private GarentaRequestBase PostReservationRequestBodyEntity(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, Vendor vendor, Reservation localReservation, ReservationToken reservationToken)

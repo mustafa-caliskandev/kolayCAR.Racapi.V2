@@ -1,4 +1,5 @@
 ﻿using KolayCAR.Broker.API.Services;
+using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Requests;
 using KolayCAR.Broker.Domain.Models.Response;
@@ -46,7 +47,7 @@ namespace KolayCAR.Broker.API.Providers.Eganis
             });
 
             Serilog.Log.Error("{@EganisPostCancelReservationsRequestParameters}", request);
-            var result = await restManager.PostAsync<EganisRequestBase.ReservationCancelRequest, EganisResponseBase.ReservationCancelResponse>
+            var result = await restManager.PostAsyncResult<EganisRequestBase.ReservationCancelRequest, EganisResponseBase.ReservationCancelResponse>
                 (
                     requestPath: "/Api/CancelReservation",
                     entity: request,
@@ -61,7 +62,7 @@ namespace KolayCAR.Broker.API.Providers.Eganis
 
             Serilog.Log.Error("{@EganisPostCancelReservationsResponse}", result);
 
-            if (result?.isSucceed == true)
+            if (result?.Data?.isSucceed == true)
             {
                 localReservation.APIReservationCancel = true;
 
@@ -72,11 +73,7 @@ namespace KolayCAR.Broker.API.Providers.Eganis
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Message = "Eganis rezervasyon iptal servisine ulaşılamadı (Message =" + result?.isSucceed + ")"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "rezervasyon iptal servisine ulaşılamadı!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -156,7 +153,7 @@ namespace KolayCAR.Broker.API.Providers.Eganis
             }
 
 
-            return new ServiceResponseBase(localReservation, false, vendor.VendorName + " servisinden herhangi bir veri alınamadı!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
 
         }
 

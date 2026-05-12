@@ -47,7 +47,7 @@ namespace KolayCAR.Broker.API.Providers.Wishcar
 
                 Serilog.Log.Error("{@WishcarPostReservationRequestParameters}", postBookingSaveRequestBodyEntity);
 
-                var result = await RestManager.PostAsync<WishcarRequestBase.PostReservationRequest, WishcarResponseBase.ReservationResponse>(
+                var result = await RestManager.PostAsyncResult<WishcarRequestBase.PostReservationRequest, WishcarResponseBase.ReservationResponse>(
                     requestPath: $"api/rezervation/post",
                     entity: postBookingSaveRequestBodyEntity,
                     headers: AuthProvider.CreateAuthHeaderWithContentType(auth.access_token),
@@ -60,10 +60,10 @@ namespace KolayCAR.Broker.API.Providers.Wishcar
 
                 Serilog.Log.Error("{@WishcarPostReservationResult}", result);
 
-                if (result != null && !string.IsNullOrEmpty(result.REZERVNO))
+                if (result?.Data != null && !string.IsNullOrEmpty(result.Data.REZERVNO))
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.REZERVNO;
+                    localReservation.APIReservationNumber = result.Data.REZERVNO;
 
                     var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                     Serilog.Log.Error("{@WishcarGetLocationsResponse}", location);
@@ -94,15 +94,7 @@ namespace KolayCAR.Broker.API.Providers.Wishcar
                     };
                 }
 
-                Serilog.Log.Error("Wishcar servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = "Wishcar servisinden herhangi bir veri alınamadı!";
-
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = "Wishcar servisinden herhangi bir veri alınamadı!"
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
             }
             return new ServiceResponseBase
             {
@@ -151,12 +143,8 @@ namespace KolayCAR.Broker.API.Providers.Wishcar
                     };
                 }
 
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = "Wishcar servisi rezervasyon iptali başarısız!",
-                };
+                localReservation.APIMessage = result ?? "Wishcar servisi rezervasyon iptali başarısız!";
+                return new ServiceResponseBase(localReservation, false, "Wishcar servisi rezervasyon iptali başarısız!", result ?? string.Empty);
             }
             return new ServiceResponseBase
             {

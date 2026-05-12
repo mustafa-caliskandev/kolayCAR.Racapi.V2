@@ -66,13 +66,10 @@ namespace KolayCAR.Broker.API.Providers.Turevrac
                     if (result.Sistemrent.TurevracReservation.Status == false)
                     {
                         Serilog.Log.Error("Turevrac servisi rezervasyonu reddetti!");
-
-                        return new ServiceResponseBase
-                        {
-                            Success = false,
-                            Data = localReservation,
-                            Message = "Turevrac servisi rezervasyonu reddetti!"
-                        };
+                        return CreateVendorErrorResponse(
+                            localReservation,
+                            "Turevrac servisi rezervasyonu reddetti!",
+                            GetSupplierErrorMessage(result));
                     }
                     localReservation.APIReservationSuccessfully = true;
                     localReservation.APIReservationNumber = result.Sistemrent.TurevracReservation.ID;
@@ -110,14 +107,10 @@ namespace KolayCAR.Broker.API.Providers.Turevrac
                 }
 
                 Serilog.Log.Error(vendor.VendorName + " servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = vendor.VendorName + " servisinden herhangi bir veri alınamadı!";
-
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = vendor.VendorName + " servisinden herhangi bir veri alınamadı!"
-                };
+                return CreateVendorErrorResponse(
+                    localReservation,
+                    vendor.VendorName + " servisinden herhangi bir veri alınamadı!",
+                    GetSupplierErrorMessage(result));
             }
             catch (System.Exception ex)
             {
@@ -161,13 +154,26 @@ namespace KolayCAR.Broker.API.Providers.Turevrac
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Turevrac servisi rezervasyon iptali başarısız!",
-            };
+            return CreateVendorErrorResponse(
+                localReservation,
+                "Turevrac servisi rezervasyon iptali başarısız!",
+                GetSupplierErrorMessage(result));
         }
+
+        private static ServiceResponseBase CreateVendorErrorResponse(Reservation localReservation, string message, string supplierMessage = "")
+        {
+            if (!string.IsNullOrWhiteSpace(supplierMessage))
+                localReservation.APIMessage = supplierMessage;
+
+            return new ServiceResponseBase(
+                localReservation,
+                false,
+                message,
+                serviceMessage: supplierMessage);
+        }
+
+        private static string GetSupplierErrorMessage(TurevracResponseBase result)
+            => result?.Sistemrent?.TurevracReservation?.Key;
 
         private Dictionary<string, object> PostReservationRequestParameters(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, float paidAmount, Vendor vendor, Reservation localReservation)
         {

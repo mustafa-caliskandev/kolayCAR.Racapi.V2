@@ -44,7 +44,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora
 
                 Serilog.Log.Error("{PandoraPostCancelReservationsRequestParameters}", localReservation.APIReservationNumber);
 
-                var result = await RestManager.DeleteAsync<PandoraResponseBase.PandoraPostBookingSaveResponse>(
+                var result = await RestManager.DeleteAsyncResult<PandoraResponseBase.PandoraPostBookingSaveResponse>(
                     requestPath: $"tr/api/bookings/cancel/{localReservation.APIReservationNumber}",
                     headers: AuthProvider.CreateAuthHeader(auth.access_token),
                     brokerLogModel: new BrokerLogModel
@@ -55,7 +55,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora
 
                 Serilog.Log.Error("{@PandoraPostCancelReservationsResponse}", result);
 
-                if (result.Number != null)
+                if (result?.Data?.Number != null)
                 {
                     localReservation.APIReservationCancel = true;
 
@@ -66,12 +66,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora
                     };
                 }
 
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = "Pandora servisi rezervasyon iptali başarısız!",
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
             }
 
             return new ServiceResponseBase
@@ -102,7 +97,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora
                 Serilog.Log.Error("{@PandoraPostReservationRequestParameters}", postBookingSaveRequestBodyEntity);
                 Serilog.Log.Error("{@PandoraPostReservationRequestHeaders}", authHeaderWithContentType);
 
-                var result = await RestManager.PostAsyncRestClient<PandoraResponseBase.PandoraPostBookingSaveResponse>(
+                var result = await RestManager.PostAsyncRestClientResult<PandoraResponseBase.PandoraPostBookingSaveResponse>(
                     requestPath: $"tr/api/bookings/save",
                     parameterType: RestSharp.ParameterType.RequestBody,
                     headers: authHeaderWithContentType,
@@ -116,10 +111,10 @@ namespace KolayCAR.Broker.API.Providers.Pandora
 
                 Serilog.Log.Error("{@PandoraPostReservationResult}", result);
 
-                if (result?.Number != null)
+                if (result?.Data?.Number != null)
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.Number;
+                    localReservation.APIReservationNumber = result.Data.Number;
 
                     var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                     Serilog.Log.Error("{@PandoraGetLocationsResponse}", location);
@@ -151,15 +146,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora
                     };
                 }
 
-                Serilog.Log.Error("Pandora servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = "Pandora servisinden herhangi bir veri alınamadı!";
-
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = "Pandora servisinden herhangi bir veri alınamadı!"
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
             }
 
             return new ServiceResponseBase

@@ -56,6 +56,7 @@ using SixtProvider = KolayCAR.Broker.API.Providers.Sixt;
 using Turevrac2Provider = KolayCAR.Broker.API.Providers.Turevrac2;
 using TurevracProvider = KolayCAR.Broker.API.Providers.Turevrac;
 using TurmobilProvider = KolayCAR.Broker.API.Providers.Turmobil;
+using VonarentProvider = KolayCAR.Broker.API.Providers.Vonarent;
 using WishcarProvider = KolayCAR.Broker.API.Providers.Wishcar;
 using Yolcu360Provider = KolayCAR.Broker.API.Providers.Yolcu360;
 
@@ -390,6 +391,11 @@ namespace KolayCAR.Broker.API.Services
                                 case VendorTypes.Avis:
                                     {
                                         summaryProvider = new AvisProvider.SummaryProvider();
+                                        break;
+                                    }
+                                case VendorTypes.Vonarent:
+                                    {
+                                        summaryProvider = new VonarentProvider.SummaryProvider(vendor);
                                         break;
                                     }
                             }

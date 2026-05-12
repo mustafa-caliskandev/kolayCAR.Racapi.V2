@@ -13,6 +13,16 @@
 		<LangVersion>13.0</LangVersion>
 		<ServerGarbageCollection>false</ServerGarbageCollection>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="Docs\Europcar\**" />
+	  <Compile Remove="Docs\Reports\**" />
+	  <Content Remove="Docs\Europcar\**" />
+	  <Content Remove="Docs\Reports\**" />
+	  <EmbeddedResource Remove="Docs\Europcar\**" />
+	  <EmbeddedResource Remove="Docs\Reports\**" />
+	  <None Remove="Docs\Europcar\**" />
+	  <None Remove="Docs\Reports\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="appsettings.Development.json" CopyToPublishDirectory="Never" />
@@ -92,11 +102,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Docs\Europcar\" />
 		<Folder Include="Docs\RentGo\" />
-		<Folder Include="Docs\Reports\" />
 		<Folder Include="Helpers\YesOto\" />
 		<Folder Include="Properties\PublishProfiles\" />
+		<Folder Include="Providers\Vonarent\" />
 	</ItemGroup>
 
 	<ItemGroup>

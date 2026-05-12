@@ -1,4 +1,4 @@
-﻿using KolayCAR.Broker.API.Extensions;
+using KolayCAR.Broker.API.Extensions;
 using KolayCAR.Broker.API.Factories.Abstract;
 using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.API.Mappers;
@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using BrokerReservationHelper = KolayCAR.Broker.API.Helpers.ReservationHelper;
 using CommonModels = KolayCAR.Broker.Domain.Models;
@@ -138,6 +139,24 @@ namespace KolayCAR.Broker.API.Services
             _vendorContactInformationService = vendorContactInformationService;
         }
         #endregion
+
+        private async Task<string> GenerateFriendlyReservationNumber()
+        {
+            const int maxAttempts = 20;
+
+            for (var attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                var friendlyReservationNumber = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+                var exists = await _context.Rez
+                    .AsNoTracking()
+                    .AnyAsync(x => x.FriendlyReservationNumber == friendlyReservationNumber);
+
+                if (!exists)
+                    return friendlyReservationNumber;
+            }
+
+            return "";
+        }
 
         public async Task<IEnumerable<BrokerLocationVehicleDetailDto>> GetAllPopularVehicles()
         {
@@ -896,6 +915,7 @@ namespace KolayCAR.Broker.API.Services
 
                         await _bultenService.CheckContactPermission(postReservationRequest);
 
+                        //var friendlyReservationNumber = await GenerateFriendlyReservationNumber();
                         var sqlParameters = SqlParameterHelper.PostReservationLocalSqlParameters(reservationId, postReservationRequest, reservationToken, vendor, dailyPrice, totalAmount, serviceCharge, tempExtraList, apiDailyPrice, apiExtraAmount, apiTotalAmount, vendorLogoUrl, isOffice, postPaymentResponse, discountAmount, agency, packetPricePremium, configurations, discountValue, couponId, vehicle);
 
                         Serilog.Log.Error("{@PostReservationLocalSqlParameters}", sqlParameters.Select(e => new { e.ParameterName, Type = e.SqlDbType, Value = e.Value }));
@@ -912,8 +932,33 @@ namespace KolayCAR.Broker.API.Services
                         }
                         catch (Exception ex)
                         {
-                            Serilog.Log.Error("{@PostReservationLocalProcedureErrorResult}", ex.Message);
-                            return new ServiceResponseBase(postReservationRequest, false, $"An error occurred during the request! - {ex.Message}");
+                            Serilog.Log.Error("{@PostReservationLocalProcedureErrorResult}", ex.ToJson());
+                            try
+                            {
+                                var previousCommandTimeout = _context.Database.GetCommandTimeout();
+                                int postReservationLocalResult = 0;
+                                try
+                                {
+                                    _context.Database.SetCommandTimeout(15);
+                                    postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE SP_ADD_RESERVATION " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
+                                }
+                                catch (Exception ex2)
+                                {
+                                    Serilog.Log.Error("{@PostReservationLocalProcedureErrorResult2}", ex2.ToJson());
+                                    return new ServiceResponseBase(postReservationRequest, false, $"An error occurred during the request! - {ex2.Message}");
+                                }
+                                finally
+                                {
+                                    _context.Database.SetCommandTimeout(previousCommandTimeout);
+
+                                }
+                                return new ServiceResponseBase(postReservationRequest, true, postReservationLocalResult > 0 ? "Reservation received successfully!" : "An error occurred during the request!");
+                            }
+                            catch (Exception retryEx)
+                            {
+                                Serilog.Log.Error("{@PostReservationLocalProcedureErrorResult2}", retryEx.ToJson());
+                                return new ServiceResponseBase(postReservationRequest, false, $"An error occurred during the request! - {retryEx.Message}");
+                            }
                         }
                     }
                     else
@@ -1766,7 +1811,7 @@ namespace KolayCAR.Broker.API.Services
                         //headers: CreateBrokerAuthRequestHeader(user.Token)); 
                         #endregion
 
-                        _smsService.PostSms(new PostSmsRequest
+                        await _smsService.PostSms(new PostSmsRequest
                         {
                             Content = smsTemplate.GetParsedReservationTemplate(reservationTemplateFields),
                             LanguageType = reservation.LanguageType,

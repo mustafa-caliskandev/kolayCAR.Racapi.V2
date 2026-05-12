@@ -43,7 +43,7 @@ namespace KolayCAR.Broker.API.Providers.Ekar2
                 Content = JsonConvert.SerializeObject(localReservation.APIReferenceCode),
                 LogType = BrokerLogTypes.ReservationCancelVendorAPIRequest
             });
-            if (result.Success == true && result.Data.success)
+            if (result?.Success == true && result.Data.success)
             {
                 localReservation.APIReservationCancel = true;
 
@@ -53,12 +53,7 @@ namespace KolayCAR.Broker.API.Providers.Ekar2
                     Data = localReservation
                 };
             }
-            return new ServiceResponseBase
-            {
-                Message = "Ekar servisine ulaşılamadı !",
-                Success = false,
-                Data = localReservation
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisine ulaşılamadı!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -90,7 +85,7 @@ namespace KolayCAR.Broker.API.Providers.Ekar2
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
 
-            if (result != null && result.Success == true && result.Data.success && result.Data.result.id != 0)
+            if (result?.Success == true && result.Data.success && result.Data.result.id != 0)
             {
                 localReservation.APIReservationSuccessfully = true;
                 localReservation.APIReservationNumber = result.Data.result.id.ToStringNullSafe();
@@ -101,21 +96,7 @@ namespace KolayCAR.Broker.API.Providers.Ekar2
                     Data = localReservation
                 };
             }
-            else if (result != null && result.Data != null)
-            {
-                Serilog.Log.Error("{EkarReservationError}", "rezervasyon oluşturulamadı"); //response içerisinde error message alanı yok
-                localReservation.APIMessage = "rezervasyon oluşturulamadı";
-            }
-
-            Serilog.Log.Error("Ekar servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = "Ekar servisinden herhangi bir veri alınamadı!";
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Ekar servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
 
         }
 

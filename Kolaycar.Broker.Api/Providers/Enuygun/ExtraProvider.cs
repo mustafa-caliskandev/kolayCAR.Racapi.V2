@@ -80,7 +80,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
 
             var vehicles = getVehiclesResponse?.Data as List<Vehicle>;
             var companyName = reservationToken.APIReferenceCode3.Split("|")[0];
-            var selectedVehicle = vehicles?.FirstOrDefault(x => x.VehicleCode == reservationToken.VehicleCode && x.ApiVendorName == companyName.Replace(" ", ""));
+            var selectedVehicle = vehicles?.FirstOrDefault(x => x.VehicleCode == reservationToken.VehicleCode && x.ApiVendorName == companyName.TrimEnd());
 
             if (selectedVehicle == null)
                 return new ServiceResponseBase(null, false);

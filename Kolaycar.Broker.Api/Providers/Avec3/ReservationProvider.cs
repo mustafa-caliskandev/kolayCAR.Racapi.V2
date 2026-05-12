@@ -50,7 +50,7 @@ namespace KolayCAR.Broker.API.Providers.Avec3
 
             Serilog.Log.Error("{@AvecPostCancelReservationsResponse}", result);
 
-            if (result != null && result.Data.state == "canceled")
+            if (result?.Data?.state == "canceled")
             {
                 localReservation.APIReservationCancel = true;
 
@@ -61,12 +61,7 @@ namespace KolayCAR.Broker.API.Providers.Avec3
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Avec servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         private PostCancelReservationRequestAvec GetCancelRequestBody(PostCancelReservationRequest postCancelReservationRequest) => new PostCancelReservationRequestAvec { cancel_explanation = postCancelReservationRequest.CancelNote.ToStringNullSafe() };
@@ -99,7 +94,7 @@ namespace KolayCAR.Broker.API.Providers.Avec3
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
 
-            if (result != null && result.Success == true && result.Data != null && result.Data.reservation_number != "")
+            if (result?.Success == true && result.Data != null && result.Data.reservation_number != "")
             {
                 localReservation.APIReservationSuccessfully = true;
                 localReservation.APIReservationNumber = result.Data.reservation_number.ToStringNullSafe();
@@ -116,21 +111,7 @@ namespace KolayCAR.Broker.API.Providers.Avec3
                     Data = localReservation
                 };
             }
-            else if (result != null && result.Data != null && !string.IsNullOrEmpty(result.Data.reservation_number))
-            {
-                Serilog.Log.Error("{AvecReservationError}", "rezervasyon oluşturulamadı"); //response içerisinde error message alanı yok
-                localReservation.APIMessage = "rezervasyon oluşturulamadı";
-            }
-
-            Serilog.Log.Error("Avec servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = "Avec servisinden herhangi bir veri alınamadı!";
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Avec servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         private PostReservationRequestBody PostReservationRequestParameters(PostReservationRequest postReservationRequest, ReservationToken reservationToken, Reservation localReservation)

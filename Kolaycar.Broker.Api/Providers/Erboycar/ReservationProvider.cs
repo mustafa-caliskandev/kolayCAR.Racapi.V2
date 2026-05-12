@@ -38,7 +38,7 @@ namespace KolayCAR.Broker.API.Providers.Erboycar
 
             Serilog.Log.Error("{@ErboycarPostCancelReservationRequestParameters}", postCancelReservationRequestBodyEntity);
 
-            var result = await RestManager.DeleteAsync<ErboycarRequestBase.ReservationCancel, ErboycarResponseBase.ReservationCancel>(
+            var result = await RestManager.DeleteAsyncResult<ErboycarRequestBase.ReservationCancel, ErboycarResponseBase.ReservationCancel>(
                 requestPath: "reservation-cancel",
                 entity: postCancelReservationRequestBodyEntity,
                 brokerLogModel: new BrokerLogModel
@@ -50,7 +50,7 @@ namespace KolayCAR.Broker.API.Providers.Erboycar
 
             Serilog.Log.Error("{@ErboycarPostCancelReservationResult}", result);
 
-            if (result != null)
+            if (result?.Success == true)
             {
                 localReservation.APIReservationCancel = true;
 
@@ -61,12 +61,7 @@ namespace KolayCAR.Broker.API.Providers.Erboycar
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Erboycar servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -82,7 +77,7 @@ namespace KolayCAR.Broker.API.Providers.Erboycar
 
             Serilog.Log.Error("{@ErboycarPostReservationRequestParameters}", postReservationRequestBodyEntity);
 
-            var result = await RestManager.PostAsync<ErboycarRequestBase.Reservation, ErboycarResponseBase.Reservation>(
+            var result = await RestManager.PostAsyncResult<ErboycarRequestBase.Reservation, ErboycarResponseBase.Reservation>(
                 requestPath: "save",
                 entity: postReservationRequestBodyEntity,
                 brokerLogModel: new BrokerLogModel
@@ -94,10 +89,10 @@ namespace KolayCAR.Broker.API.Providers.Erboycar
 
             Serilog.Log.Error("{@ErboycarPostReservationResult}", result);
 
-            if (result != null && !string.IsNullOrEmpty(result.reservation_status) && result.reservation_status.ToLower() == "success" && result.summary != null)
+            if (result?.Data != null && !string.IsNullOrEmpty(result.Data.reservation_status) && result.Data.reservation_status.ToLower() == "success" && result.Data.summary != null)
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.summary.res_no;
+                localReservation.APIReservationNumber = result.Data.summary.res_no;
 
                 var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@ErboycarGetLocationsResponse}", location);
@@ -128,23 +123,7 @@ namespace KolayCAR.Broker.API.Providers.Erboycar
                     Data = localReservation
                 };
             }
-            else if (result != null && !string.IsNullOrEmpty(result.error))
-            {
-                Serilog.Log.Error($"Erboycar servisinden herhangi bir veri alınamadı! error:{result.error} - code:{result.code}");
-                localReservation.APIMessage = $"error:{result.error}";
-            }
-            else
-            {
-                Serilog.Log.Error("Erboycar servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = "Erboycar servisinden herhangi bir veri alınamadı!";
-            }
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Erboycar servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         private ErboycarRequestBase.Reservation PostReservationRequestBodyEntity(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, Vendor vendor, Reservation localReservation, ReservationToken reservationToken)

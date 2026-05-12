@@ -45,7 +45,7 @@ namespace KolayCAR.Broker.API.Providers.Circular2
 
             var auth = await _authProvider.GetTokenAsync(vendor.ApiKey);
 
-            var result = await _restManager.PostAsyncWithUrlEncoded<List<KeyValuePair<string, string>>, ReservationCancelBase>(
+            var result = await _restManager.PostAsyncWithUrlEncodedResult<List<KeyValuePair<string, string>>, ReservationCancelBase>(
                 //requestPath: $"reservation/save?token={auth.token}&size=500&referralagent={vendor.ApiPassword}",
                 requestPath: $"reservation/cancel?token={auth.token}",
                 headers: _authProvider.CreateHeaderWithContentType(),
@@ -58,7 +58,7 @@ namespace KolayCAR.Broker.API.Providers.Circular2
 
             Serilog.Log.Error("{@CircularPostCancelReservationResponse}", result);
 
-            if (result != null && result.result != null && result.result.status.ToLower() == "canceled")
+            if (result?.Data?.result != null && result.Data.result.status.ToLower() == "canceled")
             {
                 localReservation.APIReservationCancel = true;
 
@@ -69,24 +69,19 @@ namespace KolayCAR.Broker.API.Providers.Circular2
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Message = "Circular Servisine Ulaşılamadı",
-                Data = localReservation
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisine ulaşılamadı!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Domain.Models.Reservation localReservation, List<Extra> apiExtras)
         {
             var auth = await _authProvider.GetTokenAsync(vendor.ApiKey);
-
+            HttpResult<ReservationResponse> result = null;
 
             if (auth != null && !string.IsNullOrEmpty(auth.token))
             {
                 var driverSaveEntity = GetDriverEntity(postReservationRequest);
 
-                var driverSave = await _httpManager.PostAsyncWithUrlEncoded<List<KeyValuePair<string, string>>, DriverResponse>(
+                var driverSave = await _httpManager.PostAsyncWithUrlEncodedResult<List<KeyValuePair<string, string>>, DriverResponse>(
                    requestPath: $"driver/save?token={auth.token}",
                    headers: _authProvider.CreateHeaderWithContentType(),
                    entity: driverSaveEntity,
@@ -98,7 +93,7 @@ namespace KolayCAR.Broker.API.Providers.Circular2
                    isReservationRequest: true
                  );
 
-                var driverId = driverSave?.data?.id.ToStringNullSafe() ?? "";
+                var driverId = driverSave?.Data?.data?.id.ToStringNullSafe() ?? "";
 
                 var postReservationRequestBody = GetParametersForUrlEncoded(postReservationRequest, localReservation, additionalInformation, vendor, reservationToken, driverId);
 
@@ -113,7 +108,7 @@ namespace KolayCAR.Broker.API.Providers.Circular2
 
                 float apiPaidAmount = CalculationHelper.GetAPIPaidAmount(additionalInformation.Agency, vendor, reservationToken, localReservation, postReservationRequest);
 
-                var result = await _restManager.PostAsyncWithUrlEncoded<List<KeyValuePair<string, string>>, ReservationResponse>(
+                result = await _restManager.PostAsyncWithUrlEncodedResult<List<KeyValuePair<string, string>>, ReservationResponse>(
                   //requestPath: $"reservation/save?token={auth.token}&size=500&referralagent={vendor.ApiPassword}",
                   requestPath: $"reservation/save?token={auth.token}",
                   headers: _authProvider.CreateHeaderWithContentType(),
@@ -139,10 +134,10 @@ namespace KolayCAR.Broker.API.Providers.Circular2
 
                 Serilog.Log.Error("{@CircularPostReservationResult}", result);
 
-                if (result != null && result.success && result.data != null)
+                if (result?.Data != null && result.Data.success && result.Data.data != null)
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.data.id.ToString();
+                    localReservation.APIReservationNumber = result.Data.data.id.ToString();
 
                     var location = await _locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
 
@@ -178,12 +173,7 @@ namespace KolayCAR.Broker.API.Providers.Circular2
                 }
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Message = "Circular servisine erişim engellendi.",
-                Data = localReservation
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisine erişim engellendi.");
 
         }
 

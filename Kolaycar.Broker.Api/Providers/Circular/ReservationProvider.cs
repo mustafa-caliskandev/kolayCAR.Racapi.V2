@@ -45,7 +45,7 @@ namespace KolayCAR.Broker.API.Providers.Circular
 
             var auth = await AuthProvider.GetToken(vendor.ApiKey, vendor.ApiPassword);
 
-            var result = await RestManager.PostAsyncWithUrlEncoded<List<KeyValuePair<string, string>>, CircularResponseBase.PostCancelReservationResponseBody>(
+            var result = await RestManager.PostAsyncWithUrlEncodedResult<List<KeyValuePair<string, string>>, CircularResponseBase.PostCancelReservationResponseBody>(
                 //requestPath: $"reservation/save?token={auth.token}&size=500&referralagent={vendor.ApiPassword}",
                 requestPath: $"reservation/cancel?token={auth.token}",
                 headers: AuthProvider.CreateHeaderWithContentType(),
@@ -59,7 +59,7 @@ namespace KolayCAR.Broker.API.Providers.Circular
 
             Serilog.Log.Error("{@CircularPostCancelReservationResponse}", result);
 
-            if (result != null && result.result != null && result.result.status.ToLower() == "canceled")
+            if (result?.Data?.result != null && result.Data.result.status.ToLower() == "canceled")
             {
                 localReservation.APIReservationCancel = true;
 
@@ -70,18 +70,13 @@ namespace KolayCAR.Broker.API.Providers.Circular
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Message = "Circular Servisine Ulaşılamadı",
-                Data = localReservation
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisine ulaşılamadı!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
         {
             var auth = await AuthProvider.GetToken(vendor.ApiKey, vendor.ApiPassword);
-
+            HttpResult<CircularResponseBase.PostReservationResponseModel> result = null;
 
             if (auth != null && !string.IsNullOrEmpty(auth.token))
             {
@@ -98,7 +93,7 @@ namespace KolayCAR.Broker.API.Providers.Circular
 
                 float apiPaidAmount = CalculationHelper.GetAPIPaidAmount(additionalInformation.Agency, vendor, reservationToken, localReservation, postReservationRequest);
 
-                var result = await RestManager.PostAsyncWithUrlEncoded<List<KeyValuePair<string, string>>, CircularResponseBase.PostReservationResponseModel>(
+                result = await RestManager.PostAsyncWithUrlEncodedResult<List<KeyValuePair<string, string>>, CircularResponseBase.PostReservationResponseModel>(
                     //requestPath: $"reservation/save?token={auth.token}&size=500&referralagent={vendor.ApiPassword}",
                     requestPath: $"reservation/save?token={auth.token}",
                     headers: AuthProvider.CreateHeaderWithContentType(),
@@ -113,10 +108,10 @@ namespace KolayCAR.Broker.API.Providers.Circular
 
                 Serilog.Log.Error("{@CircularPostReservationResult}", result);
 
-                if (result != null && result.success && result.data != null)
+                if (result?.Data != null && result.Data.success && result.Data.data != null)
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.data.id.ToString();
+                    localReservation.APIReservationNumber = result.Data.data.id.ToString();
 
                     var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
 
@@ -152,12 +147,7 @@ namespace KolayCAR.Broker.API.Providers.Circular
                 }
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Message = "Circular servisine erişim engellendi.",
-                Data = localReservation
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisine erişim engellendi.");
         }
 
         private List<KeyValuePair<string, string>> GetParametersForUrlEncoded(PostReservationRequest postReservationRequest, Reservation localReservation, ResponseReservationStepsAdditionalInformation additionalInformation, Vendor vendor, ReservationToken reservationToken, List<Extra> apiExtras)

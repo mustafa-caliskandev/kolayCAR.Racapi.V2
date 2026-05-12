@@ -32,6 +32,7 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
         public async Task<ServiceResponseBase> PostCancelReservation(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Reservation localReservation)
         {
             var auth = await AuthProvider.GetToken(vendor.ApiKey, vendor.ApiPassword);
+            HttpResult<CizgiResponseBase.CommonResponse> result = null;
             if (auth != null && !string.IsNullOrEmpty(auth.access_token))
             {
                 var postCancelRequestBodyEntity = PostCancelRequestBodyEntity(localReservation, postCancelReservationRequest);
@@ -45,7 +46,7 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
 
                 Serilog.Log.Error("{@CizgiPostCancelReservationsRequestParameters}", postCancelRequestBodyEntity);
 
-                var result = await RestManager.PostAsync<CizgiRequestBase.CancelReservationRequest, CizgiResponseBase.CommonResponse>(
+                result = await RestManager.PostAsyncResult<CizgiRequestBase.CancelReservationRequest, CizgiResponseBase.CommonResponse>(
                     requestPath: $"reservation/cancel",
                     entity: postCancelRequestBodyEntity,
                     headers: AuthProvider.CreateAuthHeaderWithContentType(auth.access_token),
@@ -58,7 +59,7 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
 
                 Serilog.Log.Error("{@CizgiPostCancelReservationsResponse}", result);
 
-                if (result != null && result.status == 1)
+                if (result?.Data != null && result.Data.status == 1)
                 {
                     localReservation.APIReservationCancel = true;
 
@@ -69,12 +70,7 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
                     };
                 }
             }
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Cizgi servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -82,6 +78,7 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
             float apiPaidAmount = CalculationHelper.GetAPIPaidAmount(additionalInformation.Agency, vendor, reservationToken, localReservation, postReservationRequest);
 
             var auth = await AuthProvider.GetToken(vendor.ApiKey, vendor.ApiPassword);
+            HttpResult<CizgiResponseBase.PostReservationResponse> result = null;
             if (auth != null && !string.IsNullOrEmpty(auth.access_token))
             {
                 var postBookingSaveRequestBodyEntity = PostReservationRequestBodyEntity(postReservationRequest, additionalInformation, vendor, reservationNumber, reservationToken, localReservation, apiPaidAmount);
@@ -95,7 +92,7 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
 
                 Serilog.Log.Error("{@CizgiPostReservationRequestParameters}", postBookingSaveRequestBodyEntity);
 
-                var result = await RestManager.PostAsync<CizgiRequestBase.PostReservationRequest, CizgiResponseBase.PostReservationResponse>(
+                result = await RestManager.PostAsyncResult<CizgiRequestBase.PostReservationRequest, CizgiResponseBase.PostReservationResponse>(
                     requestPath: $"reservation/book",
                     headers: AuthProvider.CreateAuthHeaderWithContentType(auth.access_token),
                     entity: postBookingSaveRequestBodyEntity,
@@ -107,10 +104,10 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
 
                 Serilog.Log.Error("{@CizgiPostReservationResult}", result);
 
-                if (result != null && !string.IsNullOrEmpty(result.reference_no) && result.status == 1)
+                if (result?.Data != null && !string.IsNullOrEmpty(result.Data.reference_no) && result.Data.status == 1)
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.reference_no;
+                    localReservation.APIReservationNumber = result.Data.reference_no;
 
                     var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                     Serilog.Log.Error("{@CizgiGetLocationsResponse}", location);
@@ -141,15 +138,7 @@ namespace KolayCAR.Broker.API.Providers.Cizgi
                     };
                 }
             }
-            Serilog.Log.Error("Cizgi servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = "Cizgi servisinden herhangi bir veri alınamadı!";
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Cizgi servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         private CizgiRequestBase.PostReservationRequest PostReservationRequestBodyEntity(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, Vendor vendor, string reservationNumber, ReservationToken reservationToken, Reservation localReservation, float apiPaidAmount)

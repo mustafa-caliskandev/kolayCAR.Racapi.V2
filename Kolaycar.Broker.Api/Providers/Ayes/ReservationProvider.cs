@@ -39,7 +39,7 @@ namespace KolayCAR.Broker.API.Providers.Ayes
 
             Serilog.Log.Error("{@AyesPostReservationRequestParameters}", postReservationRequestParameters);
 
-            var result = await RestManager.GetAsync<AyesReservationResponse>(
+            var result = await RestManager.GetAsyncResult<AyesReservationResponse>(
             requestPath: "kiralik-araclar/kirala/",
             parameters: postReservationRequestParameters,
             encode: false,
@@ -55,10 +55,10 @@ namespace KolayCAR.Broker.API.Providers.Ayes
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
 
-            if (result != null && result.islem_durumu && !string.IsNullOrEmpty(result.rezervasyon_numarasi) && result.durum != "hata")
+            if (result?.Data != null && result.Data.islem_durumu && !string.IsNullOrEmpty(result.Data.rezervasyon_numarasi) && result.Data.durum != "hata")
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.rezervasyon_numarasi;
+                localReservation.APIReservationNumber = result.Data.rezervasyon_numarasi;
 
                 //var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 //Serilog.Log.Error("{@AyesGetLocationsResponse}", location);
@@ -76,9 +76,9 @@ namespace KolayCAR.Broker.API.Providers.Ayes
                 //    localReservation.APIVendorReturnPhone = reservationReturnLocation.PhoneNumber;
                 //}
 
-                localReservation.APIVendorPickupAddress = result.sube_iletisim_bilgileri.adres;
+                localReservation.APIVendorPickupAddress = result.Data.sube_iletisim_bilgileri.adres;
                 localReservation.APIVendorReturnAddress = string.Empty;
-                localReservation.APIVendorPickupPhone = result.sube_iletisim_bilgileri.sube_telefon;
+                localReservation.APIVendorPickupPhone = result.Data.sube_iletisim_bilgileri.sube_telefon;
                 localReservation.APIVendorReturnPhone = string.Empty;
                 return new ServiceResponseBase
                 {
@@ -86,21 +86,7 @@ namespace KolayCAR.Broker.API.Providers.Ayes
                     Data = localReservation
                 };
             }
-            else if (result != null && !string.IsNullOrEmpty(result.mesaj))
-            {
-                Serilog.Log.Error("{AyesReservationError}", result.mesaj);
-                localReservation.APIMessage = result.mesaj;
-            }
-
-            Serilog.Log.Error("Ayes servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = "Ayes servisinden herhangi bir veri alınamadı!";
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Ayes servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         public async Task<ServiceResponseBase> PostCancelReservation(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Reservation localReservation)
@@ -116,7 +102,7 @@ namespace KolayCAR.Broker.API.Providers.Ayes
 
             Serilog.Log.Error("{@AyesPostCancelReservationsRequestParameters}", postCancelReservationsRequestParameters);
 
-            var result = await RestManager.GetAsync<AyesReservationResponse>(
+            var result = await RestManager.GetAsyncResult<AyesReservationResponse>(
             requestPath: "api/tr/iptal",
             parameters: postCancelReservationsRequestParameters,
             brokerLogModel: new BrokerLogModel
@@ -128,7 +114,7 @@ namespace KolayCAR.Broker.API.Providers.Ayes
 
             Serilog.Log.Error("{@AyesPostCancelReservationsResponse}", result);
 
-            if (result != null && result.islem_durumu)
+            if (result?.Data != null && result.Data.islem_durumu)
             {
                 localReservation.APIReservationCancel = true;
 
@@ -139,12 +125,7 @@ namespace KolayCAR.Broker.API.Providers.Ayes
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Ayes servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         private Dictionary<string, object> PostCancelReservationsRequestParameters(Vendor vendor, Reservation reservation) =>

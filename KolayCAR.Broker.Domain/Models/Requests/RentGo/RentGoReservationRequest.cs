@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace KolayCAR.Broker.Domain.Models.Requests.RentGo
@@ -126,6 +126,12 @@ namespace KolayCAR.Broker.Domain.Models.Requests.RentGo
         public string District { get; set; }
     }
 
+
+    public class RentGoCancelReservationRequest
+    {
+        [JsonProperty("reason")]
+        public string Reason { get; set; }
+    }
     public class RentGoReservationItem
     {
         [JsonProperty("category")]
@@ -171,3 +177,4 @@ namespace KolayCAR.Broker.Domain.Models.Requests.RentGo
         public bool Blockage { get; set; }
     }
 }
+

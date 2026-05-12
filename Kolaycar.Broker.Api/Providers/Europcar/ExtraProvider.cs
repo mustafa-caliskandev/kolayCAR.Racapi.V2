@@ -9,7 +9,6 @@ using KolayCAR.Broker.Infrastructure.Managers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EuropcarProvider = KolayCAR.Broker.API.Providers.Europcar;
 
 namespace KolayCAR.Broker.API.Providers.Europcar
 {
@@ -28,10 +27,6 @@ namespace KolayCAR.Broker.API.Providers.Europcar
 
             var _httpManager = new HttpManager(vendor.SecretKey);
             var result = await _httpManager.GetAsyncWithModel<EuropcarExtraResponse>($"/broker/service/account/{vendor.ApiClientId}?limit=all");
-
-            //var result = await HttpManager.GetXmlAsync<EuropcarResponseBase>(
-            //requestPath: $"{vendor.ApiKey.Split('|')[0]}/link/v3/options_{vendor.ApiPassword.Split('-')[0]}.html",
-            //parameters: GetExtrasListRequestParameters(vendor));
 
             if (result?.data?.Count > 0)
             {

@@ -202,7 +202,7 @@ namespace KolayCAR.Broker.API.Services
                 var vendorLocation = await _locationVendorService.GetLocationVendor(getVehicleRequest.PickupLocationId, vendor.VendorId);
 
                 if (vendorLocation == null)
-                    return new(null, false, $"Bu lokasyon aktif değildir, eşleştirmeyi kontrol ediniz!");
+                    return new(null, false, await _configurationService.GetLabel(1659, languageType));
 
                 var minuteDiff = (ObjectHelper.CombineDateAndTime(getVehicleRequest.PickupDate, getVehicleRequest.PickupTime) - DateTime.Now).TotalMinutes;
 

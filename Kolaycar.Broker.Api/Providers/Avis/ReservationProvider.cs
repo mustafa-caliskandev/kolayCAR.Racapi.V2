@@ -6,7 +6,6 @@ using KolayCAR.Broker.Domain.Models.Requests;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Managers;
-using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -64,7 +63,7 @@ namespace KolayCAR.Broker.API.Providers.Avis
                 return new ServiceResponseBase(localReservation, true);
             }
 
-            return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} servisi rezervasyon iptali başarısız!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         private AvisCancelReservationRequest GetCancelEntity(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Domain.Models.Reservation localReservation)
@@ -145,38 +144,20 @@ namespace KolayCAR.Broker.API.Providers.Avis
 
             if ((bool)(result?.Data?.Result))
             {
-                // var location = await _locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 if (result.Data.Data != null)
                 {
                     localReservation.APIReservationSuccessfully = true;
                     localReservation.APIReservationNumber = result.Data.Data.reservation.confirmation.number;
                     localReservation.APIReferenceCode2 = result.Data.Data.transaction.transaction_id;
-                    //var reservationLocation = location.Data as AvisLocationResponse;
-
-                    //var reservationPickupLocation = reservationLocation.Data.Where(x => x.OfficeCode == additionalInformation.APIPickupLocationCode).FirstOrDefault();
-                    //var reservationReturnLocation = reservationLocation.Data.Where(x => x.OfficeCode == additionalInformation.APIReturnLocationCode).FirstOrDefault();
-
-                    //if (reservationPickupLocation != null)
-                    //{
-                    //    localReservation.APIVendorPickupAddress = reservationPickupLocation.PostAdress1;
-                    //    localReservation.APIVendorPickupPhone = reservationPickupLocation.PhoneNumber;
-                    //}
-                    //if (reservationReturnLocation != null)
-                    //{
-                    //    localReservation.APIVendorReturnAddress = reservationReturnLocation.PostAdress1;
-                    //    localReservation.APIVendorReturnPhone = reservationReturnLocation.PhoneNumber;
-
-                    //}
-
                     return new ServiceResponseBase(localReservation, true);
                 }
                 else
                 {
-                    Serilog.Log.Error("{AvisReservationError}", "rezervasyon oluşturulamadı"); //response içerisinde error message alanı yok
+                    Serilog.Log.Error("{AvisReservationError}", "rezervasyon oluşturulamadı");
                     localReservation.APIMessage = "rezervasyon oluşturulamadı";
                 }
             }
-            return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} servisinden veri alınamadı!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden veri alınamadı!");
         }
         private AvisPostReservationRequest GetEntityBudget(Vendor vendor, ReservationToken reservationToken, PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, Domain.Models.Reservation localReservation, AvisResponseBase.RateTotals rateTotals)
         {

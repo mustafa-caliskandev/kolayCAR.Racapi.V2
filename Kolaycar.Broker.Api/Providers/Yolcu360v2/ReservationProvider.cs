@@ -41,26 +41,34 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                 LogType = BrokerLogTypes.ReservationCancelVendorAPIRequest
             });
 
-            var cancellableResult = await _httpManager.PostAsyncWithModel<Yolcu360v2ReservationResponseBase.CancellableResponse>
+            var cancellableResult = await _httpManager.PostAsyncWithModelResult<Yolcu360v2ReservationResponseBase.CancellableResponse>
             (
                 requestPath: $"/api/v1/order/{localReservation.APIReferenceCode2}/cancel_eligibility",
                 headers: auth
             );
 
-            Serilog.Log.Error("{@Yolcu360v2CheckCancellableResponse}", $"{localReservation.ReservationNumber} - {cancellableResult.ToJson()}");
+            Serilog.Log.Error("{@Yolcu360v2CheckCancellableResponse}", new
+            {
+                localReservation.ReservationNumber,
+                cancellableResult?.HttpStatusCode,
+                cancellableResult?.Success,
+                cancellableResult?.Message,
+                cancellableResult?.RawContent,
+                Data = cancellableResult?.Data
+            });
 
-            if (!cancellableResult.cancellable || !cancellableResult.refundable)
+            if (cancellableResult?.Data == null || !cancellableResult.Data.cancellable || !cancellableResult.Data.refundable)
             {
                 await _configurationService.WriteLog(new BrokerLogModel
                 {
                     LogKey = localReservation.ReservationNumber,
-                    Content = cancellableResult.ToJson(),
+                    Content = cancellableResult?.RawContent ?? cancellableResult?.ToJson(),
                     LogType = BrokerLogTypes.ReservationCancelVendorAPIResponse
                 });
-                return new(localReservation, false, $"{vendor.VendorName} rezervasyon iptale uygun değil!");
+                return CreateVendorErrorResponse(localReservation, vendor, cancellableResult, "rezervasyon iptale uygun değil!");
             }
 
-            var result = await _httpManager.PostAsyncWithModel<Yolcu360v2ReservationResponseBase.CancelReservationResponse>
+            var result = await _httpManager.PostAsyncWithModelResult<Yolcu360v2ReservationResponseBase.CancelReservationResponse>
             (
                 requestPath: $"/api/v1/order/{localReservation.APIReferenceCode2}/cancel",
                 headers: auth,
@@ -71,15 +79,23 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                 }
             );
 
-            Serilog.Log.Error("{@Yolcu360v2CancelReservationResponse}", $"{localReservation.ReservationNumber} - {cancellableResult.ToJson()}");
+            Serilog.Log.Error("{@Yolcu360v2CancelReservationResponse}", new
+            {
+                localReservation.ReservationNumber,
+                result?.HttpStatusCode,
+                result?.Success,
+                result?.Message,
+                result?.RawContent,
+                Data = result?.Data
+            });
 
-            if (result.success && result.status == "success")
+            if (result?.Data?.success == true && result.Data.status == "success")
             {
                 localReservation.APIReservationCancel = true;
                 return new(localReservation, true);
             }
 
-            return new(localReservation, false, $"{vendor.VendorName} servisi rezervasyon iptali başarısız!");
+            return CreateVendorErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -99,7 +115,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
 
             Serilog.Log.Error("{@Yolcu360v2ReservationRequestBody}", entity.ToJson());
 
-            var result = await _httpManager.PostAsyncWithModel<Yolcu360v2PostReservationRequest, Yolcu360v2ReservationResponseBase.Root>
+            var result = await _httpManager.PostAsyncWithModelResult<Yolcu360v2PostReservationRequest, Yolcu360v2ReservationResponseBase.Root>
             (
                 requestPath: "/api/v1/order",
                 entity: entity,
@@ -112,12 +128,21 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                 isReservationRequest: true
             );
 
-            Serilog.Log.Error("{@Yolcu360v2ReservationResult}", result.ToJson());
+            Serilog.Log.Error("{@Yolcu360v2ReservationResult}", new
+            {
+                localReservation.ReservationNumber,
+                result?.HttpStatusCode,
+                result?.Success,
+                result?.DeserializeSuccess,
+                result?.Message,
+                result?.RawContent,
+                Data = result?.Data
+            });
 
-            if (string.IsNullOrEmpty(result?.id))
-                return new(localReservation, false, $"{vendor.VendorName} rezervasyon isteği başarısız!");
+            if (string.IsNullOrEmpty(result?.Data?.id))
+                return CreateVendorErrorResponse(localReservation, vendor, result, "rezervasyon isteği başarısız!");
 
-            var payEntity = new Yolcu360v2PostPayRequest { orderID = result.id, paymentType = "limit" };
+            var payEntity = new Yolcu360v2PostPayRequest { orderID = result.Data.id, paymentType = "limit" };
 
             await _configurationService.WriteLog(new BrokerLogModel
             {
@@ -126,7 +151,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                 LogType = BrokerLogTypes.ReservationVendorAPIRequest
             });
 
-            var resultPayment = await _httpManager.PostAsyncWithModel<Yolcu360v2PostPayRequest, Yolcu360v2PaymentResponseBase.Root>
+            var resultPayment = await _httpManager.PostAsyncWithModelResult<Yolcu360v2PostPayRequest, Yolcu360v2PaymentResponseBase.Root>
             (
                 requestPath: "/api/v1/payment/pay ",
                 entity: payEntity,
@@ -139,35 +164,102 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                 isReservationRequest: true
             );
 
-            var isSuccess = resultPayment?.orderedCarProduct != null
-                && resultPayment.orderedCarProduct.status?.ToLower() == "reserved"
-                && resultPayment.orderedCarProduct.vendorCancelled == false;
+            Serilog.Log.Error("{@Yolcu360v2PaymentResult}", new
+            {
+                localReservation.ReservationNumber,
+                resultPayment?.HttpStatusCode,
+                resultPayment?.Success,
+                resultPayment?.DeserializeSuccess,
+                resultPayment?.Message,
+                resultPayment?.RawContent,
+                Data = resultPayment?.Data
+            });
+
+            var isSuccess = resultPayment?.Data?.orderedCarProduct != null
+                && resultPayment.Data.orderedCarProduct.status?.ToLower() == "reserved"
+                && resultPayment.Data.orderedCarProduct.vendorCancelled == false;
 
             if (!isSuccess)
             {
-                Serilog.Log.Error("{@Yolcu360v2PaymentError}", resultPayment.ToJson());
-                return new(localReservation, false, $"{vendor.VendorName} rezervasyon isteği başarısız!");
+                Serilog.Log.Error("{@Yolcu360v2PaymentError}", resultPayment?.RawContent ?? resultPayment?.ToJson());
+                return CreateVendorErrorResponse(localReservation, vendor, resultPayment, "rezervasyon isteği başarısız!");
             }
 
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
             localReservation.APIReservationSuccessfully = true;
-            localReservation.APIReservationNumber = !string.IsNullOrEmpty(resultPayment.orderedCarProduct.vendorReservationID) ? resultPayment.orderedCarProduct.vendorReservationID : resultPayment.id;
-            localReservation.APIReferenceCode2 = resultPayment.id;
+            localReservation.APIReservationNumber = !string.IsNullOrEmpty(resultPayment.Data.orderedCarProduct.vendorReservationID) ? resultPayment.Data.orderedCarProduct.vendorReservationID : resultPayment.Data.id;
+            localReservation.APIReferenceCode2 = resultPayment.Data.id;
 
-            if (result?.orderedCarProduct?.car?.appointment?.checkInOffice != null && result?.orderedCarProduct?.car?.appointment?.checkOutOffice != null)
+            if (result?.Data?.orderedCarProduct?.car?.appointment?.checkInOffice != null && result?.Data?.orderedCarProduct?.car?.appointment?.checkOutOffice != null)
             {
-                localReservation.PickupOfficeWorkingHours = GetOfficeWorkingHours(result.orderedCarProduct.car.appointment.checkInOffice, localReservation.PickupDate);
-                localReservation.ReturnOfficeWorkingHours = GetOfficeWorkingHours(result.orderedCarProduct.car.appointment.checkOutOffice, localReservation.ReturnDate);
-                localReservation.APIVendorPickupAddress = $"{result.orderedCarProduct.car.appointment.checkInOffice.address.adm1} - {result.orderedCarProduct.car.appointment.checkInOffice.address.adm2 + result.orderedCarProduct.car.appointment.checkInOffice.address.street}";
-                localReservation.APIVendorPickupPhone = result.orderedCarProduct.car.appointment.checkInOffice.phones.FirstOrDefault();
-                localReservation.APIVendorReturnAddress = $"{result.orderedCarProduct.car.appointment.checkOutOffice.address.adm1} - {result.orderedCarProduct.car.appointment.checkOutOffice.address.adm2 + result.orderedCarProduct.car.appointment.checkOutOffice.address.street}";
-                localReservation.APIVendorReturnPhone = result.orderedCarProduct.car.appointment.checkOutOffice.phones.FirstOrDefault();
+                localReservation.PickupOfficeWorkingHours = GetOfficeWorkingHours(result.Data.orderedCarProduct.car.appointment.checkInOffice, localReservation.PickupDate);
+                localReservation.ReturnOfficeWorkingHours = GetOfficeWorkingHours(result.Data.orderedCarProduct.car.appointment.checkOutOffice, localReservation.ReturnDate);
+                localReservation.APIVendorPickupAddress = $"{result.Data.orderedCarProduct.car.appointment.checkInOffice.address.adm1} - {result.Data.orderedCarProduct.car.appointment.checkInOffice.address.adm2 + result.Data.orderedCarProduct.car.appointment.checkInOffice.address.street}";
+                localReservation.APIVendorPickupPhone = result.Data.orderedCarProduct.car.appointment.checkInOffice.phones.FirstOrDefault();
+                localReservation.APIVendorReturnAddress = $"{result.Data.orderedCarProduct.car.appointment.checkOutOffice.address.adm1} - {result.Data.orderedCarProduct.car.appointment.checkOutOffice.address.adm2 + result.Data.orderedCarProduct.car.appointment.checkOutOffice.address.street}";
+                localReservation.APIVendorReturnPhone = result.Data.orderedCarProduct.car.appointment.checkOutOffice.phones.FirstOrDefault();
 
-                var deliveryType = result.orderedCarProduct.car.appointment.checkInOffice.deliveryType.id;
+                var deliveryType = result.Data.orderedCarProduct.car.appointment.checkInOffice.deliveryType.id;
                 localReservation.IsOffice = deliveryType == (3 | 5) ? true : false;
             }
             return new(localReservation, true);
+        }
+
+        private ServiceResponseBase CreateVendorErrorResponse<T>(Reservation localReservation, Vendor vendor, HttpResult<T> result, string fallbackMessage) where T : class
+        {
+            var rawSupplierResponse = !string.IsNullOrWhiteSpace(result?.ServiceMessage)
+                ? result.ServiceMessage
+                : result?.RawContent;
+
+            var supplierMessage = ParseSupplierErrorMessage(rawSupplierResponse);
+
+            if (string.IsNullOrWhiteSpace(supplierMessage))
+            {
+                supplierMessage = !string.IsNullOrWhiteSpace(result?.Message)
+                    ? result.Message
+                    : fallbackMessage;
+            }
+
+            if (!string.IsNullOrWhiteSpace(supplierMessage))
+                localReservation.APIMessage = supplierMessage;
+
+            return new ServiceResponseBase(
+                localReservation,
+                false,
+                $"{vendor.VendorName} {fallbackMessage}",
+                serviceMessage: supplierMessage ?? rawSupplierResponse ?? string.Empty,
+                serviceCode: result != null ? ((int)result.HttpStatusCode).ToString() : string.Empty);
+        }
+
+        private static string ParseSupplierErrorMessage(string rawSupplierResponse)
+        {
+            if (string.IsNullOrWhiteSpace(rawSupplierResponse))
+                return string.Empty;
+
+            try
+            {
+                var errorResponse = JsonConvert.DeserializeObject<Yolcu360v2ErrorResponse>(rawSupplierResponse);
+                if (errorResponse == null)
+                    return string.Empty;
+
+                var detailMessage = errorResponse.details?
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                    .Select(x => !string.IsNullOrWhiteSpace(x.Key) ? $"{x.Key}: {x.Value}" : x.Value)
+                    .FirstOrDefault();
+
+                if (!string.IsNullOrWhiteSpace(errorResponse.description) && !string.IsNullOrWhiteSpace(detailMessage))
+                    return $"{errorResponse.description} - {detailMessage}";
+
+                if (!string.IsNullOrWhiteSpace(detailMessage))
+                    return detailMessage;
+
+                return errorResponse.description ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         private Yolcu360v2PostReservationRequest GetEntity(PostReservationRequest postReservationRequest, ReservationToken reservationToken, Reservation localReservation)

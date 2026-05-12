@@ -1,4 +1,5 @@
 using Kolaycar.Broker.Api.Mappers.YesOto;
+using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.API.Providers;
 using KolayCAR.Broker.API.Services;
 using KolayCAR.Broker.Domain.Models;
@@ -43,24 +44,24 @@ namespace Kolaycar.Broker.Api.Providers.YesOto
                 { "Authorization", $"Bearer {accessToken}" }
             };
 
-            var response = await _httpManager.PostAsyncWithModel<YesOtoCreateReservationRequest, YesOtoCreateReservationResponse>(
+            var response = await _httpManager.PostAsyncWithModelResult<YesOtoCreateReservationRequest, YesOtoCreateReservationResponse>(
                 "/api/app/bookingUI/completeReservation",
                 createRequest,
                 parameters,
                 headers
             );
 
-            if (response != null && response.success && response.data != null)
+            if (response?.Data != null && response.Data.success && response.Data.data != null)
             {
                 localReservation.ReservationPostedToAPI = true;
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = response.data.reservationCode;
+                localReservation.APIReservationNumber = response.Data.data.reservationCode;
                 localReservation.APIVendorName = vendor.VendorName;
 
                 return new ServiceResponseBase(localReservation, true);
             }
 
-            return new ServiceResponseBase(null, false, response?.message ?? "Rezervasyon oluşturulamadı.");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, response, "Rezervasyon oluşturulamadı.");
         }
 
         public async Task<ServiceResponseBase> PostCancelReservation(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Reservation localReservation)
@@ -83,20 +84,20 @@ namespace Kolaycar.Broker.Api.Providers.YesOto
                 { "Authorization", $"Bearer {accessToken}" }
             };
 
-            var response = await _httpManager.PostAsyncWithModel<YesOtoCancelReservationRequest, YesOtoCreateReservationResponse>(
+            var response = await _httpManager.PostAsyncWithModelResult<YesOtoCancelReservationRequest, YesOtoCreateReservationResponse>(
                 "/api/app/reservationUI/reservationCancellationsConfirm",
                 cancelRequest,
                 parameters,
                 headers
             );
 
-            if (response != null && response.success)
+            if (response?.Data != null && response.Data.success)
             {
                 localReservation.APIReservationCancel = true;
                 return new ServiceResponseBase(localReservation, true);
             }
 
-            return new ServiceResponseBase(null, false, response?.message ?? "Rezervasyon iptal edilemedi.");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, response, "Rezervasyon iptal edilemedi.");
         }
     }
 }

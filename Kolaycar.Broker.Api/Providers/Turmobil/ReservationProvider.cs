@@ -45,7 +45,7 @@ namespace KolayCAR.Broker.API.Providers.Turmobil
 
             // var token = await AuthProvider.GetToken(vendor.ApiKey, vendor.ApiPassword);
 
-            var result = await RestManager.PostAsync<TurmobilRequestBase.PostCancelReservationRequest, CancelReservationResponse>(
+            var result = await RestManager.PostAsyncResult<TurmobilRequestBase.PostCancelReservationRequest, CancelReservationResponse>(
                 requestPath: "rest/dailyrezervation/cancelRezervation",
                 //headers: AuthProvider.CreateAuthHeaderWithContentType(token.Token),
                 entity: postCancelReservationRequestBody,
@@ -59,10 +59,9 @@ namespace KolayCAR.Broker.API.Providers.Turmobil
                     LogKey = localReservation.ReservationNumber,
                     LogType = BrokerLogTypes.ReservationCancelVendorAPIResponse
                 },
-                isPlainTextResponse: false,
                 isReservationRequest: true);
 
-            if (result != null && result.responseCode == "00" && result.responseMsg == "Approved")
+            if (result?.Data != null && result.Data.responseCode == "00" && result.Data.responseMsg == "Approved")
             {
                 localReservation.APIReservationCancel = true;
 
@@ -73,12 +72,7 @@ namespace KolayCAR.Broker.API.Providers.Turmobil
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Turmobil Rezervasyon Servisine Ulaşılamadı."
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "Rezervasyon Servisine Ulaşılamadı.");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Domain.Models.Extra> apiExtras)
@@ -98,7 +92,7 @@ namespace KolayCAR.Broker.API.Providers.Turmobil
 
             //var token = await AuthProvider.GetToken(vendor.ApiKey, vendor.ApiPassword);
 
-            var result = await RestManager.PostAsync<TurmobilRequestBase.PostReservationRequest, TurmobilResponseBase.PostReservationResponse>(
+            var result = await RestManager.PostAsyncResult<TurmobilRequestBase.PostReservationRequest, TurmobilResponseBase.PostReservationResponse>(
                 requestPath: "rest/dailyrezervation/createRezervation",
                 //headers: AuthProvider.CreateAuthHeaderWithContentType(token.Token),
                 entity: postReservationRequestBody,
@@ -116,10 +110,10 @@ namespace KolayCAR.Broker.API.Providers.Turmobil
 
             Serilog.Log.Error("{@TurmobilPostReservationResult}", result);
 
-            if (result != null && !string.IsNullOrEmpty(result.uuid))
+            if (result?.Data != null && !string.IsNullOrEmpty(result.Data.uuid))
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.uuid;
+                localReservation.APIReservationNumber = result.Data.uuid;
 
                 //var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 //Serilog.Log.Error("{@TurmobilGetLocationsResponse}", location);
@@ -150,12 +144,7 @@ namespace KolayCAR.Broker.API.Providers.Turmobil
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Turmobil Rezervasyon Servisine Ulaşılamadı."
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "Rezervasyon Servisine Ulaşılamadı.");
         }
 
         private TurmobilRequestBase.PostReservationRequest PostReservationRequestParameters(PostReservationRequest postReservationRequest, ReservationToken reservationToken, ResponseReservationStepsAdditionalInformation additionalInformation, Reservation localReservation, float PaidAmount, Vendor vendor, string extraList)

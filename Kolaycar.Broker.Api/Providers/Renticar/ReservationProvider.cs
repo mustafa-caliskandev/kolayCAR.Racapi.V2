@@ -47,7 +47,7 @@ namespace KolayCAR.Broker.API.Providers.Renticar
 
             if (auth != null && auth.status == "success")
             {
-                var result = await RestManager.PostAsync<ReservationCancelRequestBody, ReservationCancelResponseBody>(
+                var result = await RestManager.PostAsyncResult<ReservationCancelRequestBody, ReservationCancelResponseBody>(
                     requestPath: "reservation/cancel",
                     headers: AuthProvider.CreateHeader(auth.token),
                     entity: reservationCancelRequestBody,
@@ -60,7 +60,7 @@ namespace KolayCAR.Broker.API.Providers.Renticar
 
                 Serilog.Log.Error("{@RenticarPostCancelReservationsResponse}", result);
 
-                if (result != null && result.result == "success")
+                if (result?.Data != null && result.Data.result == "success")
                 {
                     localReservation.APIReservationCancel = true;
 
@@ -71,12 +71,7 @@ namespace KolayCAR.Broker.API.Providers.Renticar
                     };
                 }
 
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = result?.message
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "rezervasyon iptal servisi başarısız!");
             }
 
             return new ServiceResponseBase
@@ -106,7 +101,7 @@ namespace KolayCAR.Broker.API.Providers.Renticar
 
             if (auth != null && auth.status == "success")
             {
-                var result = await RestManager.PostAsync<ReservationRequestBody, ReservationResponseBase>(
+                var result = await RestManager.PostAsyncResult<ReservationRequestBody, ReservationResponseBase>(
                     requestPath: "reservation",
                     entity: reservationRequestBody,
                     headers: AuthProvider.CreateHeader(auth.token),
@@ -121,12 +116,12 @@ namespace KolayCAR.Broker.API.Providers.Renticar
 
                 localReservation.ReservationPostedToAPI = true;
 
-                if (result != null && !string.IsNullOrEmpty(result.reservationId))
+                if (result?.Data != null && !string.IsNullOrEmpty(result.Data.reservationId))
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.reservationId;
-                    localReservation.APIReferenceCode2 = result.reservationCode;
-                    localReservation.APIReferenceCode3 = result.vendorReservationNo;
+                    localReservation.APIReservationNumber = result.Data.reservationId;
+                    localReservation.APIReferenceCode2 = result.Data.reservationCode;
+                    localReservation.APIReferenceCode3 = result.Data.vendorReservationNo;
 
                     var reservationLocation = new List<Domain.Models.Location>();
                     var locations = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
@@ -160,12 +155,7 @@ namespace KolayCAR.Broker.API.Providers.Renticar
                     };
                 }
 
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = "Renticar rezervasyon oluşturulamadı!"
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "rezervasyon oluşturulamadı!");
             }
 
             return new ServiceResponseBase

@@ -44,7 +44,7 @@ namespace KolayCAR.Broker.API.Providers.Renteon
 
             var connectorId = vendor.ApiClientId.Split("-")[0];
 
-            var result = await _restManager.DeleteAsyncJSON<IDictionary<string, dynamic>, RenteonRequestBase.RenteonReservationCancelRequestBase>(
+            var result = await _restManager.DeleteAsyncJSONResult<IDictionary<string, dynamic>, RenteonRequestBase.RenteonReservationCancelRequestBase>(
                 requestPath: $"/api/bookings/cancel/",
                 headers: _authProvider.GetBasicAuth(vendor),
                 entity: new Dictionary<string, dynamic>()
@@ -62,7 +62,7 @@ namespace KolayCAR.Broker.API.Providers.Renteon
 
             Serilog.Log.Error("{@RenteonPostCancelReservationsResponse}", result);
 
-            if (result != null)
+            if (result?.Success == true)
             {
                 localReservation.APIReservationCancel = true;
 
@@ -73,12 +73,7 @@ namespace KolayCAR.Broker.API.Providers.Renteon
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Renteon servisi ile bağlantı kurulamadı!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi ile bağlantı kurulamadı!");
 
         }
 
@@ -98,7 +93,7 @@ namespace KolayCAR.Broker.API.Providers.Renteon
             Serilog.Log.Error("{@RenteonPostReservationRequestParameters}", postBookingSaveRequestBodyEntity);
             Serilog.Log.Error("{@RenteonPostReservationRequestHeaders}", authHeaderWithContentType);
 
-            var result = await _restManager.PostAsync<RenteonRequestBase.RenteonReservationPostRequestBase, RenteonRequestBase.RenteonReservationPostRequestBase>(
+            var result = await _restManager.PostAsyncResult<RenteonRequestBase.RenteonReservationPostRequestBase, RenteonRequestBase.RenteonReservationPostRequestBase>(
                 requestPath: $"/api/bookings/save",
                 headers: authHeaderWithContentType,
                 entity: postBookingSaveRequestBodyEntity,
@@ -112,10 +107,10 @@ namespace KolayCAR.Broker.API.Providers.Renteon
 
             Serilog.Log.Error("{@RenteonPostReservationResult}", result);
 
-            if (result != null)
+            if (result?.Data != null)
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.Number;
+                localReservation.APIReservationNumber = result.Data.Number;
 
                 var location = await _locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@RenteonGetLocationsResponse}", location);
@@ -147,12 +142,7 @@ namespace KolayCAR.Broker.API.Providers.Renteon
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Message = "Renteon servisi ile bağlantı kurulamadı!",
-                Data = localReservation
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi ile bağlantı kurulamadı!");
         }
 
         public RenteonRequestBase.RenteonReservationPostRequestBase CreatePostReservationRequest(Vendor vendor, PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, ReservationToken reservationToken, Reservation localReservation)

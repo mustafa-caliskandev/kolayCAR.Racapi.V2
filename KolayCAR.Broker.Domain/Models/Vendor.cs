@@ -183,7 +183,8 @@ namespace KolayCAR.Broker.Domain.Models
         ArnoldClark,
         YesOto,
         Eren,
-        RentGo
+        RentGo,
+        Vonarent
     }
 
     public enum PriceRoundingTypes

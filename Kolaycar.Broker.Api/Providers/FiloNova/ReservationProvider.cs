@@ -43,7 +43,7 @@ namespace KolayCAR.Broker.API.Providers.FiloNova
 
             Serilog.Log.Error("{@FiloNovaPostReservationRequestParameters}", postBookingSaveRequestBodyEntity);
 
-            var result = await RestManager.PostAsync<FiloNovaRequestBase.PostReservationRequest, FiloNovaResponseBase>(
+            var result = await RestManager.PostAsyncResult<FiloNovaRequestBase.PostReservationRequest, FiloNovaResponseBase>(
                 requestPath: $"createReservation",
                 headers: AuthProvider.CreateAuthHeaderWithContentType(vendor),
                 entity: postBookingSaveRequestBodyEntity,
@@ -57,11 +57,11 @@ namespace KolayCAR.Broker.API.Providers.FiloNova
 
             Serilog.Log.Error("{@FiloNovaPostReservationResult}", result);
 
-            if (result != null && !string.IsNullOrEmpty(result.pnrNumber) && result.responseResult != null && result.responseResult.result)
+            if (result?.Data != null && !string.IsNullOrEmpty(result.Data.pnrNumber) && result.Data.responseResult != null && result.Data.responseResult.result)
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.pnrNumber;
-                localReservation.APIReferenceCode2 = result.reservationId;
+                localReservation.APIReservationNumber = result.Data.pnrNumber;
+                localReservation.APIReferenceCode2 = result.Data.reservationId;
 
                 var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@FiloNovaGetLocationsResponse}", location);
@@ -92,15 +92,7 @@ namespace KolayCAR.Broker.API.Providers.FiloNova
                 };
             }
 
-            Serilog.Log.Error("Filo Nova servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = "Filo Nova servisinden herhangi bir veri alınamadı!";
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Filo Nova servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
 
         }
 
@@ -117,7 +109,7 @@ namespace KolayCAR.Broker.API.Providers.FiloNova
 
             Serilog.Log.Error("{@FiloNovaPostCancelReservationsRequestParameters}", postCancelRequestBodyEntity);
 
-            var result = await RestManager.PostAsync<FiloNovaRequestBase.PostCancelReservation, FiloNovaResponseBase.CancelReservationResult>(
+            var result = await RestManager.PostAsyncResult<FiloNovaRequestBase.PostCancelReservation, FiloNovaResponseBase.CancelReservationResult>(
                 requestPath: $"cancelReservation",
                 entity: postCancelRequestBodyEntity,
                 headers: AuthProvider.CreateAuthHeaderWithContentType(vendor),
@@ -130,7 +122,7 @@ namespace KolayCAR.Broker.API.Providers.FiloNova
 
             Serilog.Log.Error("{@FiloNovaPostCancelReservationsResponse}", result);
 
-            if (result != null && result.responseResult != null && result.responseResult.result)
+            if (result?.Data != null && result.Data.responseResult != null && result.Data.responseResult.result)
             {
                 localReservation.APIReservationCancel = true;
 
@@ -141,12 +133,7 @@ namespace KolayCAR.Broker.API.Providers.FiloNova
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "Filo Nova servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         private FiloNovaRequestBase.PostReservationRequest PostReservationRequestBodyEntity(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, Vendor vendor, string reservationNumber, ReservationToken reservationToken, Reservation localReservation) =>

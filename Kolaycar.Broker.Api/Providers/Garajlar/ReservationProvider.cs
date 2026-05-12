@@ -1,4 +1,4 @@
-﻿using KolayCAR.Broker.API.Helpers;
+using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.API.Services;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Requests;
@@ -30,7 +30,7 @@ namespace KolayCAR.Broker.API.Providers.Garajlar
         {
             var token = await _authProvider.GetTokenHeader(vendor);
             if (token is null)
-                return new(null, false, $"{vendor.VendorName} token bilgisi alınamadı!");
+                return new(localReservation, false, $"{vendor.VendorName} token bilgisi alınamadı!");
 
             var entity = GetEntity(localReservation);
 
@@ -38,7 +38,7 @@ namespace KolayCAR.Broker.API.Providers.Garajlar
 
             Serilog.Log.Error("{@GarajlarPostCancelReservationsRequestParameters}", entity.ToJson());
 
-            var result = await _httpManager.PostAsyncWithModel<object, CancelResponse>(
+            var result = await _httpManager.PostAsyncWithModelResult<object, CancelResponse>(
                 requestPath: "/api/obilet/cancel-reservation",
                 headers: token,
                 entity: entity,
@@ -51,21 +51,20 @@ namespace KolayCAR.Broker.API.Providers.Garajlar
 
             Serilog.Log.Error("{@GarajlarPostCancelReservationsResponse}", result);
 
-            if (result?.status ?? false)
+            if (result?.Data?.status ?? false)
             {
                 localReservation.APIReservationCancel = true;
                 return new(localReservation, true);
             }
-            return new(localReservation, false, "Garajlar servisi rezervasyon iptali başarısız!");
+
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
-
-
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
         {
             var token = await _authProvider.GetTokenHeader(vendor);
             if (token is null)
-                return new(null, false, $"{vendor.VendorName} token bilgisi alınamadı!");
+                return new(localReservation, false, $"{vendor.VendorName} token bilgisi alınamadı!");
 
             var entity = GetEntity(postReservationRequest, localReservation, reservationToken, additionalInformation);
 
@@ -73,7 +72,7 @@ namespace KolayCAR.Broker.API.Providers.Garajlar
 
             Serilog.Log.Error("{@GarajlarPostReservationRequestParameters}", entity.ToJson());
 
-            var result = await _httpManager.PostAsyncWithModelNullValueHandling<ReservationRequest, ResponseBase<object>>(
+            var result = await _httpManager.PostAsyncWithModelNullValueHandlingResult<ReservationRequest, ResponseBase<object>>(
                 requestPath: "/api/obilet/set-reservation",
                 headers: token,
                 entity: entity,
@@ -89,10 +88,10 @@ namespace KolayCAR.Broker.API.Providers.Garajlar
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
 
-            if (result?.data != null && result.success)
+            if (result?.Data?.data != null && result.Data.success)
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.data.ToStringNullSafe();
+                localReservation.APIReservationNumber = result.Data.data.ToStringNullSafe();
 
                 var locationResult = await _locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@GarajlarGetLocationsResponse}", locationResult.Data);
@@ -109,10 +108,7 @@ namespace KolayCAR.Broker.API.Providers.Garajlar
                 return new(localReservation, true);
             }
 
-            Serilog.Log.Error($"{vendor.VendorName} servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = $"{vendor.VendorName} servisinden herhangi bir veri alınamadı!";
-
-            return new(localReservation, false, $"{vendor.VendorName} servisinden herhangi bir veri alınamadı!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
 
         private ReservationRequest GetEntity(PostReservationRequest postReservationRequest, Reservation reservation, ReservationToken reservationToken, ResponseReservationStepsAdditionalInformation additionalInformation)

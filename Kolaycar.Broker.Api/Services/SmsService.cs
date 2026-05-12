@@ -1,5 +1,6 @@
 ﻿using KolayCAR.Broker.Domain.Models.Requests;
 using KolayCAR.Broker.Domain.Models.Response;
+using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Helpers;
 using KolayCAR.Rentws;
 using Newtonsoft.Json;
@@ -27,51 +28,58 @@ namespace KolayCAR.Broker.API.Services
 
         public async Task<bool> PostSms(PostSmsRequest postSmsRequest)
         {
-            if (postSmsRequest != null)
+            try
             {
-                if (!string.IsNullOrEmpty(postSmsRequest.Content) &&
-                    !string.IsNullOrEmpty(postSmsRequest.PhoneNumber))
+                if (postSmsRequest != null)
                 {
-                    var configurations = await _configurationService.GetConfigurations();
-
-                    var postSmsRequestBody = new POST_SMSRequestBody
+                    if (!string.IsNullOrEmpty(postSmsRequest.Content) &&
+                        !string.IsNullOrEmpty(postSmsRequest.PhoneNumber))
                     {
-                        APIKEY = EncryptionHelper.Encrypt($"Brk.r%+76!{DateTime.Now.ToString("dd.MM.yyyy")}"),
-                        APIPASSWORD = "brkr.API1122!",
-                        LANGISOCODE = postSmsRequest.LanguageType.ToString(),
-                        RESERVATIONNO = string.Empty,
-                        RESTYPE = "2",
-                        PROCESSTYPE = string.Empty,
-                        PHONENUMBER = postSmsRequest.PhoneNumber,
-                        SUBJECT = string.Empty,
-                        CONTENT = postSmsRequest.Content,
-                        SMSBULKID = string.Empty,
-                        TASKDATE = string.Empty,
-                        PARAM1 = configurations.KolayCARPaymentAPIVendorId.ToString(),
-                        PARAM2 = string.Empty,
-                        PARAM3 = string.Empty,
-                        PARAM4 = string.Empty,
-                        PARAM5 = string.Empty,
-                        PARAM6 = string.Empty
-                    };
+                        var configurations = await _configurationService.GetConfigurations();
 
-                    Serilog.Log.Error("{@KolayCARPostSmsRequestBody}", JsonConvert.SerializeObject(postSmsRequestBody));
+                        var postSmsRequestBody = new POST_SMSRequestBody
+                        {
+                            APIKEY = EncryptionHelper.Encrypt($"Brk.r%+76!{DateTime.Now.ToString("dd.MM.yyyy")}"),
+                            APIPASSWORD = "brkr.API1122!",
+                            LANGISOCODE = postSmsRequest.LanguageType.ToString(),
+                            RESERVATIONNO = string.Empty,
+                            RESTYPE = "2",
+                            PROCESSTYPE = string.Empty,
+                            PHONENUMBER = postSmsRequest.PhoneNumber,
+                            SUBJECT = string.Empty,
+                            CONTENT = postSmsRequest.Content,
+                            SMSBULKID = string.Empty,
+                            TASKDATE = string.Empty,
+                            PARAM1 = configurations.KolayCARPaymentAPIVendorId.ToString(),
+                            PARAM2 = string.Empty,
+                            PARAM3 = string.Empty,
+                            PARAM4 = string.Empty,
+                            PARAM5 = string.Empty,
+                            PARAM6 = string.Empty
+                        };
 
-                    var postSmsResult = await _kolayCARService.POST_SMSAsync(new POST_SMSRequest(postSmsRequestBody));
+                        Serilog.Log.Error("{@KolayCARPostSmsRequestBody}", JsonConvert.SerializeObject(postSmsRequestBody));
 
-                    Serilog.Log.Error("{@KolayCARPostSmsResponseBody}", postSmsResult.Body.POST_SMSResult.InnerXml);
+                        var postSmsResult = await _kolayCARService.POST_SMSAsync(new POST_SMSRequest(postSmsRequestBody));
 
-                    var xmldoc = new XmlDocument();
-                    xmldoc.LoadXml($"<ROOT>{postSmsResult.Body.POST_SMSResult.InnerXml}</ROOT>");
-                    var fromXml = JsonConvert.SerializeXmlNode(xmldoc);
+                        Serilog.Log.Error("{@KolayCARPostSmsResponseBody}", postSmsResult.Body.POST_SMSResult.InnerXml);
 
-                    var result = JsonConvert.DeserializeObject<POST_SMS_RESPONSE_ROOT>(fromXml);
+                        var xmldoc = new XmlDocument();
+                        xmldoc.LoadXml($"<ROOT>{postSmsResult.Body.POST_SMSResult.InnerXml}</ROOT>");
+                        var fromXml = JsonConvert.SerializeXmlNode(xmldoc);
 
-                    return result != null && result.ROOT != null && result.ROOT.SMSGITTI;
+                        var result = JsonConvert.DeserializeObject<POST_SMS_RESPONSE_ROOT>(fromXml);
+
+                        return result != null && result.ROOT != null && result.ROOT.SMSGITTI;
+                    }
                 }
+                return false;
             }
-
-            return false;
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@KolayCARPostSmsError}", ex.ToJson());
+                return false;
+            }
         }
     }
 }

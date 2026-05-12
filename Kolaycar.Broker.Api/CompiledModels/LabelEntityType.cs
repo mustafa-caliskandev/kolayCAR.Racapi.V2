@@ -19,7 +19,7 @@ namespace KolayCAR.Broker.API.CompiledModels
                 "KolayCAR.Broker.API.Models.Label",
                 typeof(Label),
                 baseEntityType,
-                propertyCount: 4,
+                propertyCount: 5,
                 keyCount: 1);
 
             var labelid = runtimeEntityType.AddProperty(
@@ -59,6 +59,15 @@ namespace KolayCAR.Broker.API.CompiledModels
                 nullable: true);
             labeladi.AddAnnotation("Relational:ColumnName", "LABELADI");
             labeladi.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var typeId = runtimeEntityType.AddProperty(
+                "TypeId",
+                typeof(int?),
+                propertyInfo: typeof(Label).GetProperty("TypeId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(Label).GetField("<TypeId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            typeId.AddAnnotation("Relational:ColumnName", "TYPEID");
+            typeId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(
                 new[] { labelid, dilid });

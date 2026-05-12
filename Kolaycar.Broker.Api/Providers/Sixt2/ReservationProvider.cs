@@ -41,7 +41,7 @@ namespace KolayCAR.Broker.API.Providers.Sixt2
 
             Serilog.Log.Error("{@SixtPostCancelReservationsRequestParameters}", localReservation.APIReservationNumber);
 
-            var result = await _httpManager.DeleteAsync<SixtCancelReservationRequest>(
+            var result = await _httpManager.DeleteAsyncResult(
                 requestPath: $"api/v1/reservations/{localReservation.APIReservationNumber}",
                 headers: token,
                 entity: entity,
@@ -53,13 +53,13 @@ namespace KolayCAR.Broker.API.Providers.Sixt2
                 isReservationRequest: true);
             Serilog.Log.Error("{@SixtPostCancelReservationResult}", result);
 
-            if (result == HttpStatusCode.OK)
+            if (result?.HttpStatusCode == HttpStatusCode.OK)
             {
                 localReservation.APIReservationCancel = true;
 
                 return new(localReservation, true);
             }
-            return new(localReservation, false, "Sixt servisinden rezervasyon iptal edilemedi!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden rezervasyon iptal edilemedi!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -113,7 +113,7 @@ namespace KolayCAR.Broker.API.Providers.Sixt2
                     }
                     return new(localReservation, true);
                 }
-                return new(null, false, "Sixt servisi ile bağlantı kurulamadı!");
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi ile bağlantı kurulamadı!");
             }
             return new(null, false, "Sixt servisi ile bağlantı kurulamadı!");
         }

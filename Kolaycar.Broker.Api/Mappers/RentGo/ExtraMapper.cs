@@ -53,7 +53,8 @@ namespace Kolaycar.Broker.Api.Mappers.RentGo
                 ExtraName = p.Name,
                 ExtraDescription = p.Info,
                 Price = p.Price.ToFloatNullSafe(),
-                ExtraRentalType = p.Type == 1 ? ExtraRentalTypes.PerRental : ExtraRentalTypes.Daily
+                ExtraRentalType = p.Type == 1 ? ExtraRentalTypes.PerRental : ExtraRentalTypes.Daily,
+                ExtraType = AdditionalProductTypes.Extra
             }).ToList();
         }
 
@@ -72,7 +73,8 @@ namespace Kolaycar.Broker.Api.Mappers.RentGo
                         ExtraName = $"{package.PackageName} - {sp.Name}",
                         ExtraDescription = sp.Content,
                         Price = sp.Price.ToFloatNullSafe(),
-                        ExtraRentalType = ExtraRentalTypes.Daily
+                        ExtraRentalType = ExtraRentalTypes.Daily,
+                        ExtraType = AdditionalProductTypes.Insurance
                     }));
                 }
             }

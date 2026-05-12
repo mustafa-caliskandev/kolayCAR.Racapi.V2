@@ -31,6 +31,7 @@ namespace KolayCAR.Broker.API.Mappers.Turevrac2
                    OneWayFee = vehicle.drop.ToFloatNullSafe(),
                    TotalPrice = vehicle.total_rental.ToFloatNullSafe(),
                    TotalKMLimit = vehicle.km_limit.ToIntNullSafe(),
+                   DailyKMLimit = vehicle.days.ToIntNullSafe() != 0 ? vehicle.km_limit.ToIntNullSafe() / vehicle.days.ToIntNullSafe() : vehicle.km_limit.ToIntNullSafe(),
                    IsAvailable = vehicle.total_rental.ToFloatNullSafe() > 0,
                    VehicleImages = new List<VehicleImage>
                     {

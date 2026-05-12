@@ -47,7 +47,7 @@ namespace KolayCAR.Broker.API.Providers.Beto
 
                 Serilog.Log.Error("{@BetoPostReservationRequestParameters}", postBookingSaveRequestBodyEntity);
 
-                var result = await RestManager.PostAsync<BetoRequestBase.PostReservationRequest, ReservationResponse>(
+                var result = await RestManager.PostAsyncResult<BetoRequestBase.PostReservationRequest, ReservationResponse>(
                     requestPath: $"api/rezervation/post",
                     entity: postBookingSaveRequestBodyEntity,
                     headers: AuthProvider.CreateAuthHeaderWithContentTypeJson(auth.access_token),
@@ -61,10 +61,10 @@ namespace KolayCAR.Broker.API.Providers.Beto
 
                 Serilog.Log.Error("{@BetoPostReservationResult}", result);
 
-                if (result != null && !string.IsNullOrEmpty(result.REZERVNO))
+                if (result?.Data != null && !string.IsNullOrEmpty(result.Data.REZERVNO))
                 {
                     localReservation.APIReservationSuccessfully = true;
-                    localReservation.APIReservationNumber = result.REZERVNO;
+                    localReservation.APIReservationNumber = result.Data.REZERVNO;
 
                     var location = await locationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                     Serilog.Log.Error("{@BetoGetLocationsResponse}", location);
@@ -95,15 +95,7 @@ namespace KolayCAR.Broker.API.Providers.Beto
                     };
                 }
 
-                Serilog.Log.Error("Beto servisinden herhangi bir veri alınamadı!");
-                localReservation.APIMessage = "Beto servisinden herhangi bir veri alınamadı!";
-
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = "Beto servisinden herhangi bir veri alınamadı!"
-                };
+                return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
             }
             return new ServiceResponseBase
             {
@@ -152,12 +144,7 @@ namespace KolayCAR.Broker.API.Providers.Beto
                     };
                 }
 
-                return new ServiceResponseBase
-                {
-                    Success = false,
-                    Data = localReservation,
-                    Message = "Beto servisi rezervasyon iptali başarısız!",
-                };
+                return new ServiceResponseBase(localReservation, false, "Beto servisi rezervasyon iptali başarısız!", result ?? string.Empty);
             }
             return new ServiceResponseBase
             {

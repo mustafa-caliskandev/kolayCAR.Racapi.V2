@@ -54,7 +54,7 @@ namespace KolayCAR.Broker.API.Providers.AutoHome
 
             Serilog.Log.Error("{@AutoHomePostCancelReservationsResponse}", result);
 
-            if (result != null && result.Data.cevap != null)
+            if (result?.Data?.cevap != null)
             {
                 localReservation.APIReservationCancel = true;
 
@@ -65,12 +65,7 @@ namespace KolayCAR.Broker.API.Providers.AutoHome
                 };
             }
 
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = "AutoHome servisi rezervasyon iptali başarısız!",
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisi rezervasyon iptali başarısız!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Domain.Models.Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -140,15 +135,7 @@ namespace KolayCAR.Broker.API.Providers.AutoHome
                 };
             }
 
-            Serilog.Log.Error(vendor.VendorName + " servisinden herhangi bir veri alınamadı!");
-            localReservation.APIMessage = vendor.VendorName + " servisinden herhangi bir veri alınamadı!";
-
-            return new ServiceResponseBase
-            {
-                Success = false,
-                Data = localReservation,
-                Message = vendor.VendorName + " servisinden herhangi bir veri alınamadı!"
-            };
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisinden herhangi bir veri alınamadı!");
         }
         private string PostReservationRequestParameters(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, float paidAmount, Domain.Models.Vendor vendor, Reservation localReservation)
         {

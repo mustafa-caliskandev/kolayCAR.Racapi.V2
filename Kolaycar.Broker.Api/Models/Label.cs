@@ -6,5 +6,6 @@
         public int Dilid { get; set; }
         public string Labeladi { get; set; }
         public string LabelKodu { get; set; }
+        public int? TypeId { get; set; }
     }
 }

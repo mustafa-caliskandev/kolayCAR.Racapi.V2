@@ -33,7 +33,7 @@ namespace KolayCAR.Broker.API.Providers._5S
 
             Serilog.Log.Error("{@5SPostCancelReservationsRequestParameters}", cancelReservationRequestBody);
 
-            var result = await RestManager.GetAsync<BesSResponseBase.ReservationResponse>(
+            var result = await RestManager.GetAsyncResult<BesSResponseBase.ReservationResponse>(
                 requestPath: "extservice/cancel",
                 headers: Configuration.CreateHeaderWithAuth(vendor.ApiKey),
                 parameters: cancelReservationRequestBody,
@@ -47,12 +47,12 @@ namespace KolayCAR.Broker.API.Providers._5S
 
             Serilog.Log.Error("{@5SPostCancelReservationsResponse}", result);
 
-            if ((bool)result?.status)
+            if (result?.Data?.status ?? false)
             {
                 localReservation.APIReservationCancel = true;
                 return new ServiceResponseBase(localReservation, true);
             }
-            return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} rezervasyon iptalinde hata oluştu!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "rezervasyon iptalinde hata oluştu!");
         }
 
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
@@ -69,7 +69,7 @@ namespace KolayCAR.Broker.API.Providers._5S
             await _configurationService.WriteLog(new BrokerLogModel(localReservation.ReservationNumber, reservationRequestBody.ToJson(), BrokerLogTypes.ReservationVendorAPIRequest));
             Serilog.Log.Error("{@5SReservationRequestBody}", reservationRequestBody);
 
-            var result = await RestManager.PostAsync<BesSRequestBase.BesSPostReservationRequest, BesSResponseBase.ReservationResponse>(
+            var result = await RestManager.PostAsyncResult<BesSRequestBase.BesSPostReservationRequest, BesSResponseBase.ReservationResponse>(
                 requestPath: "extservice/create",
                 headers: Configuration.CreateHeaderWithAuth(vendor.ApiKey),
                 entity: reservationRequestBody,
@@ -87,10 +87,10 @@ namespace KolayCAR.Broker.API.Providers._5S
             localReservation.ReservationPostedToAPI = true;
             localReservation.APIVendorName = vendor.VendorName;
 
-            if ((bool)result?.status && !string.IsNullOrEmpty(result?.voucher))
+            if ((result?.Data?.status ?? false) && !string.IsNullOrEmpty(result?.Data?.voucher))
             {
                 localReservation.APIReservationSuccessfully = true;
-                localReservation.APIReservationNumber = result.voucher;
+                localReservation.APIReservationNumber = result.Data.voucher;
 
                 var location = await LocationProvider.GetLocations(vendor, (int)localReservation.LanguageType + 1);
                 Serilog.Log.Error("{@AssistGetLocationsResponse}", location);
@@ -114,13 +114,10 @@ namespace KolayCAR.Broker.API.Providers._5S
                         localReservation.APIVendorReturnPhone = reservationReturnLocation.PhoneNumber;
                     }
                 }
-                return new ServiceResponseBase(localReservation, result.status);
+                return new ServiceResponseBase(localReservation, result.Data.status);
             }
 
-            Serilog.Log.Error("{5SReservatşonError}", result.message + " " + result.code.ToStringNullSafe());
-            localReservation.APIMessage = result.message;
-
-            return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} servisine ulaşılamadı!");
+            return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, result, "servisine ulaşılamadı!");
         }
         private Dictionary<string, object> CreateCancelReservationRequestBody(Reservation localReservation, PostCancelReservationRequest postCancelReservationRequest) =>
             new Dictionary<string, object>

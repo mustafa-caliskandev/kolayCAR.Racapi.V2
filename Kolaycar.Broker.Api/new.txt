@@ -1,0 +1,215 @@
+1. Genel Bakış
+Vonarent Remote API, üçüncü taraf sistemlerin Vonarent platformu üzerinden rezervasyon
+oluşturmasına, araç ve ekstra listelerine erişmesine olanak tanıyan RESTful HTTP arayüzüdür. Tüm
+endpointler /api/remote/v1/ prefix'i altında yer alır.
+Base URL /api/remote/v1
+Format JSON (Content-Type: application/json)
+Kimlik Doğrulama HMAC-SHA256 imzası + JWT Bearer Token
+Token Süresi 1 saat (JWT) · 1 hafta (Refresh Token)
+API Erişimi destek@vonarent.com
+Web vonarent.com
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 3 destek@vonarent.com
+2. Kimlik Doğrulama
+Her HTTP isteği aşağıdaki üç başlığı içermelidir. Auth endpointleri dışındaki tüm çağrılara ek olarak
+Authorization: Bearer <token> başlığı da eklenmelidir.
+Alan Tip Zorun
+lu Açıklama
+x-api-key string ✓ Hesabınıza ait API anahtarı
+x-timestamp number ✓ İsteğin Unix zaman damgası (milisaniye)
+x-signature string ✓ HMAC-SHA256 ile oluşturulan imza
+İMZA FORMÜLÜ
+message = METHOD | path | timestamp | queryString | bodyString
+x-signature = HMAC-SHA256(secret, message).hex()
+JAVASCRIPT ÖRNEĞI
+import { createHmac } from 'crypto';
+const queryString = Object.keys(query)
+.filter(k => query[k] != null && query[k] !== '')
+.sort()
+.map(k => `${k}=${query[k]}`)
+.join('&');
+const bodyString = body ? JSON.stringify(body) : '';
+const message = `${method}|${path}|${timestamp}|${queryString}|${bodyString}`;
+const signature = createHmac('sha256', secret).update(message).digest('hex');
+Önemli: queryString oluştururken parametreler alfabetik olarak sıralanmalı, null / undefined / boş değerler
+dahil edilmemelidir.
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 4 destek@vonarent.com
+3. Rezervasyon Akışı
+Rezervasyon oluşturmak için aşağıdaki endpointler sırayla çağrılmalıdır:
+Adı
+m
+Metod Endpoint Açıklama
+1 GET /auth/authenticate JWT token al
+2 GET /location/stations İstasyon listesini çek
+3 POST /location/select-station İstasyon ve tarih seç
+4 GET /vehicle/vehicles Araç listesini çek
+5 POST /vehicle/select-vehicle Araç seç
+6 GET /extra/extras Ekstra listesini çek (opsiyonel)
+7 POST /extra/select-extras Ekstraları seç (opsiyonel)
+8 POST /reservation/set-customer Müşteri bilgilerini gönder
+9 GET /reservation/complete-reservation Rezervasyonu tamamla
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 5 destek@vonarent.com
+4. Endpoint Referansı
+4.1 Kimlik Doğrulama
+GET /api/remote/v1/auth/authenticate
+JWT Token Al
+Diğer tüm endpointlerde kullanılacak JWT'yi sağlar. Bu isteğe Authorization header eklenmez;
+yalnızca x-api-key, x-timestamp ve x-signature header'ları kullanılır.
+YANIT ALANLARI
+Alan Tip Açıklama
+status 0 | 1 1 = başarılı, 0 = başarısız
+token string JWT erişim tokeni — 1 saat geçerli
+refreshToken string Yenileme tokeni — 1 hafta geçerli
+ÖRNEK YANIT
+{ "status": 1, "token": "eyJ...", "refreshToken": "eyJ..." }
+POST /api/remote/v1/auth/refresh
+Token Yenile
+Süresi dolmuş JWT'yi yenilemek için kullanılır.
+İSTEK PARAMETRELERİ
+Alan Tip Zorun
+lu Açıklama
+token string ✓ Mevcut JWT erişim tokeni
+refreshToken string ✓ Mevcut yenileme tokeni
+YANIT ALANLARI
+Alan Tip Açıklama
+status 0 | 1 1 = başarılı
+token string Yeni JWT
+refreshToken string Yeni Refresh Token
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 6 destek@vonarent.com
+4.2 Lokasyon
+GET /api/remote/v1/location/stations
+İstasyon Listesi
+Sistemdeki tüm aktif istasyonları döndürür. select-station çağrısından önce ID değerleri bu listeden
+alınmalıdır.
+YANIT ALANLARI
+Alan Tip Açıklama
+status 0 | 1 1 = başarılı
+items[].id string Benzersiz istasyon ID'si
+items[].name string İstasyon görünen adı
+ÖRNEK YANIT
+{ "status": 1, "items": [{ "id": "IST_001", "name": "Atatürk Havalimanı" }] }
+POST /api/remote/v1/location/select-station
+İstasyon ve Tarih Seç
+Çıkış / dönüş istasyonlarını ve tarihlerini seçer. Araç listesinin doğru filtrelenmesi için bu adım
+zorunludur.
+İSTEK PARAMETRELERİ
+Alan Tip Zorun
+lu Açıklama
+pickupStation string ✓ Çıkış istasyon ID'si
+pickupDate string ✓ Çıkış tarihi — YYYY-MM-DD HH:mm:ss
+returnStation string ✓ Dönüş istasyon ID'si
+returnDate string ✓ Dönüş tarihi — YYYY-MM-DD HH:mm:ss
+ÖRNEK YANIT
+{ "status": 1 }
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 7 destek@vonarent.com
+4.3 Araç
+GET /api/remote/v1/vehicle/vehicles
+Araç Listesi
+select-station'da belirlenen tarih ve lokasyona göre uygun araçları fiyatlarıyla döndürür.
+YANIT ALANLARI
+Alan Tip Açıklama
+items[].id string Araç benzersiz ID'si
+items[].name string Araç model adı
+items[].image string Araç fotoğraf URL'i
+items[].price number Toplam kiralama bedeli
+items[].priceDaily number Günlük kiralama bedeli
+items[].currency string Para birimi (ör. TRY)
+items[].capacity number Yolcu kapasitesi
+items[].luggageVolum
+e
+number Bagaj kapasitesi
+items[].properties string[] Araç özellik listesi
+items[].vehicleType string Araç sınıfı
+items[].fuel string Yakıt tipi
+POST /api/remote/v1/vehicle/select-vehicle
+Araç Seç
+Rezervasyon için kullanılacak aracı ve para birimini belirler.
+İSTEK PARAMETRELERİ
+Alan Tip Zorun
+lu Açıklama
+id string ✓ Seçilen aracın ID'si
+currency string ✓ Rezervasyon para birimi (ör. TRY)
+ÖRNEK YANIT
+{ "status": 1 }
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 8 destek@vonarent.com
+4.4 Ekstra
+GET /api/remote/v1/extra/extras
+Ekstra Listesi
+Araç seçimine göre sunulan ek ürün ve hizmetleri döndürür.
+YANIT ALANLARI
+Alan Tip Açıklama
+items[].id string Ekstra ID'si
+items[].name string Ekstra adı
+items[].description string Kısa açıklama
+items[].extraCategor
+yId string Kategori ID'si
+items[].extraCategor
+yName string Kategori adı
+items[].price number Ekstra bedeli
+items[].currency string Para birimi
+items[].isMultipleSe
+lectable 0 | 1 1 = birden fazla seçilebilir
+items[].priceCalcula
+tionType FIXED|DAILY Sabit veya günlük fiyat
+POST /api/remote/v1/extra/select-extras
+Ekstra Seç
+Rezervasyona eklenecek ekstra ve adetleri belirtir. Ekstra seçilmeyecekse boş dizi gönderilebilir.
+İSTEK PARAMETRELERİ
+Alan Tip Zorun
+lu Açıklama
+extras array ✓ Seçilen ekstralar dizisi
+extras[].id string ✓ Ekstra ID'si
+extras[].quantity number ✓ Adet
+ÖRNEK YANIT
+{ "status": 1 }
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 9 destek@vonarent.com
+4.5 Rezervasyon
+POST /api/remote/v1/reservation/set-customer
+Müşteri Bilgisi Gönder
+Rezervasyon sahibinin iletişim bilgilerini sisteme iletir.
+İSTEK PARAMETRELERİ
+Alan Tip Zorun
+lu Açıklama
+firstName string ✓ Müşteri adı
+lastName string ✓ Müşteri soyadı
+mobile string ✓ Cep telefonu numarası
+email string ✓ E-posta adresi
+ÖRNEK YANIT
+{ "status": 1 }
+GET /api/remote/v1/reservation/complete-reservation
+Rezervasyonu Tamamla
+Önceki adımlarda toplanan tüm bilgilerle rezervasyonu kalıcı olarak oluşturur.
+Bu endpoint yalnızca tüm önceki adımlar başarıyla tamamlandıktan sonra çağrılmalıdır. Eksik adım varsa
+status: 0 ve açıklayıcı hata mesajı döner.
+ÖRNEK YANIT
+{ "status": 1 }
+GET /api/remote/v1/reservation/get-reservation-data
+Rezervasyon Verisini Getir
+Rezervasyonun o ana kadarki tüm seçim ve bilgilerini döndürür. Akışın herhangi bir noktasında
+durum kontrolü amacıyla çağrılabilir.
+YANIT ALANLARI
+Alan Tip Açıklama
+status 0 | 1 1 = başarılı, 0 = hata
+Vonarent Remote API v1.0 — destek@vonarent.com
+vonarent.com Sayfa 10 destek@vonarent.com
+5. Hata Yönetimi
+Tüm başarısız yanıtlar status: 0 ile döner.
+Alan Tip Açıklama
+status 0 İşlem başarısız
+message string Genel hata mesajı (opsiyonel)
+errors object Alan bazlı validasyon hataları (opsiyonel)
+ÖRNEK HATA YANITI
+{
+"status": 0,
+"message": "Seçilen tarih aralığı geçersiz.",
+"errors": {
+"pickupDate": ["Bu alan zorunludur."],
+"returnDate": ["Çıkış tarihinden önce olamaz."]
+}
+}

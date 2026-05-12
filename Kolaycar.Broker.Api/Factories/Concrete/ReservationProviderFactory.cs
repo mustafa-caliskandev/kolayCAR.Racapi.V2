@@ -54,6 +54,7 @@ using SixtProvider = KolayCAR.Broker.API.Providers.Sixt;
 using Turevrac2Provider = KolayCAR.Broker.API.Providers.Turevrac2;
 using TurevracProvider = KolayCAR.Broker.API.Providers.Turevrac;
 using TurmobilProvider = KolayCAR.Broker.API.Providers.Turmobil;
+using VonarentProvider = KolayCAR.Broker.API.Providers.Vonarent;
 using WheelsysProvider = KolayCAR.Broker.API.Providers.Wheelsys;
 using WishcarProvider = KolayCAR.Broker.API.Providers.Wishcar;
 using YdzProvider = KolayCAR.Broker.API.Providers.Ydz;
@@ -127,6 +128,7 @@ namespace KolayCAR.Broker.API.Factories.Concrete
                 VendorTypes.YesOto => new YesOtoProvider.ReservationProvider(vendor.APIBaseUrl, configurationService),
                 VendorTypes.RentGo => new RentGoProvider.ReservationProvider(vendor.APIBaseUrl, configurationService),
                 VendorTypes.Eren => new ErenProvider.ReservationProvider(vendor.APIBaseUrl, configurationService),
+                VendorTypes.Vonarent => new VonarentProvider.ReservationProvider(vendor.APIBaseUrl, configurationService),
                 _ => null
             };
         }
