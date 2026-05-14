@@ -372,8 +372,23 @@ namespace KolayCAR.Broker.API.Services
                         if (vendor.VendorType == VendorTypes.Yolcu360 || vendor.VendorType == VendorTypes.Yolcu360v2)
                         {
                             var list = apiVehicles.Data2 as IEnumerable<Domain.Models.VendorVendor>;
-                            if (list?.Count() > 0)
-                                await _vendorVendorService.AddRangeAsync(list.Map());
+                            if (list?.Any() == true)
+                            {
+                                var vendorVendorList = await _vendorVendorService.GetVendorVendorListByVendorId(vendor.VendorId);
+                                var existingVendorNames = new HashSet<string>(
+                                    vendorVendorList
+                                        .Where(e => !string.IsNullOrWhiteSpace(e.VendorName))
+                                        .Select(e => e.VendorName.Trim()),
+                                    StringComparer.OrdinalIgnoreCase);
+
+                                var newVendorVendors = list
+                                    .Where(e => !string.IsNullOrWhiteSpace(e.VendorName))
+                                    .Where(e => existingVendorNames.Add(e.VendorName.Trim()))
+                                    .ToList();
+
+                                if (newVendorVendors.Any())
+                                    await _vendorVendorService.AddRangeAsync(newVendorVendors.Map(), vendor.VendorId);
+                            }
 
                             if ((bool)vendor.FlightNumberRequired)
                             {

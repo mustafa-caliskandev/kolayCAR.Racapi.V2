@@ -4157,6 +4157,7 @@ namespace KolayCAR.Broker.API.Models
                 entity.Property(e => e.MatchedVendorName).HasColumnName("MATCHEDVENDORNAME").HasDefaultValueSql("(('Yok'))");
                 entity.Property(e => e.UnlimitedKM).HasColumnName("UNLIMITEDKM").HasDefaultValueSql("((0))");
                 entity.Property(e => e.FlightCardMandatory).HasColumnName("FLIGHTCARDMANDATORY").HasDefaultValueSql("((0))");
+                entity.Property(e => e.PassportNumberRequired).HasColumnName("PASSPORTNUMBERREQUIRED");
             });
 
             modelBuilder.Entity<Yonlendirme>(entity =>

@@ -19,7 +19,7 @@ namespace KolayCAR.Broker.API.CompiledModels
                 "KolayCAR.Broker.API.Models.VendorVendor",
                 typeof(VendorVendor),
                 baseEntityType,
-                propertyCount: 9,
+                propertyCount: 10,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -84,6 +84,15 @@ namespace KolayCAR.Broker.API.CompiledModels
             matchedVendorName.AddAnnotation("Relational:ColumnName", "MATCHEDVENDORNAME");
             matchedVendorName.AddAnnotation("Relational:DefaultValueSql", "(('Yok'))");
             matchedVendorName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var passportNumberRequired = runtimeEntityType.AddProperty(
+                "PassportNumberRequired",
+                typeof(bool?),
+                propertyInfo: typeof(VendorVendor).GetProperty("PassportNumberRequired", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(VendorVendor).GetField("<PassportNumberRequired>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            passportNumberRequired.AddAnnotation("Relational:ColumnName", "PASSPORTNUMBERREQUIRED");
+            passportNumberRequired.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var unlimitedKM = runtimeEntityType.AddProperty(
                 "UnlimitedKM",

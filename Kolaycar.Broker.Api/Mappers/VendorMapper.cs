@@ -125,7 +125,8 @@ namespace KolayCAR.Broker.API.Mappers
                 HgsPackage = x.HgsPackage,
                 MatchedVendorId = x.MatchedVendorId,
                 MatchedVendorName = x.MatchedVendorName,
-                FlightCardMandatory = x.FlightCardMandatory
+                FlightCardMandatory = x.FlightCardMandatory,
+                PassportNumberRequired = x.PassportNumberRequired
             }).ToList();
 
             return list;
@@ -154,7 +155,8 @@ namespace KolayCAR.Broker.API.Mappers
                 HgsPackage = x.HgsPackage,
                 MatchedVendorId = x.MatchedVendorId,
                 MatchedVendorName = x.MatchedVendorName,
-                FlightCardMandatory = x.FlightCardMandatory
+                FlightCardMandatory = x.FlightCardMandatory,
+                PassportNumberRequired = x.PassportNumberRequired
             }).ToList();
 
             return list;
@@ -166,7 +168,8 @@ namespace KolayCAR.Broker.API.Mappers
                 Active = vendor.Active,
                 VendorId = vendor.VendorId,
                 VendorName = vendor.VendorName,
-                Id = vendor.Id
+                Id = vendor.Id,
+                PassportNumberRequired = vendor.PassportNumberRequired
             } : null;
         }
     }

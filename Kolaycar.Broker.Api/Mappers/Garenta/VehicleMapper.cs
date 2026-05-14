@@ -22,8 +22,9 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                 rentalDuration++;
 
             var dailyPrice = (vehicle.NET_AMOUNT / rentalDuration).ToFloatNullSafe();
-            var dailyKmLimit = ToNullableInt(vehicle.META_DATA?.MAX_KM ?? vehicle.MAX_KM);
-            var monthlyKmLimit = ToNullableInt(vehicle.META_DATA?.MAX_MONTHLY_KM ?? vehicle.MAX_MONTHLY_KM);
+
+            var totalKmLimit = ToNullableInt(vehicle.META_DATA.MAX_KM);
+            var dailyKmLimit = (totalKmLimit / rentalDuration).ToIntNullSafe();
 
             return vehicle != null ? new Vehicle
             {
@@ -55,11 +56,11 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                 FuelType = FuelTypes.None,
                 BaggageQuantityType = BaggageQuantityTypes.None,
                 IsThereAirCondition = true,
-                VendorMinimumDriverAge = ToNullableInt(vehicle.META_DATA?.MIN_AGE ?? vehicle.MIN_AGE) ?? 0,
-                VendorMinimumDrivingLicenseAge = ToNullableInt(vehicle.META_DATA?.MIN_LICENSE_AGE ?? vehicle.MIN_LICENSE_AGE) ?? 0,
+                VendorMinimumDriverAge = ToNullableInt(vehicle.META_DATA?.MIN_AGE) ?? 0,
+                VendorMinimumDrivingLicenseAge = ToNullableInt(vehicle.META_DATA?.MIN_LICENSE_AGE) ?? 0,
                 YoungDriverMinAge = ToNullableInt(vehicle.META_DATA?.MIN_YOUNG_AGE) ?? null,
                 DailyKMLimit = dailyKmLimit,
-                TotalKMLimit = CalculateTotalKmLimit(dailyKmLimit, monthlyKmLimit, rentalDuration),
+                TotalKMLimit = totalKmLimit,
                 DailyPricePayNow = dailyPrice,
                 TotalPricePayNow = vehicle.NET_AMOUNT.ToFloatNullSafe(),
                 FullCredit = vendor.CreditType == CreditType.FullCredit ? true : false,

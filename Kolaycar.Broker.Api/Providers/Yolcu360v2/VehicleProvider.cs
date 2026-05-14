@@ -46,7 +46,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
             if (result == null || result?.count == 0)
                 return new(null, false, $"{vendor.VendorName} müsait araç bulunamadı!");
 
-            var apiVehicleList = result.results.Where(e => !e.isFindeksRequired).ToList();
+            var apiVehicleList = result.results;
             var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
             var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor, baseVendorRequestCurrencyType, exchangeRates);
 
@@ -63,6 +63,12 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
             var apiVendorList = apiVehicleList.Select(e => new VendorVendor(vendor.VendorId, true, e.vendor.name.ToLowerInvariant()))
                     .GroupBy(e => e.VendorName).Select(e => e.First()).Where(e => !vendor.VendorVendors.Any(v => v.VendorName == e.VendorName)).ToList();
 
+            var vendorVendorByName = vendor.VendorVendors?
+                .Where(e => e?.Active == true && !string.IsNullOrWhiteSpace(e.VendorName))
+                .GroupBy(e => e.VendorName.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(e => e.Key, e => e.First(), StringComparer.OrdinalIgnoreCase)
+                ?? new Dictionary<string, VendorVendor>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var vehicle in apiVehicleList)
             {
                 var tempMappedVehicleList = mappedVehicleList.Where(x => x.VehicleCode == vehicle.code).ToList();
@@ -70,6 +76,12 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                 for (int i = 0; i < tempMappedVehicleList.Count; i++)
                 {
                     var mappedVehicle = tempMappedVehicleList[i];
+                    var apiVendorName = vehicle?.vendor?.name?.Trim();
+                    var passportRequired = !string.IsNullOrWhiteSpace(apiVendorName)
+                        && vendorVendorByName.TryGetValue(apiVendorName, out var vendorVendor)
+                        && vendorVendor.PassportNumberRequired.ToBoolNullSafe() == true;
+
+                    mappedVehicle.PassportRequired = passportRequired;
 
                     var reservationToken = new ReservationToken
                     {
@@ -118,7 +130,8 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                         VendorFlightPassRequired = vendor.FlightNumberRequired ?? false,
                         FullCredit = mappedVehicle.FullCredit,
                         SippCode = mappedVehicle.SippCode,
-                        APIDeliveryTypeId = mappedVehicle.ApiDeliveryTypeId
+                        APIDeliveryTypeId = mappedVehicle.ApiDeliveryTypeId,
+                        APIReferenceCode2 = mappedVehicle.PassportRequired.ToStringNullSafe()
                     };
 
                     mappedVehicle.ReservationToken = reservationToken.ToJson();
