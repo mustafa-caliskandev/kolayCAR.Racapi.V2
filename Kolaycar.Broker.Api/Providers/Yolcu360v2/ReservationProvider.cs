@@ -297,7 +297,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                     lastName = postReservationRequest.CustomerSurname,
                     email = postReservationRequest.CustomerEmail,
                     nationality = "TR",
-                    phone = postReservationRequest.CustomerTelephone.Replace(" ", string.Empty),
+                    phone = FormatPhoneNumber(postReservationRequest.CustomerTelephone),
                     identityNumber = postReservationRequest.CustomerPersonalNumber.Any(char.IsLetter) ? null : postReservationRequest.CustomerPersonalNumber,
                     passportNo = postReservationRequest.CustomerPersonalNumber.Any(char.IsLetter) ? postReservationRequest.CustomerPersonalNumber : null,
                     birthDate = postReservationRequest.CustomerBirthDay.ToDateTimeNullSafe().ToString("yyyy-MM-dd")
@@ -307,6 +307,15 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                 trackingID = postReservationRequest.SendAgencyReservationNumber ? postReservationRequest.AgencyReservationReference : ""
             };
             return entity;
+        }
+
+        private static string FormatPhoneNumber(string phone)
+        {
+            var normalizedPhone = phone?.Replace(" ", string.Empty) ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(normalizedPhone))
+                return string.Empty;
+
+            return normalizedPhone.StartsWith("+") ? normalizedPhone : $"+{normalizedPhone}";
         }
 
         private string GetOfficeWorkingHours(Yolcu360v2ReservationResponseBase.CheckInOffice office, DateTime tarih)

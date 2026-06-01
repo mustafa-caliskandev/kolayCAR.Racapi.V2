@@ -25,7 +25,24 @@ namespace KolayCAR.Broker.Domain.Models.Requests.YesOto
         public string Nationality { get; set; }
         public string Gender { get; set; }
         public YesOtoBillingInformation BillingInformation { get; set; }
+        public object ReservationAdditionalServiceAddress { get; set; }
         public string FlightNumber { get; set; }
+        public bool CommunicationConfirmation { get; set; }
+        public bool RentalAgreement { get; set; }
+        public string Id { get; set; }
+        public bool Post { get; set; }
+        public string AnadolujetCode { get; set; }
+        public string ApprovalNumber { get; set; }
+        public string Channel { get; set; }
+        public string GiftCoupon { get; set; }
+        public bool LocationPay { get; set; }
+        public object MailPriceInfo { get; set; }
+        public string RedirectUrl { get; set; }
+        public bool TakeADiscounts { get; set; }
+        public string TransactionNumber { get; set; }
+        public object UsedPointBalance { get; set; }
+        public bool UsedPointState { get; set; }
+        public string ClientChannel { get; set; }
     }
 
     public class YesOtoReservationRequestModel
@@ -46,6 +63,11 @@ namespace KolayCAR.Broker.Domain.Models.Requests.YesOto
         public string GiftCoupon { get; set; }
         public bool LocationPay { get; set; }
         public string ProcessType { get; set; }
+        public string PromotionToken { get; set; }
+        public string RequestType { get; set; }
+        public bool UsedPointState { get; set; }
+        public string ZubizuSaleId { get; set; }
+        public object priceMatrix { get; set; }
     }
 
     public class YesOtoSelectedAdditionalService
@@ -65,7 +87,24 @@ namespace KolayCAR.Broker.Domain.Models.Requests.YesOto
 
     public class YesOtoCancelReservationRequest
     {
-        public string reservationCode { get; set; }
-        public string cancelReason { get; set; } = "User requested cancellation.";
+        public string ApprovalNumber { get; set; }
+        public string Email { get; set; }
+        public string LanguageId { get; set; }
+        public string BrandId { get; set; }
+        public string ReservationCancellationReason { get; set; }
+        public decimal RefundAmount { get; set; }
+    }
+
+    public class YesOtoReservationCancellationInformationRequest
+    {
+        public string ApprovalNumber { get; set; }
+        public string Email { get; set; }
+        public string LanguageId { get; set; }
+        public string BrandId { get; set; }
+    }
+
+    public class YesOtoSetReservationStatusRequest
+    {
+        public string ApprovalNumber { get; set; }
     }
 }

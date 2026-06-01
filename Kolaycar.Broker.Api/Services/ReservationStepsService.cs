@@ -318,14 +318,19 @@ namespace KolayCAR.Broker.API.Services
                         vehicle = vehicles.Where(x => x.VendorId == reservationToken.APIVendorId && x.VehicleName == reservationToken.VehicleName && x.FuelType == reservationToken.FuelType && x.TransmissionType == reservationToken.TransmissionType && x.VehicleCategoryType == reservationToken.VehicleCategoryType).FirstOrDefault();
                     }
                     else
-                        if (vendor.VendorType == VendorTypes.EnUygun)
+                        if (vendor.VendorType == VendorTypes.Yolcu360v2)
                         {
-                            vehicle = vehicles.Where(x => x.VendorId == reservationToken.APIVendorId && x.VehicleName == reservationToken.VehicleName && x.ApiVendorName == reservationToken.APIVendorName && x.VehicleCode == reservationToken.VehicleCode).FirstOrDefault();
+                            vehicle = vehicles.FirstOrDefault(e => e.VehicleCode == reservationToken.VehicleCode);
                         }
                         else
-                        {
-                            vehicle = vehicles.Where(x => x.VehicleCode == reservationToken.VehicleCode && x.VendorId == reservationToken.VendorId).FirstOrDefault();
-                        }
+                            if (vendor.VendorType == VendorTypes.EnUygun)
+                            {
+                                vehicle = vehicles.Where(x => x.VendorId == reservationToken.APIVendorId && x.VehicleName == reservationToken.VehicleName && x.ApiVendorName == reservationToken.APIVendorName && x.VehicleCode == reservationToken.VehicleCode).FirstOrDefault();
+                            }
+                            else
+                            {
+                                vehicle = vehicles.Where(x => x.VehicleCode == reservationToken.VehicleCode && x.VendorId == reservationToken.VendorId).FirstOrDefault();
+                            }
                 }
                 else
                 {
@@ -333,14 +338,19 @@ namespace KolayCAR.Broker.API.Services
                     {
                         vehicle = vehicles.Where(x => x.VendorId == reservationToken.APIVendorId && x.VehicleName == reservationToken.VehicleName && x.FuelType == reservationToken.FuelType && x.TransmissionType == reservationToken.TransmissionType && x.VehicleCategoryType == reservationToken.VehicleCategoryType).FirstOrDefault();
                     }
-                    else if (vendor.VendorType == VendorTypes.EnUygun)
-                    {
-                        vehicle = vehicles.Where(x => x.VendorId == reservationToken.APIVendorId && x.VehicleName == reservationToken.VehicleName && x.ApiVendorName == reservationToken.APIVendorName && x.VehicleCode == reservationToken.VehicleCode).FirstOrDefault();
-                    }
                     else
-                    {
-                        vehicle = vehicles.Where(x => x.VehicleCode == reservationToken.VehicleCode && x.VendorId == reservationToken.APIVendorId).FirstOrDefault();
-                    }
+                        if (vendor.VendorType == VendorTypes.Yolcu360v2)
+                        {
+                            vehicle = vehicles.FirstOrDefault(e => e.VehicleCode == reservationToken.VehicleCode);
+                        }
+                        else if (vendor.VendorType == VendorTypes.EnUygun)
+                        {
+                            vehicle = vehicles.Where(x => x.VendorId == reservationToken.APIVendorId && x.VehicleName == reservationToken.VehicleName && x.ApiVendorName == reservationToken.APIVendorName && x.VehicleCode == reservationToken.VehicleCode).FirstOrDefault();
+                        }
+                        else
+                        {
+                            vehicle = vehicles.Where(x => x.VehicleCode == reservationToken.VehicleCode && x.VendorId == reservationToken.APIVendorId).FirstOrDefault();
+                        }
                 }
                 ReservationToken newReservationToken = new ReservationToken();
 

@@ -19,7 +19,7 @@ namespace KolayCAR.Broker.API.CompiledModels
                 "KolayCAR.Broker.API.Models.Vendor",
                 typeof(Vendor),
                 baseEntityType,
-                propertyCount: 78,
+                propertyCount: 79,
                 navigationCount: 1,
                 keyCount: 1);
 
@@ -332,6 +332,17 @@ namespace KolayCAR.Broker.API.CompiledModels
                 nullable: true);
             extraDescriptionFromVendor.AddAnnotation("Relational:ColumnName", "EXTRADESCRIPTIONFROMVENDOR");
             extraDescriptionFromVendor.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var extramappingactive = runtimeEntityType.AddProperty(
+                "Extramappingactive",
+                typeof(bool?),
+                propertyInfo: typeof(Vendor).GetProperty("Extramappingactive", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(Vendor).GetField("<Extramappingactive>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true,
+                valueGenerated: ValueGenerated.OnAdd);
+            extramappingactive.AddAnnotation("Relational:ColumnName", "EXTRAMAPPINGACTIVE");
+            extramappingactive.AddAnnotation("Relational:DefaultValueSql", "((0))");
+            extramappingactive.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var findeksRequired = runtimeEntityType.AddProperty(
                 "FindeksRequired",

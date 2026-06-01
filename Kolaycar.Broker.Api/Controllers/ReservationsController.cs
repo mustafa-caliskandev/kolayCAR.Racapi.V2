@@ -412,6 +412,8 @@ namespace KolayCAR.Broker.API.Controllers
             var subAgencyId = request.Agency?.SubAgencyId ?? agency.SubAgencyId;
             request.Agency = agency;
             request.Agency.SubAgencyId = subAgencyId;
+            var agencyName = agency.AgencyName ?? string.Empty;
+            var sendAvailabilityRequest = vendor.SendAvailabilityRequest || (agency.UserRole == UserRoles.External && !(agencyName.Contains("Airtuerk") || agencyName.Contains("Tatil")));
 
             if (ReservationHelper.CheckPickUpDate(token))
             {
@@ -419,8 +421,44 @@ namespace KolayCAR.Broker.API.Controllers
                 return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, message.Replace("{time}", DateTime.Now.ToString("dd.MM.yyyy HH:mm")), ResultCodes.Error, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
             }
 
+            Vehicle vehicleFullCreditInfo = null;
+            if (sendAvailabilityRequest)
+            {
+                var getVehiclesRequest = new GetVehiclesRequest
+                {
+                    VendorType = vendor.VendorType,
+                    ApiKey = vendor.ApiKey,
+                    ApiPassword = vendor.ApiPassword,
+                    ApiClientId = vendor.ApiClientId.ToStringNullSafe(),
+                    ApiLocationCode = token.APIPickupLocationCode,
+                    LanguageCode = request.LanguageCode,
+                    CurrencyCode = token.CurrencyType.ToString(),
+                    PickupLocationId = token.PickupLocationId,
+                    ReturnLocationId = token.ReturnLocationId,
+                    PickupDate = token.PickupDateTime.ToString("dd.MM.yyyy"),
+                    ReturnDate = token.ReturnDateTime.ToString("dd.MM.yyyy"),
+                    PickupTime = token.PickupDateTime.ToString("HH:mm"),
+                    ReturnTime = token.ReturnDateTime.ToString("HH:mm"),
+                    ReservationToken = token.ToJson()
+                };
+
+                Serilog.Log.Error("{@GetVehiclesRequest}", getVehiclesRequest);
+                var sessionId = _httpContextAccessor?.HttpContext?.Session.GetString("user-code") ?? "";
+                var vehiclesResponse = await _vehicleService.GetVehicles(getVehiclesRequest, token.AgencyId.ToIntNullSafe(), sessionId, disableTimeOut: true);
+
+                Serilog.Log.Error("{@VehiclesResponse}", vehiclesResponse);
+
+                var vehicles = vehiclesResponse.Data as List<Vehicle>;
+                var checkVehicleIsAvailable = await _reservationStepsService.CheckReservationVehicleIsAvailable(vehicles, token, request.LanguageCode.ToEnum<LanguageTypes>(), vendor);
+                Serilog.Log.Error("{@CheckVehicleIsAvailable}", checkVehicleIsAvailable);
+                vehicleFullCreditInfo = checkVehicleIsAvailable.Data as Vehicle;
+
+                if (!checkVehicleIsAvailable.Success)
+                    return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, checkVehicleIsAvailable.Message, (ResultCodes)checkVehicleIsAvailable.ResultCode, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
+            }
+
             if (request.FullCredit.ToBoolNullSafe())
-                if (!ReservationHelper.CheckFullCreditPermission(agency, token.FullCredit))
+                if (!ReservationHelper.CheckFullCreditPermission(agency, vehicleFullCreditInfo?.FullCredit ?? token.FullCredit))
                     return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, "No Full-Credit permit", ResultCodes.NoFullCreditPermit, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
 
             if (_userRole == UserRoles.External && request.Payment.PaymentType == PaymentTypes.AdvancePayment && request.Pricing.PaidAmount > 0)

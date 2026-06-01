@@ -94,6 +94,7 @@ namespace KolayCAR.Broker.API.Services
                 FreeCancellationHour = vendorDb.Freecancellationhour ?? 0,
                 PRIORITYFEE = vendorDb.PRIORITYFEE.ToBoolNullSafe(),
                 UseBrokerConfigurations = vendorDb.Usebrokerconfigurations.ToBoolNullSafe(),
+                ExtraMappingActive = vendorDb.Extramappingactive.ToBoolNullSafe(),
                 ProfitMarkupDailyPrice = (float)(vendorDb.Profitmarkup ?? 0),
                 CountryId = vendorDb.CountryId,
                 FlightNumberRequired = vendorDb.FlightNumberRequired,

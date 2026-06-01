@@ -83,9 +83,5 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
             };
 
 
-
-
-
-
     }
 }

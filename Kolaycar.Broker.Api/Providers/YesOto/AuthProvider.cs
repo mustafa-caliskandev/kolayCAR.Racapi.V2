@@ -1,5 +1,5 @@
+using Kolaycar.Broker.Api.Helpers.YesOto;
 using KolayCAR.Broker.Domain.Models;
-using KolayCAR.Broker.Domain.Models.Requests.YesOto;
 using KolayCAR.Broker.Domain.Models.Responses.YesOto;
 using KolayCAR.Broker.Infrastructure.Managers;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Kolaycar.Broker.Api.Providers.YesOto
 
         public AuthProvider(string apiBaseUrl)
         {
-            _httpManager = new HttpManager(apiBaseUrl);
+            _httpManager = new HttpManager(YesOtoConstants.NormalizeIdentityBaseUrl(apiBaseUrl));
         }
 
         public async Task<string> GetTokenAsync(Vendor vendor)
@@ -21,8 +21,8 @@ namespace Kolaycar.Broker.Api.Providers.YesOto
             var request = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                new KeyValuePair<string, string>("client_id", vendor.ApiClientId),
-                new KeyValuePair<string, string>("client_secret", vendor.SecretKey)
+                new KeyValuePair<string, string>("client_id", vendor.ApiKey),
+                new KeyValuePair<string, string>("client_secret", vendor.ApiPassword)
             };
 
             var parameters = new Dictionary<string, object>();

@@ -173,6 +173,30 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             }
 
         }
+        public async Task<T> GetAsyncWithModelSixt<T>(string requestPath, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, bool encode = true, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false) where T : class
+        {
+            try
+            {
+                client.SetHeaders(headers);
+                requestPath += parameters.ToQueryString(encode);
+
+                var response = await client.GetAsync(requestPath);
+                var serialize = await response.Content.ReadAsStringAsync();
+                if (_dbHelper != null && brokerLogModel != null)
+                {
+                    brokerLogModel.Content = serialize;
+                    _dbHelper.WriteLog(brokerLogModel);
+                }
+                return JsonConvert.DeserializeObject<T>(serialize);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@SixtLocationError}", ex.ToJson());
+
+                return default(T);
+            }
+
+        }
         public async Task<T> PostXmlAsync<T>(string requestPath, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, string culture = "en-US", BrokerLogModel brokerLogModel = null, bool logResult = false, string vendorName = "", bool isReservationRequest = false) where T : class
         {
             try

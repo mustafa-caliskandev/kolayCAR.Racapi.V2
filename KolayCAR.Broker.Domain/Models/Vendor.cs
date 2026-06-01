@@ -30,6 +30,7 @@ namespace KolayCAR.Broker.Domain.Models
         public string Logo { get; set; }
         public bool DepositCreditCardRequired { get; set; }
         public bool VehicleMappingActive { get; set; }
+        public bool ExtraMappingActive { get; set; }
         public bool APIPhoneActive { get; set; }
         public int APITimeout { get; set; }
         public string CompanyTitle { get; set; }
@@ -184,7 +185,8 @@ namespace KolayCAR.Broker.Domain.Models
         YesOto,
         Eren,
         RentGo,
-        Vonarent
+        Vonarent,
+        Pandora2
     }
 
     public enum PriceRoundingTypes

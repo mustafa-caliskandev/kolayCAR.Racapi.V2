@@ -2,9 +2,11 @@
 using KolayCAR.Broker.API.Services;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Requests;
+using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
@@ -18,10 +20,12 @@ namespace KolayCAR.Broker.API.Controllers
     public class SurveysController : ControllerBase
     {
         private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public SurveysController(IEmailService emailService)
+        public SurveysController(IEmailService emailService, IConfiguration configuration)
         {
             _emailService = emailService;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Post([FromBody] PostEmailRequest postEmailRequest, int surveyId)
@@ -37,13 +41,15 @@ namespace KolayCAR.Broker.API.Controllers
 
                 Serilog.Log.Error("{@PostSurveyEmail}", postEmailRequest);
 
+                var disableSsl = _configuration["AppSettings:DisableSsl"].ToBoolNullSafe();
+
                 var emailSuccess = await _emailService.PostEmail(
                     "SurveyMail",
                     postEmailRequest.FromTitle,
                     postEmailRequest.ToMailAddress,
                     postEmailRequest.Subject,
                     postEmailRequest.Body,
-                    postEmailRequest.ReplyTo);
+                    postEmailRequest.ReplyTo, disableSsl: disableSsl);
 
                 return Ok(HttpResult<string>.Result(
                     data: null,

@@ -1,3 +1,4 @@
+using Kolaycar.Broker.Api.Helpers.YesOto;
 using Kolaycar.Broker.Api.Mappers.YesOto;
 using KolayCAR.Broker.API.Providers;
 using KolayCAR.Broker.Domain.Models;
@@ -17,7 +18,7 @@ namespace Kolaycar.Broker.Api.Providers.YesOto
 
         public LocationProvider(string apiBaseUrl = null)
         {
-            _httpManager = new HttpManager(apiBaseUrl);
+            _httpManager = new HttpManager(YesOtoConstants.NormalizeApiBaseUrl(apiBaseUrl));
             _authProvider = new AuthProvider(apiBaseUrl);
         }
 
@@ -32,8 +33,8 @@ namespace Kolaycar.Broker.Api.Providers.YesOto
 
             var request = new YesOtoSearchLocationRequest
             {
-                searchTerm = "",
-                brandId = vendor.APIBaseUrl,
+                searchTerm = locationName ?? string.Empty,
+                brandId = vendor.ApiClientId,
                 languageId = null
             };
 
