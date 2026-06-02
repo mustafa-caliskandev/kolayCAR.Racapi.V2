@@ -370,6 +370,7 @@ namespace KolayCAR.Broker.API.Services
                 }
                 else if (vehicle != null && newReservationToken != null && newReservationToken.APIDailyPrice != reservationToken.APIDailyPrice) //Kiralanacak araç fiyatı değiştiyse
                 {
+                    Serilog.Log.Error("{@VehiclePriceChange}", $"{newReservationToken.APIDailyPrice}-{reservationToken.APIDailyPrice}");
                     return new HttpResult<object>
                     {
                         Success = false,
