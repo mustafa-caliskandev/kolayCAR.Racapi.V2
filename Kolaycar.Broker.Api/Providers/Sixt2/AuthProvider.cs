@@ -19,26 +19,6 @@ namespace KolayCAR.Broker.API.Providers.Sixt2
             _cacheService = cacheService;
         }
 
-        //public async Task<Dictionary<string, object>> GetBearerToken(Domain.Models.Vendor vendor)
-        //{
-        //    var authResult = _cacheService.Get<SixtResponseBase<LoginResult>>("SixtToken");
-        //    if (authResult == null)
-        //    {
-        //        var authResult2 = await _httpManager.PostAsync2<SixtRequestBase.SixtLoginRequest, SixtResponseBase<LoginResult>>("/api/v1/login", entity: new SixtRequestBase.SixtLoginRequest { email = vendor.ApiKey, password = vendor.ApiPassword },
-        //      getCookie: true
-        //      );
-        //        if (authResult2?.Data?.result != null)
-        //        {
-        //            _cacheService.Set<SixtResponseBase<LoginResult>>("SixtToken", authResult2.Data, TimeSpan.FromSeconds(authResult2.Data.result.expires_in));
-        //            return new Dictionary<string, object> {
-        //            { "Authorization", "Bearer " + authResult2.Data.result.accessToken },
-        //            { "Accept", "application/json"},
-        //            {"Cookie",authResult2.Cookie }
-        //        };
-        //        }
-        //    }
-        //    return null;
-        //}
         public async Task<Dictionary<string, object>> GetBearerToken(Domain.Models.Vendor vendor)
         {
             const string cacheKey = "SixtToken";

@@ -143,8 +143,6 @@ namespace KolayCAR.Broker.Domain.Models
         public string Description { get; set; }
     }
 
-
-
     public enum VehicleTypes
     {
         None = -1,

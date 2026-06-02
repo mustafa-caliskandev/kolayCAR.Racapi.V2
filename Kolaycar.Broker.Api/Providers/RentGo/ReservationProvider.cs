@@ -47,7 +47,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
             var headers = new Dictionary<string, object>
             {
                 { "Content-Type", "application/json" },
-                { "Authorization", $"Bearer {vendor.ApiKey + vendor.ApiPassword + vendor.ApiClientId}" }
+                { "Authorization", $"Bearer {vendor.ApiClientId}" }
             };
 
             Serilog.Log.Error("{@RentGoPostCancelReservationRequestParameters}", new { ReservationId = reservationId, Request = cancelRequest });
@@ -90,7 +90,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
             var headers = new Dictionary<string, object>
             {
                 { "Content-Type", "application/json" },
-                { "Authorization", $"Bearer {vendor.ApiKey + vendor.ApiPassword + vendor.ApiClientId}" }
+                { "Authorization", $"Bearer {vendor.ApiClientId}" }
             };
 
             Serilog.Log.Error("{@RentGoPostReservationRequestParameters}", bookRequest);
@@ -116,10 +116,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
             if (response?.Success == true && response.Data != null)
             {
                 localReservation.APIReservationSuccessfully = true;
-                //localReservation.APIReservationNumber = response.Data;
-                //localReservation.APIReferenceCode = FirstNotEmpty(response.Data.Id, localReservation.APIReferenceCode);
-                //localReservation.APIReferenceCode2 = FirstNotEmpty(response.Data.ListId, localReservation.APIReferenceCode2);
-                //localReservation.APIReferenceCode3 = FirstNotEmpty(response.Data.VersionId, localReservation.APIReferenceCode3);
+                localReservation.APIReservationNumber = response.Data.Pnr;
 
                 return new ServiceResponseBase(localReservation, true, "Rezervasyon basarili." + (!string.IsNullOrWhiteSpace(response.Data.Pnr) ? " PNR: " + response.Data.Pnr : string.Empty));
             }

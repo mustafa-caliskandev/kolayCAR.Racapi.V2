@@ -28,6 +28,7 @@ namespace KolayCAR.Broker.API.Models
         public decimal? Profitmarkupadditionalproducts { get; set; }
         public decimal? Profitmarkuponewayfee { get; set; }
         public bool? Vehiclemappingactive { get; set; }
+        public bool? Extramappingactive { get; set; }
         public string Apiclientid { get; set; }
         public string Secretkey { get; set; }
         public bool? Apiphoneactive { get; set; }

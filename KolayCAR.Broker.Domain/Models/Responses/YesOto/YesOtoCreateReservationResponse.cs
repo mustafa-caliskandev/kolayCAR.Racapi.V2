@@ -5,12 +5,19 @@ namespace KolayCAR.Broker.Domain.Models.Responses.YesOto
         public YesOtoReservationData data { get; set; }
         public bool success { get; set; }
         public string message { get; set; }
+        public string reservationId { get; set; }
+        public string approvalNumber { get; set; }
+        public string reservationCode { get; set; }
+        public string status { get; set; }
     }
 
     public class YesOtoReservationData
     {
+        public string reservationId { get; set; }
+        public string approvalNumber { get; set; }
         public string reservationCode { get; set; }
         public string status { get; set; }
-        // Add more fields if needed based on actual response
+        public string message { get; set; }
+        public bool success { get; set; }
     }
 }

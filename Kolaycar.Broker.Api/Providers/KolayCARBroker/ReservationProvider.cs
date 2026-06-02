@@ -89,7 +89,6 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                         {
                             var apiExtra = apiExtras.FirstOrDefault(e => e.ExtraId == extra.ExtraId);
                             extras.Add(new Extra { Code = apiExtra.Code, Piece = extra.Piece, Price = extra.ApiPrice });
-                            //extras.Add(new Extra { Code = apiExtra.Code, Piece = extra.Piece, Price = extra.APIPrice });
                         }
                     }
                     else
@@ -425,7 +424,9 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                 { "fullCredit", postReservationRequest.FullCredit },
                 { "countryCode", postReservationRequest.CountryCode },
                 { "SendAgencyReservationNumber", vendor.ResAgencyNameSending},
-                { "apiExtras", postReservationRequest.ApiExtras}
+                { "apiExtras", postReservationRequest.ApiExtras},
+                { "extraPricePayToDelivery", postReservationRequest.ExtraPricePayToDelivery},
+                { "oneWayFeePayToDelivery", postReservationRequest.OneWayFeePayToDelivery}
             };
         }
 
@@ -519,7 +520,9 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                 Payment = new Payment
                 {
                     PaymentType = postReservationRequest.Payment.PaymentType,
-                    AdvancedPaymentWithoutPayment = postReservationRequest.Payment.PaymentType == PaymentTypes.AdvancePayment
+                    AdvancedPaymentWithoutPayment = postReservationRequest.Payment.PaymentType == PaymentTypes.AdvancePayment,
+                    ExtraPricePayToDelivery = postReservationRequest.Payment.ExtraPricePayToDelivery,
+                    OneWayFeePayToDelivery = postReservationRequest.Payment.OneWayFeePayToDelivery
                 },
                 SkyscannerRedirectID = "",
                 CommercialAllowance = postReservationRequest.CommercialAllowance,

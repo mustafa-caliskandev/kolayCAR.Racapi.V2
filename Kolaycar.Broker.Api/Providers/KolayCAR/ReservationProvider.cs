@@ -171,10 +171,10 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                 string fotmatExtraString = string.Empty;
                 var formattedExtra = ObjectHelper.ParseFormattedExtra(postReservationRequest.ExtraList);
                 formattedExtra.RemoveAll(e => e.ApiCode == "PRMPKT-1");
-                
-                if (postReservationRequest.PostReservationRequestV2?.Extras?.Count > 0) 
-                    fotmatExtraString = string.Join(",", postReservationRequest.PostReservationRequestV2.Extras.Select(e => $"{e.ExtraCode}-{e.Piece}" +  (postReservationRequest.PostReservationRequestV2.Payment.PaymentType == PaymentTypes.AdvancePayment ? $"-{e.Price}" : "")));
-                
+
+                if (postReservationRequest.PostReservationRequestV2?.Extras?.Count > 0)
+                    fotmatExtraString = string.Join(",", postReservationRequest.PostReservationRequestV2.Extras.Select(e => $"{e.ExtraCode}-{e.Piece}" + (postReservationRequest.PostReservationRequestV2.Payment.PaymentType == PaymentTypes.AdvancePayment ? $"-{e.Price}" : "")));
+
 
                 //var formattedExtraListString = GetFormattedExtraListStrig(postReservationRequest.PostReservationRequestV2.Extras);
                 var formattedExtraList = KolayCARHelper.ExtraHelper.FormatExtrasWithAPIPrices(postReservationRequest.ExtraList, apiExtras, formattedExtra, additionalInformation.Agency.FreePriceActive, additionalInformation.Agency.FreePriceShowActive, vendor.ProfitMarkupAdditionalProducts, postReservationRequest.PaymentType, exchangeRates, vendor, postReservationRequest, additionalInformation.Agency, reservationToken.BaseVendorRequestCurrencyType);
@@ -182,18 +182,42 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
 
                 var extras = postReservationRequest?.PostReservationRequestV2?.Extras;
 
-                postReservationRequest.ExtraAmount = extras?.Count > 0 ? extras.Sum(e=> e.ExtraRentalType == ExtraRentalTypes.PerRental ? e.ApiPrice : e.ApiPrice * reservationToken.RentalDuration) : KolayCARHelper.ExtraHelper.GetTotalExtraPrice(formattedExtraList, apiExtras, formattedExtra, reservationToken.RentalDuration);
+                postReservationRequest.ExtraAmount = extras?.Count > 0 ? extras.Sum(e => e.ExtraRentalType == ExtraRentalTypes.PerRental ? e.ApiPrice : e.ApiPrice * reservationToken.RentalDuration) : KolayCARHelper.ExtraHelper.GetTotalExtraPrice(formattedExtraList, apiExtras, formattedExtra, reservationToken.RentalDuration);
 
                 float specialDailyPrice = KolayCARHelper.ReservationHelper.GetKolayCARSpecialDailyPrice(additionalInformation.Agency, reservationToken, postReservationRequest, apiExtras, vendor, localReservation);
                 float specialOneWayFee = KolayCARHelper.ReservationHelper.GetKolayCARSpecialOneWayFee(additionalInformation.Agency, reservationToken, postReservationRequest, apiExtras, vendor, localReservation);
 
-                //if (specialDailyPrice == -1)
-                //{
-                //    var rentalAmount = reservationToken.DailyPrice * reservationToken.RentalDuration;
-                //    var couponAmount = postReservationRequest.
-                //}
+                float apiPaidAmount = localReservation.PaymentType == PaymentTypes.AdvancePayment && localReservation.RentalWorkingType == VendorWorkingTypes.ProfitMarkup && localReservation.AdditionalProductWorkingType == VendorWorkingTypes.ProfitMarkup && localReservation.OneWayFeeWorkingType == VendorWorkingTypes.ProfitMarkup && specialDailyPrice == -1 && specialOneWayFee == -1 ? 0 : localReservation.APIPaidAmount;
+                //CalculationHelper.GetAPIPaidAmount(additionalInformation.Agency, vendor, reservationToken, localReservation, postReservationRequest);
 
-                float apiPaidAmount = localReservation.PaymentType == PaymentTypes.AdvancePayment && localReservation.RentalWorkingType == VendorWorkingTypes.ProfitMarkup && localReservation.AdditionalProductWorkingType == VendorWorkingTypes.ProfitMarkup && localReservation.OneWayFeeWorkingType == VendorWorkingTypes.ProfitMarkup && specialDailyPrice == -1 && specialOneWayFee == -1 ? 0 : localReservation.APIPaidAmount; //CalculationHelper.GetAPIPaidAmount(additionalInformation.Agency, vendor, reservationToken, localReservation, postReservationRequest);
+                if (postReservationRequest.PaymentType != PaymentTypes.PayOnDelivery && postReservationRequest.PaymentType != PaymentTypes.AdvancePayment)
+                {
+                    apiPaidAmount = 0;
+
+                    if (postReservationRequest.SpecialDailyPrice != -1)
+                    {
+                        var specialPrice = specialDailyPrice * reservationToken.RentalDuration;
+                        apiPaidAmount = apiPaidAmount + specialPrice;
+                    }
+                    else
+                    {
+                        var vehiclePrice = reservationToken.APIDailyPrice * reservationToken.RentalDuration;
+                        apiPaidAmount = apiPaidAmount + vehiclePrice;
+                    }
+
+                    if (!postReservationRequest.ExtraPricePayToDelivery)
+                    {
+                        var extaPrice = localReservation.APIExtraAmount;
+                        apiPaidAmount = apiPaidAmount + extaPrice;
+                    }
+
+                    if (!postReservationRequest.OneWayFeePayToDelivery)
+                    {
+                        var oneWayFee = localReservation.APIOneWayFee;
+                        apiPaidAmount = apiPaidAmount + oneWayFee;
+                    }
+                }
+
                 if (localReservation.DailyPrice * localReservation.RentalDuration <= localReservation.CouponDiscountValue)
                 {
                     apiPaidAmount = localReservation.DailyPrice * localReservation.RentalDuration;
@@ -208,7 +232,8 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     //if (localReservation.CouponDiscountType == CouponDiscountTypes.ByPrice)
                     //    specialDailyPrice = CalculationHelper.RoundPrice((reservationToken.DailyPrice * reservationToken.RentalDuration - localReservation.CouponDiscountValue) / reservationToken.RentalDuration, (int)vendor.PriceRoundingType); 
                     #endregion
-                };
+                }
+                ;
                 if (!string.IsNullOrEmpty(postReservationRequest.CouponCode) && postReservationRequest.PaymentType == PaymentTypes.PayAll)
                 {
                     specialDailyPrice = -1;
@@ -222,21 +247,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                         specialDailyPrice = CalculationHelper.RoundPrice((reservationToken.DailyPrice * reservationToken.RentalDuration - localReservation.CouponDiscountValue) / reservationToken.RentalDuration, (int)vendor.PriceRoundingType);
                 }
 
-
-                //string paymentInfo = postReservationRequest.FullCredit.ToBoolNullSafe() ? "1111" :
-                //                        (additionalInformation.Agency.PayDeliveryActive && additionalInformation.Agency.AdditionalProductAmountDeliveryPayment &&
-                //                        additionalInformation.Agency.OneWayAmountDeliveryPayment) ? "000" :
-                //                        (additionalInformation.Agency.AdditionalProductAmountDeliveryPayment &&
-                //                        additionalInformation.Agency.OneWayAmountDeliveryPayment) ? "100" :
-                //                         (additionalInformation.Agency.AdditionalProductAmountDeliveryPayment &&
-                //                        !additionalInformation.Agency.OneWayAmountDeliveryPayment) ? "101" :
-                //                        (!additionalInformation.Agency.AdditionalProductAmountDeliveryPayment &&
-                //                        additionalInformation.Agency.OneWayAmountDeliveryPayment) ? "110" : 
-                //                        (!additionalInformation.Agency.AdditionalProductAmountDeliveryPayment &&
-                //                        !additionalInformation.Agency.OneWayAmountDeliveryPayment) ? "111" : "";
-
                 string paymentInfo = GetPaymentInfo(postReservationRequest, additionalInformation);
-
 
                 var postKolayCARReservationRequest = new KolayCARRequest.PostKolayCARReservationRequest
                 {
@@ -495,8 +506,8 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                 return "000";
 
             string firsth = postReservationRequest.PaymentType == PaymentTypes.PayOnDelivery ? "0" : "1";
-            string second = additionalInformation.Agency.AdditionalProductAmountDeliveryPayment ? "0" : "1";
-            string thirth = additionalInformation.Agency.OneWayAmountDeliveryPayment ? "0" : "1";
+            string second = postReservationRequest.ExtraPricePayToDelivery ? "0" : "1";
+            string thirth = postReservationRequest.OneWayFeePayToDelivery ? "0" : "1";
 
             returnValue = firsth + second + thirth;
 

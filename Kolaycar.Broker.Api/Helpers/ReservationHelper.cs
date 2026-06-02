@@ -588,6 +588,23 @@ namespace KolayCAR.Broker.API.Helpers
             return result;
         }
 
+        public static string ReservationExtraToApiStringList(List<ReservationExtra> reservationExtras)
+        {
+            string result = string.Empty;
+
+            if (reservationExtras != null && reservationExtras.Count > 0)
+            {
+                foreach (var extra in reservationExtras)
+                {
+                    result += $"{extra.ExtraCode}~{extra.Piece}~{extra.Price.ToString().Replace(",", ".")}~{extra.ExtraName}~{extra.ExtraId}~{(int)extra.ExtraRentalType}|";
+                }
+
+                result = StringHelper.LastCharacterClear(result, "|");
+            }
+
+            return result;
+        }
+
         public static float GetAPITotalAmount(ReservationToken reservationToken, CommonModels.Vendor vendor, float apiExtraAmount)
         {
             float apiDailyPrice = reservationToken.APIDailyPrice;

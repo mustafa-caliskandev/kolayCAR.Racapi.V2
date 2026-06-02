@@ -50,6 +50,7 @@ using NissaProvider = KolayCAR.Broker.API.Providers.Nissa;
 using OtocarProvider = KolayCAR.Broker.API.Providers.Otocar;
 using OtorentoProvider = KolayCAR.Broker.API.Providers.Otorento;
 using PandoraProvider = KolayCAR.Broker.API.Providers.Pandora;
+using Pandora2Provider = KolayCAR.Broker.API.Providers.Pandora2;
 using RenticarProvider = KolayCAR.Broker.API.Providers.Renticar;
 using RigorentProvider = KolayCAR.Broker.API.Providers.Rigorent;
 using SixtProvider = KolayCAR.Broker.API.Providers.Sixt;
@@ -124,10 +125,16 @@ namespace KolayCAR.Broker.API.Services
                         getSummaryRequest.ApiPassword = vendor.ApiPassword;
                         getSummaryRequest.VendorType = vendor.VendorType;
 
-                        var selectedReservationExtras = ReservationHelper.GetSelectedReservationExtras(getExtrasResponse.Extras, getSummaryRequest.ExtraList);
-                        getSummaryRequest.ExtraList = ReservationHelper.ReservationExtraToStringList(selectedReservationExtras);
+                        var useMappedExtras = vendor.ExtraMappingActive &&
+                            (vendor.VendorType != VendorTypes.KolayCARBroker ||
+                            (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations));
 
-                        if (!string.IsNullOrEmpty(getSummaryRequest.ExtraList) && (vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations)))
+                        var selectedReservationExtras = ReservationHelper.GetSelectedReservationExtras(getExtrasResponse.Extras, getSummaryRequest.ExtraList);
+                        getSummaryRequest.ExtraList = useMappedExtras
+                            ? ReservationHelper.ReservationExtraToStringList(selectedReservationExtras)
+                            : ReservationHelper.ReservationExtraToApiStringList(selectedReservationExtras);
+
+                        if (useMappedExtras && !string.IsNullOrEmpty(getSummaryRequest.ExtraList))
                         {
                             var vendorExtras = await _context.Additionalproductvendor.Where(x =>
                             x.Vendorid == vendor.VendorId &&
@@ -216,6 +223,11 @@ namespace KolayCAR.Broker.API.Services
                                 case VendorTypes.Pandora:
                                     {
                                         summaryProvider = new PandoraProvider.SummaryProvider();
+                                        break;
+                                    }
+                                case VendorTypes.Pandora2:
+                                    {
+                                        summaryProvider = new Pandora2Provider.SummaryProvider(vendor.APIBaseUrl);
                                         break;
                                     }
                                 case VendorTypes.Central:
@@ -488,7 +500,7 @@ namespace KolayCAR.Broker.API.Services
 
                                     var apiSummaryData = summaryResult.Data as GetSummaryResponse;
 
-                                    if (vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations))
+                                    if (useMappedExtras)
                                     {
                                         var localExtrasResult = await _extraService.GetMappedExtras(
                                             vendor.VendorId,

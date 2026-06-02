@@ -234,7 +234,8 @@ namespace KolayCAR.Broker.API.Services
                         extrasData.Vehicle.VendorCommentCount = vendorScoreResult != null && vendorScore != null ? vendorScore.CommentCount.ToIntNullSafe() : 0;
                         extrasData.Vehicle.IsFindeksRequired = (bool)vendor.FindeksRequired;
                         extrasData.Vehicle.BaseVendorId = reservationToken.VendorId;
-                        if (!getAPIPrices && (vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations)))
+
+                        if (vendor.ExtraMappingActive && !getAPIPrices && (vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations)))
                         {
                             var apiExtrasData = extrasResult.Data as GetExtrasResponse;
                             var listAll = apiExtrasData.Extras != null && apiExtrasData.Extras.Count > 0 ? apiExtrasData.Extras : new List<Extra>();
@@ -296,9 +297,7 @@ namespace KolayCAR.Broker.API.Services
                         }
                         else
                         {
-                            if (extrasData?.Extras != null && reservationToken.CyrptExtras.Count == 0)
-                                foreach (var localExtra in extrasData?.Extras)
-                                    reservationToken.CyrptExtras.Add(localExtra.Map());
+                            PrepareDynamicProviderExtras(extrasData, reservationToken, getExtrasRequest.CurrencyCode);
                         }
 
                         if (!vendor.UseBrokerConfigurations)
@@ -380,6 +379,52 @@ namespace KolayCAR.Broker.API.Services
                 return extrasResult;
             }
             return new(null, false, "Check your request parameters!");
+        }
+
+        private static void PrepareDynamicProviderExtras(GetExtrasResponse extrasData, ReservationToken reservationToken, string currencyCode)
+        {
+            if (extrasData?.Extras == null)
+                return;
+
+            for (var i = 0; i < extrasData.Extras.Count; i++)
+            {
+                var extra = extrasData.Extras[i];
+
+                if (extra == null)
+                    continue;
+
+                if (extra.ExtraId <= 0)
+                    extra.ExtraId = CreateDynamicExtraId(extra, i);
+
+                extra.ExtraCode = extra.ExtraCode.ToStringNullSafe();
+                extra.ApiExtraCode = string.IsNullOrWhiteSpace(extra.ApiExtraCode) ? extra.ExtraCode : extra.ApiExtraCode;
+                extra.ExtraRentalType ??= ExtraRentalTypes.Daily;
+                extra.ExtraType ??= AdditionalProductTypes.Extra;
+                extra.CurrencyCode = string.IsNullOrWhiteSpace(extra.CurrencyCode) ? currencyCode : extra.CurrencyCode;
+                extra.Code = string.IsNullOrWhiteSpace(extra.Code)
+                    ? Convert.ToBase64String(Encoding.UTF8.GetBytes($"{extra.ExtraId}~{extra.ExtraCode}"))
+                    : extra.Code;
+
+                var cyrptExtra = extra.Map();
+
+                if (!reservationToken.CyrptExtras.Any(e => e.I == cyrptExtra.I && e.C == cyrptExtra.C))
+                    reservationToken.CyrptExtras.Add(cyrptExtra);
+            }
+        }
+
+        private static int CreateDynamicExtraId(Extra extra, int index)
+        {
+            var value = $"{extra.ExtraCode.ToStringNullSafe()}|{extra.ApiExtraCode.ToStringNullSafe()}|{extra.ExtraName.ToStringNullSafe()}|{index}";
+
+            unchecked
+            {
+                var hash = 23;
+                foreach (var character in value)
+                    hash = (hash * 31) + character;
+
+                var id = hash & 0x7fffffff;
+                return id == 0 ? index + 1 : id;
+            }
         }
 
         public async Task<ServiceResponseBase> GetMappedExtras(int vendorId, CurrencyTypes currencyType, LanguageTypes languageType, int rentalDuration, bool getAllVendorExtras = false, int apiVendorId = 0)

@@ -17,13 +17,15 @@ namespace KolayCAR.Broker.API.Middleware
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context)
         {
-
             //LogContext.PushProperty("ClientIP", context.Connection.RemoteIpAddress.ToString());
-            LogContext.PushProperty("ClientIP", _httpContextAccessor.GetClientIp().ToString());
-
-            return next(context);
+            using (LogContext.PushProperty("ClientIP", _httpContextAccessor.GetClientIp()))
+            using (LogContext.PushProperty("RequestPath", context.Request.Path.Value ?? string.Empty))
+            using (LogContext.PushProperty("RequestId", context.TraceIdentifier ?? string.Empty))
+            {
+                await next(context);
+            }
         }
     }
 }

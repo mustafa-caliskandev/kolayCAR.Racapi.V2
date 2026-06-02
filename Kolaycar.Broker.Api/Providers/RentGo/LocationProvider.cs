@@ -29,7 +29,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 new Dictionary<string, object>
                 {
                     { "Content-Type", "application/json" },
-                    { "Authorization", $"Bearer {vendor.ApiKey}" },
+                    { "Authorization", $"Bearer {vendor.ApiClientId}" },
                 }
             );
 

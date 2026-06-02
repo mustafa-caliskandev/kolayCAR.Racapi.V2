@@ -3869,13 +3869,9 @@ namespace KolayCAR.Broker.API.Models
                 entity.HasKey(e => e.Transmissionid);
 
                 entity.ToTable("VEHICLETRANSMISSION");
-
                 entity.Property(e => e.Transmissionid).HasColumnName("TRANSMISSIONID");
-
                 entity.Property(e => e.Active).HasColumnName("ACTIVE");
-
                 entity.Property(e => e.Order).HasColumnName("_ORDER");
-
                 entity.Property(e => e.IconPath).HasColumnName("ICONPATH");
             });
 
@@ -3886,9 +3882,7 @@ namespace KolayCAR.Broker.API.Models
                 entity.ToTable("VEHICLETRANSMISSIONLANG");
 
                 entity.Property(e => e.Transmissionid).HasColumnName("TRANSMISSIONID");
-
                 entity.Property(e => e.Langid).HasColumnName("LANGID");
-
                 entity.Property(e => e.Transmissionname)
                     .HasColumnName("TRANSMISSIONNAME")
                     .HasMaxLength(50);
@@ -3901,11 +3895,8 @@ namespace KolayCAR.Broker.API.Models
                 entity.ToTable("VEHICLETYPE");
 
                 entity.Property(e => e.Typeid).HasColumnName("TYPEID");
-
                 entity.Property(e => e.Active).HasColumnName("ACTIVE");
-
                 entity.Property(e => e.Order).HasColumnName("_ORDER");
-
                 entity.Property(e => e.IconPath).HasColumnName("ICONPATH");
             });
 
@@ -3916,9 +3907,7 @@ namespace KolayCAR.Broker.API.Models
                 entity.ToTable("VEHICLETYPELANG");
 
                 entity.Property(e => e.Typeid).HasColumnName("TYPEID");
-
                 entity.Property(e => e.Langid).HasColumnName("LANGID");
-
                 entity.Property(e => e.Typename)
                     .HasColumnName("TYPENAME")
                     .HasMaxLength(50);
@@ -3929,152 +3918,53 @@ namespace KolayCAR.Broker.API.Models
                 entity.ToTable("VENDOR");
 
                 entity.Property(e => e.Vendorid).HasColumnName("VENDORID");
-
-                entity.Property(e => e.Active)
-                    .HasColumnName("ACTIVE")
-                    .HasDefaultValueSql("((1))");
-
+                entity.Property(e => e.Active).HasColumnName("ACTIVE").HasDefaultValueSql("((1))");
                 entity.Property(e => e.Additionalproductworkingtype).HasColumnName("ADDITIONALPRODUCTWORKINGTYPE");
-
                 entity.Property(e => e.Apibaseurl).HasColumnName("APIBASEURL");
-
                 entity.Property(e => e.Apiclientid).HasColumnName("APICLIENTID");
-
                 entity.Property(e => e.Apidescription).HasColumnName("APIDESCRIPTION");
-
-                entity.Property(e => e.Apikey)
-                    .HasColumnName("APIKEY")
-                    .HasMaxLength(250);
-
-                entity.Property(e => e.Apipassword)
-                    .HasColumnName("APIPASSWORD")
-                    .HasMaxLength(100);
-
-                entity.Property(e => e.Apiphoneactive)
-                    .HasColumnName("APIPHONEACTIVE")
-                    .HasDefaultValueSql("((0))");
-
+                entity.Property(e => e.Apikey).HasColumnName("APIKEY").HasMaxLength(250);
+                entity.Property(e => e.Apipassword).HasColumnName("APIPASSWORD").HasMaxLength(100);
+                entity.Property(e => e.Apiphoneactive).HasColumnName("APIPHONEACTIVE").HasDefaultValueSql("((0))");
                 entity.Property(e => e.Apitimeout).HasColumnName("APITIMEOUT");
-
                 entity.Property(e => e.Availablecurrencies).HasColumnName("AVAILABLECURRENCIES");
-
                 entity.Property(e => e.Companytitle).HasColumnName("COMPANYTITLE");
-
-                entity.Property(e => e.Couponcodeactive)
-                    .HasColumnName("COUPONCODEACTIVE")
-                    .HasDefaultValueSql("((1))");
-
+                entity.Property(e => e.Couponcodeactive).HasColumnName("COUPONCODEACTIVE").HasDefaultValueSql("((1))");
                 entity.Property(e => e.Currencyid).HasColumnName("CURRENCYID");
-
                 entity.Property(e => e.Depositcreditcardrequired).HasColumnName("DEPOSITCREDITCARDREQUIRED");
-
-                entity.Property(e => e.Disabledeposit)
-                    .HasColumnName("DISABLEDEPOSIT")
-                    .HasDefaultValueSql("((0))");
-
+                entity.Property(e => e.Disabledeposit).HasColumnName("DISABLEDEPOSIT").HasDefaultValueSql("((0))");
                 entity.Property(e => e.Documentrequiredshow).HasColumnName("DOCUMENTREQUIREDSHOW");
-
                 entity.Property(e => e.Email).HasColumnName("EMAIL");
-
-                entity.Property(e => e.Freecancellationhour)
-                    .HasColumnName("FREECANCELLATIONHOUR")
-                    .HasDefaultValueSql("((0))");
-
+                entity.Property(e => e.Freecancellationhour).HasColumnName("FREECANCELLATIONHOUR").HasDefaultValueSql("((0))");
                 entity.Property(e => e.Logo).HasColumnName("LOGO");
-
                 entity.Property(e => e.Onewayfeeworkingtype).HasColumnName("ONEWAYFEEWORKINGTYPE");
-
-                entity.Property(e => e.Personelnumberrequired)
-                    .HasColumnName("PERSONELNUMBERREQUIRED")
-                    .HasDefaultValueSql("((0))");
-
+                entity.Property(e => e.Personelnumberrequired).HasColumnName("PERSONELNUMBERREQUIRED").HasDefaultValueSql("((0))");
                 entity.Property(e => e.Phone).HasColumnName("PHONE");
-
                 entity.Property(e => e.Priceroundingtype).HasColumnName("PRICEROUNDINGTYPE");
-
                 entity.Property(v => v.VendorOrder).HasColumnName("VENDORORDER").HasDefaultValue(0);
-
-                entity.Property(e => e.Profitmarkup)
-                    .HasColumnName("PROFITMARKUP")
-                    .HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.Profitmarkupadditionalproducts)
-                    .HasColumnName("PROFITMARKUPADDITIONALPRODUCTS")
-                    .HasColumnType("decimal(18, 2)")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Profitmarkupdailypriceactive)
-                    .IsRequired()
-                    .HasColumnName("PROFITMARKUPDAILYPRICEACTIVE")
-                    .HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.Profitmarkupextraactive)
-                    .IsRequired()
-                    .HasColumnName("PROFITMARKUPEXTRAACTIVE")
-                    .HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.Profitmarkuponewayfee)
-                    .HasColumnName("PROFITMARKUPONEWAYFEE")
-                    .HasColumnType("decimal(18, 2)")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Profitmarkuponewayfeeactive)
-                    .IsRequired()
-                    .HasColumnName("PROFITMARKUPONEWAYFEEACTIVE")
-                    .HasDefaultValueSql("((1))");
-
+                entity.Property(e => e.Profitmarkup).HasColumnName("PROFITMARKUP").HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.Profitmarkupadditionalproducts).HasColumnName("PROFITMARKUPADDITIONALPRODUCTS").HasColumnType("decimal(18, 2)").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Profitmarkupdailypriceactive).IsRequired().HasColumnName("PROFITMARKUPDAILYPRICEACTIVE").HasDefaultValueSql("((1))");
+                entity.Property(e => e.Profitmarkupextraactive).IsRequired().HasColumnName("PROFITMARKUPEXTRAACTIVE").HasDefaultValueSql("((1))");
+                entity.Property(e => e.Profitmarkuponewayfee).HasColumnName("PROFITMARKUPONEWAYFEE").HasColumnType("decimal(18, 2)").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Profitmarkuponewayfeeactive).IsRequired().HasColumnName("PROFITMARKUPONEWAYFEEACTIVE").HasDefaultValueSql("((1))");
                 entity.Property(e => e.Rentalworkingtype).HasColumnName("RENTALWORKINGTYPE");
-
                 entity.Property(e => e.Resagencynamesending).HasColumnName("RESAGENCYNAMESENDING");
-
-                entity.Property(e => e.Reslistactive)
-                    .HasColumnName("RESLISTACTIVE")
-                    .HasDefaultValueSql("((1))");
-
+                entity.Property(e => e.Reslistactive).HasColumnName("RESLISTACTIVE").HasDefaultValueSql("((1))");
                 entity.Property(e => e.Secretkey).HasColumnName("SECRETKEY");
-
-                entity.Property(e => e.Sellingbelowcostforcouponcode)
-                    .HasColumnName("SELLINGBELOWCOSTFORCOUPONCODE")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Sendreservationmailtovendor)
-                    .HasColumnName("SENDRESERVATIONMAILTOVENDOR")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Servicecharge)
-                    .HasColumnName("SERVICECHARGE")
-                    .HasColumnType("decimal(18, 2)");
-
+                entity.Property(e => e.Sellingbelowcostforcouponcode).HasColumnName("SELLINGBELOWCOSTFORCOUPONCODE").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Sendreservationmailtovendor).HasColumnName("SENDRESERVATIONMAILTOVENDOR").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Servicecharge).HasColumnName("SERVICECHARGE").HasColumnType("decimal(18, 2)");
                 entity.Property(e => e.Servicechargecurrencyid).HasColumnName("SERVICECHARGECURRENCYID");
-
-                entity.Property(e => e.Showcustomernotearea)
-                    .HasColumnName("SHOWCUSTOMERNOTEAREA")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Showflightnumberarea)
-                    .HasColumnName("SHOWFLIGHTNUMBERAREA")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Usebrokerconfigurations)
-                    .HasColumnName("USEBROKERCONFIGURATIONS")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Useonlydefaultcurrency)
-                    .HasColumnName("USEONLYDEFAULTCURRENCY")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Vehiclemappingactive)
-                    .HasColumnName("VEHICLEMAPPINGACTIVE")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Vendorname)
-                    .HasColumnName("VENDORNAME")
-                    .HasMaxLength(150);
-
+                entity.Property(e => e.Showcustomernotearea).HasColumnName("SHOWCUSTOMERNOTEAREA").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Showflightnumberarea).HasColumnName("SHOWFLIGHTNUMBERAREA").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Usebrokerconfigurations).HasColumnName("USEBROKERCONFIGURATIONS").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Useonlydefaultcurrency).HasColumnName("USEONLYDEFAULTCURRENCY").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Vehiclemappingactive).HasColumnName("VEHICLEMAPPINGACTIVE").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Extramappingactive).HasColumnName("EXTRAMAPPINGACTIVE").HasDefaultValueSql("((0))");
+                entity.Property(e => e.Vendorname).HasColumnName("VENDORNAME").HasMaxLength(150);
                 entity.Property(e => e.Vendortype).HasColumnName("VENDORTYPE");
                 entity.Property(e => e.CreditType).HasColumnName("CREDITTYPE");
-
-                //ADDED 23.06.2022
                 entity.Property(e => e.BankName).HasColumnName("BANKNAME");
                 entity.Property(e => e.BankBranchCode).HasColumnName("BANKBRANCHCODE");
                 entity.Property(e => e.IBAN).HasColumnName("IBAN");
@@ -4088,25 +3978,19 @@ namespace KolayCAR.Broker.API.Models
                 entity.Property(e => e.TaxNumber).HasColumnName("TAXNUMBER");
                 entity.Property(e => e.TaxOffice).HasColumnName("TAXOFFICE");
                 entity.Property(e => e.Dbs).HasColumnName("DBS");
-
                 entity.Property(e => e.VendorComissionInvoice).HasColumnName("VENDORCOMMISSIONINVOICE");
                 entity.Property(e => e.IsPopular).HasColumnName("ISPOPULAR");
                 entity.Property(e => e.VendorOrder).HasColumnName("VENDORORDER");
-
                 entity.Property(e => e.FoundationYear).HasColumnName("FOUNDATIONYEAR");
                 entity.Property(e => e.ShowSubVendorLogo).HasColumnName("SHOWSUBVENDORLOGO");
-
                 entity.Property(e => e.AppearingProfitMarkup).HasColumnName("APPEARINGPROFITMARKUP").HasColumnType("decimal(18,2)"); ;
                 entity.Property(e => e.FindeksRequired).HasColumnName("FINDEKSREQUIRED");
                 entity.Property(e => e.BirthdayRequired).HasColumnName("BIRTHDAYREQUIRED");
-
                 entity.Property(e => e.SendEmailToBranch).HasColumnName("SENDEMAILTOBRANCH");
                 entity.Property(e => e.UseLocalDeposit).HasColumnName("USELOCALDEPOSIT");
-
                 entity.Property(e => e.ToleranceTime).HasColumnName("TOLERANCETIME");
                 entity.Property(e => e.FlightNumberRequired).HasColumnName("FLIGHTNUMBERREQUIRED");
                 entity.Property(e => e.EarliestResTime).HasColumnName("EARLIESTRESTIME");
-
                 entity.Property(e => e.CountryId).HasColumnName("COUNTRYID");
                 entity.Property(e => e.SendAvailabilityRequest).HasColumnName("SENDAVAILABILITYREQUEST");
                 entity.Property(e => e.ExtraDescriptionFromVendor).HasColumnName("EXTRADESCRIPTIONFROMVENDOR");
@@ -4210,8 +4094,7 @@ namespace KolayCAR.Broker.API.Models
                 entity.ToTable("EMAILLOGS");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("Id");
-                entity.Property(e => e.LogDate).HasColumnName("LogDate").HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                entity.Property(e => e.LogDate).HasColumnName("LogDate").HasColumnType("datetime").HasDefaultValueSql("(getdate())");
                 entity.Property(e => e.IsSuccessful).HasColumnName("IsSuccessful");
                 entity.Property(e => e.MailType).HasColumnName("MailType");
                 entity.Property(e => e.SenderMail).HasColumnName("SenderMail");

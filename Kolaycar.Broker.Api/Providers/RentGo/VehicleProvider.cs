@@ -33,7 +33,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 new Dictionary<string, object>
                 {
                     { "Content-Type", "application/json" },
-                    { "Authorization", $"Bearer {vendor.ApiKey}" },
+                    { "Authorization", $"Bearer {vendor.ApiClientId}" },
                 }
             );
 
@@ -59,7 +59,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 headers: new Dictionary<string, object>
                 {
                     { "Content-Type", "application/json" },
-                    { "Authorization", $"Bearer {vendor.ApiKey + vendor.ApiPassword + vendor.ApiClientId}" },
+                    { "Authorization", $"Bearer {vendor.ApiClientId}" },
                 }
             );
 

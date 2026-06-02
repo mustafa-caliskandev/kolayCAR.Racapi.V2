@@ -31,8 +31,8 @@ namespace KolayCAR.Broker.API.Providers.Sixt2
             var token = await _authProvider.GetBearerToken(vendor);
             if (token == null) return new(null, false, "Sixt token bilgisi alınamadı!");
 
-            var locations = await _httpManager.GetAsyncWithModel<SixtResponseBase<List<SixtLocationItem>>>("/api/v1/stations", headers: token);
-            //var locations = new SixtResponseBase<List<SixtLocationListResponse>>();
+            var locations = await _httpManager.GetAsyncWithModelSixt<SixtResponseBase<List<SixtLocationItem>>>("/api/v1/stations", headers: token);
+
             return locations?.result.Any() == true
                 ? new(locations.result.Map(), true)
                 : new(null, false, "Sixt lokasyon listesi alınamadı!");

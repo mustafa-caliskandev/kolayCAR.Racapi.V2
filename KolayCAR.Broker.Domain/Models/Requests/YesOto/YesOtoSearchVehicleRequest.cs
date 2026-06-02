@@ -16,5 +16,12 @@ namespace KolayCAR.Broker.Domain.Models.Requests.YesOto
         public bool IsUserFirstReservation { get; set; }
         public decimal DiscPrice { get; set; }
         public string GiftCoupon { get; set; }
+        public bool LocationPay { get; set; }
+        public string ProcessType { get; set; }
+        public string PromotionToken { get; set; }
+        public string RequestType { get; set; }
+        public bool UsedPointState { get; set; }
+        public string ZubizuSaleId { get; set; }
+        public object priceMatrix { get; set; }
     }
 }

@@ -49,6 +49,7 @@ namespace KolayCAR.Broker.API.Mappers
                 Logo = vendor.Logo,
                 DepositCreditCardRequired = vendor.Depositcreditcardrequired ?? false,
                 VehicleMappingActive = vendor.Vehiclemappingactive ?? false,
+                ExtraMappingActive = vendor.Extramappingactive ?? false,
                 ApiClientId = vendor.Apiclientid,
                 SecretKey = vendor.Secretkey,
                 APIPhoneActive = vendor.Apiphoneactive ?? false,
