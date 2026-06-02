@@ -1796,9 +1796,14 @@ namespace KolayCAR.Broker.API.Controllers
         [Route("GetDetails")]
         public async Task<IActionResult> GetDetails(GetDetailsDto getDetailsDto)
         {
+            var oldToken = getDetailsDto.ReservationToken;
+
             if (getDetailsDto.IsTokenUsed)
             {
-                getDetailsDto.ReservationToken = await GetNewVehicleToken(getDetailsDto.ReservationToken);
+                var newToken = await GetNewVehicleToken(getDetailsDto.ReservationToken);
+
+                if (!string.IsNullOrEmpty(newToken))
+                    getDetailsDto.ReservationToken = newToken;
             }
 
             if (string.IsNullOrWhiteSpace(getDetailsDto.ReservationToken))
@@ -1879,6 +1884,20 @@ namespace KolayCAR.Broker.API.Controllers
                         Notes = conditions?.Where(c => !string.IsNullOrWhiteSpace(c.Conditions)).Select(c => c.Conditions)?.ToList(),
                         Conditions = conditions?.FirstOrDefault()?.Conditions
                     } : null;
+
+                    if (oldToken != getDetailsDto.ReservationToken)
+                    {
+                        var oldTokenDetail = await _resTokenService.GetReservationTokenByUniqueId(oldToken);
+
+                        if (oldTokenDetail != null)
+                        {
+                            var oldPrice = (oldTokenDetail.DailyPrice * oldTokenDetail.RentalDuration + oldTokenDetail.OneWayFee).Round();
+
+                            getDetailsResponseDto.IsReservationTokenChange = true;
+                            getDetailsResponseDto.IsPriceChanged = oldTokenDetail.DailyPrice != vehicle.DailyPrice;
+                            getDetailsResponseDto.OldTotalPrice = oldPrice;
+                        }
+                    }
 
                     var awsResult = await _awsService.PushCheckoutData(vehicle, vendor, userDetail: null, couponDetail: null, sessionId, "", "ReservateNow", await _agencyService.GetCurrentAgencyType());
 

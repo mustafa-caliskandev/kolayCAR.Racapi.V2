@@ -25,6 +25,9 @@ namespace KolayCAR.Broker.API.Models.MobileAppDtos.ResponseDtos
         public List<SpecialAdvantage> SpecialAdvantages { get; set; }
         public VendorLocationConditionDto ReservationNote { get; set; }
         public VehiclePromotion VehiclePromotion { get; set; }
+        public bool IsReservationTokenChange { get; set; } = false;
+        public bool IsPriceChanged { get; set; } = false;
+        public float OldTotalPrice { get; set; } = default(float);
     }
 
     public class SpecialAdvantage
