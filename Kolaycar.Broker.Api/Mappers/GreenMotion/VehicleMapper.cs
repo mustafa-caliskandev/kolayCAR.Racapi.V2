@@ -2,6 +2,7 @@
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -10,12 +11,16 @@ namespace KolayCAR.Broker.API.Mappers.GreenMotion
 {
     public static class VehicleMapper
     {
+        private const string USaveVendorName = "U-Save";
+        private const string USaveTotalKmLimitsFilePath = @"Docs\GreenMotion\U-Save\TotalKmLimits.json";
+
         public static Vehicle Map(this GreenMotionVehicle vehicle,
             ResponseReservationStepsAdditionalInformation additionalInformation,
             int rentalDuration,
             Vendor vendor,
             bool fullCredit,
-            float onewayFee = 0) =>
+            float onewayFee = 0,
+            Dictionary<int, int> uSaveTotalKmLimits = null) =>
             vehicle != null ? new Vehicle
             {
                 VehicleId = vehicle._id.ToIntNullSafe(),
@@ -64,8 +69,8 @@ namespace KolayCAR.Broker.API.Mappers.GreenMotion
                 Extras = new List<Extra>(),
                 FullCredit = (vendor.CreditType == CreditType.FullCredit && fullCredit) ? true : false,
                 RentalWorkingTypes = vendor.RentalWorkingType,
-                ProfitMarkupDailyPrice = vendor.ProfitMarkupDailyPrice
-                //TotalKmLimit = vehicle.mileage.ToIntNullSafe()
+                ProfitMarkupDailyPrice = vendor.ProfitMarkupDailyPrice,
+                TotalKMLimit = GetTotalKmLimit(vehicle.mileage.ToIntNullSafe(), rentalDuration, vendor, uSaveTotalKmLimits)
             }
             : null;
 
@@ -83,6 +88,7 @@ namespace KolayCAR.Broker.API.Mappers.GreenMotion
             ReservationToken reservationToken = null, float onewayFee = 0)
         {
             var _vehicles = new List<Vehicle>();
+            var uSaveTotalKmLimits = GetUSaveTotalKmLimits(vendor);
 
             if (vehicles != null && vehicles.Count != 0)
                 foreach (var vehicle in vehicles)
@@ -92,7 +98,8 @@ namespace KolayCAR.Broker.API.Mappers.GreenMotion
                         rentalDuration: getVehiclesResponse.days.ToIntNullSafe(),
                         vendor,
                         fullCredit,
-                        onewayFee: onewayFee);
+                        onewayFee: onewayFee,
+                        uSaveTotalKmLimits: uSaveTotalKmLimits);
 
                     vehicleItem.Extras = vehicle.insurance_options.Map();
 
@@ -104,6 +111,24 @@ namespace KolayCAR.Broker.API.Mappers.GreenMotion
                 }
 
             return _vehicles;
+        }
+
+        private static Dictionary<int, int> GetUSaveTotalKmLimits(Vendor vendor)
+        {
+            if (!string.Equals(vendor?.VendorName?.Trim(), USaveVendorName, StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            return JsonHelper.ReadFromJsonFile<Dictionary<int, int>>(USaveTotalKmLimitsFilePath) ?? new Dictionary<int, int>();
+        }
+
+        private static int GetTotalKmLimit(int defaultTotalKmLimit, int rentalDuration, Vendor vendor, Dictionary<int, int> uSaveTotalKmLimits = null)
+        {
+            var totalKmLimits = uSaveTotalKmLimits ?? GetUSaveTotalKmLimits(vendor);
+
+            if (totalKmLimits != null && totalKmLimits.TryGetValue(rentalDuration, out var totalKmLimit))
+                return totalKmLimit;
+
+            return defaultTotalKmLimit;
         }
 
         public static FuelTypes GetFuelType(string fuelTypeName)

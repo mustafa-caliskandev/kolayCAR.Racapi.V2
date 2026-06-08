@@ -19,6 +19,16 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
 
         public async Task<string> GetTokenAsync(Vendor vendor)
         {
+            var authResponse = await AuthenticateAsync(vendor);
+
+            if (authResponse?.status == 1 && !string.IsNullOrWhiteSpace(authResponse.token))
+                return authResponse.token;
+
+            return null;
+        }
+
+        public async Task<VonarentAuthResponse> AuthenticateAsync(Vendor vendor)
+        {
             var headers = CreateAuthenticationHeaders(vendor);
 
             var result = await _httpManager.GetAsync2<VonarentAuthResponse>(
@@ -26,10 +36,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
                 headers: headers,
                 isReservationRequest: true);
 
-            if (result?.Data?.status == 1 && !string.IsNullOrWhiteSpace(result.Data.token))
-                return result.Data.token;
-
-            return null;
+            return result?.Data;
         }
 
         public async Task<IDictionary<string, object>> GetAuthorizedHeadersAsync(

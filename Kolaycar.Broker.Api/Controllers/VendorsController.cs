@@ -79,9 +79,9 @@ namespace KolayCAR.Broker.API.Controllers
         {
             var response = await _locationService.GetLocationsByVendorId(languageId, vendorId, locationName);
             return CommonModels.HttpResult<IEnumerable<CommonModels.Location>>.Result(
-                data: response.Data as List<CommonModels.Location>,
+                data: response?.Data as List<CommonModels.Location> ?? null,
                 httpResultType: HttpStatusCode.OK,
-                success: response.Success);
+                success: response?.Success ?? false);
         }
 
         [HttpGet("locationDetails")]

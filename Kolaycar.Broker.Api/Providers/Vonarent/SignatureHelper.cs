@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace KolayCAR.Broker.API.Providers.Vonarent
@@ -13,7 +14,8 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         public static string CreateTimestamp()
@@ -29,7 +31,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
         {
             var timestamp = CreateTimestamp();
             var message = CreateMessage(method, path, timestamp, query, body);
-            var signature = CreateSignature(vendor.SecretKey, message);
+            var signature = CreateSignature(vendor.ApiPassword, message);
 
             var headers = new Dictionary<string, object>
             {
@@ -68,7 +70,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             var parts = query
                 .Where(kvp => kvp.Value != null)
                 .Select(kvp => new KeyValuePair<string, string>(kvp.Key, ConvertToInvariantString(kvp.Value)))
-                .Where(kvp => !string.IsNullOrWhiteSpace(kvp.Value))
+                .Where(kvp => kvp.Value != string.Empty)
                 .OrderBy(kvp => kvp.Key, StringComparer.Ordinal)
                 .Select(kvp => $"{kvp.Key}={kvp.Value}");
 

@@ -214,6 +214,7 @@ namespace KolayCAR.Broker.API.Controllers
         public async Task<HttpResult<NetResysXmlResponseBody>> Cancel(
                     string id,
                     string saleType,
+                    string agencyNumber,
                     string cancellingCharge,
                     string paymentType,
                     string paymentSurcharge,
@@ -262,6 +263,7 @@ namespace KolayCAR.Broker.API.Controllers
             {
                 ID = id,
                 SaleType = saleType,
+                AgencyNumber = agencyNumber,
                 CancellingCharge = cancellingCharge == null || cancellingCharge == "" ? "0" : cancellingCharge,
                 PaymentType = paymentType,
                 PaymentSurcharge = paymentSurcharge,
@@ -312,6 +314,7 @@ namespace KolayCAR.Broker.API.Controllers
                 XElement postNetResysData = new XElement("RentalCarReservation",
                     new XAttribute(nameof(postNetResys.ID), postNetResys.ID),
                     new XAttribute(nameof(postNetResys.SaleType), postNetResys.SaleType),
+                    new XElement(nameof(postNetResys.AgencyNumber), postNetResys.AgencyNumber),
                     new XElement(nameof(postNetResys.PaymentType), postNetResys.PaymentType),
                     new XElement(nameof(postNetResys.PaymentSurcharge), postNetResys.PaymentSurcharge),
                     new XElement(nameof(postNetResys.ReservationDate), postNetResys.ReservationDate),

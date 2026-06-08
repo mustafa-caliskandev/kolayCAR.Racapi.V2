@@ -2,7 +2,6 @@ using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.API.Mappers.Vonarent;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Requests;
-using KolayCAR.Broker.Domain.Models.Requests.Vonarent;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Domain.Models.Response.Vonarent;
 using KolayCAR.Broker.Infrastructure.Extensions;
@@ -46,16 +45,29 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             List<ProfitMarkup> profitMarkups = null)
         {
             var bearerToken = await _authProvider.GetTokenAsync(vendor);
-            return await GetVehiclesCoreAsync(
+
+            if (string.IsNullOrWhiteSpace(bearerToken))
+                return new ServiceResponseBase(null, false, $"{vendor.VendorName} yetkilendirme tokeni alinamadi.");
+
+            var selectStationResult = await _locationProvider.SelectStationAsync(vendor, additionalInformation, bearerToken);
+            if (!selectStationResult.Success)
+                return selectStationResult;
+
+            var headers = _authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, VehiclesPath);
+            var result = await _httpManager.GetAsync2<VonarentVehicleResponse>(
+                requestPath: VehiclesPath,
+                headers: headers,
+                isReservationRequest: true);
+
+            return CreateVehicleResponse(
+                result,
                 getVehiclesRequest,
                 vendor,
                 additionalInformation,
                 exchangeRates,
                 localVehicles,
-                subVendors,
                 baseVendorRequestCurrencyType,
                 bearerToken,
-                selectStation: true,
                 profitMarkups: profitMarkups);
         }
 
@@ -70,16 +82,24 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             string bearerToken,
             List<ProfitMarkup> profitMarkups = null)
         {
-            return await GetVehiclesCoreAsync(
+            if (string.IsNullOrWhiteSpace(bearerToken))
+                return new ServiceResponseBase(null, false, $"{vendor.VendorName} yetkilendirme tokeni alinamadi.");
+
+            var headers = _authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, VehiclesPath);
+            var result = await _httpManager.GetAsync2<VonarentVehicleResponse>(
+                requestPath: VehiclesPath,
+                headers: headers,
+                isReservationRequest: true);
+
+            return CreateVehicleResponse(
+                result,
                 getVehiclesRequest,
                 vendor,
                 additionalInformation,
                 exchangeRates,
                 localVehicles,
-                subVendors,
                 baseVendorRequestCurrencyType,
                 bearerToken,
-                selectStation: false,
                 profitMarkups: profitMarkups);
         }
 
@@ -114,34 +134,17 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             return new ServiceResponseBase(result.Data, true);
         }
 
-        private async Task<ServiceResponseBase> GetVehiclesCoreAsync(
+        private static ServiceResponseBase CreateVehicleResponse(
+            HttpResult<VonarentVehicleResponse> result,
             GetVehiclesRequest getVehiclesRequest,
             Vendor vendor,
             ResponseReservationStepsAdditionalInformation additionalInformation,
             List<ExchangeRates> exchangeRates,
             List<Vehicle> localVehicles,
-            List<SubVendor> subVendors,
             CurrencyTypes baseVendorRequestCurrencyType,
             string bearerToken,
-            bool selectStation,
             List<ProfitMarkup> profitMarkups = null)
         {
-            if (string.IsNullOrWhiteSpace(bearerToken))
-                return new ServiceResponseBase(null, false, $"{vendor.VendorName} yetkilendirme tokeni alinamadi.");
-
-            if (selectStation)
-            {
-                var selectStationResult = await _locationProvider.SelectStationAsync(vendor, additionalInformation, bearerToken);
-                if (!selectStationResult.Success)
-                    return selectStationResult;
-            }
-
-            var headers = _authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, VehiclesPath);
-            var result = await _httpManager.GetAsync2<VonarentVehicleResponse>(
-                requestPath: VehiclesPath,
-                headers: headers,
-                isReservationRequest: true);
-
             if (result?.Data?.status != 1 || result.Data.items == null || result.Data.items.Count == 0)
             {
                 return new ServiceResponseBase(
@@ -178,6 +181,21 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             CalculationHelper.SetVehiclesPrices(mappedVehicleList, vendor, exchangeRates, requestCurrencyType, apiCurrencyType);
             VehicleHelper.SetVehiclesProperties(mappedVehicleList, vendor, additionalInformation.Agency, exchangeRates, apiCurrencyType, requestCurrencyType, profitMarkups);
 
+            SetReservationTokens(apiVehicleList, mappedVehicleList, getVehiclesRequest, vendor, additionalInformation, bearerToken, requestCurrencyType, apiCurrencyType);
+
+            return new ServiceResponseBase(mappedVehicleList, mappedVehicleList.Count > 0);
+        }
+
+        private static void SetReservationTokens(
+            List<VonarentVehicleItem> apiVehicleList,
+            List<Vehicle> mappedVehicleList,
+            GetVehiclesRequest getVehiclesRequest,
+            Vendor vendor,
+            ResponseReservationStepsAdditionalInformation additionalInformation,
+            string bearerToken,
+            CurrencyTypes requestCurrencyType,
+            CurrencyTypes apiCurrencyType)
+        {
             foreach (var apiVehicle in apiVehicleList)
             {
                 var tempMappedVehicleList = mappedVehicleList.Where(x => x.VehicleCode == apiVehicle.id).ToList();
@@ -245,8 +263,6 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
                     }
                 }
             }
-
-            return new ServiceResponseBase(mappedVehicleList, mappedVehicleList.Count > 0);
         }
     }
 }

@@ -194,7 +194,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                 {
                     apiPaidAmount = 0;
 
-                    if (postReservationRequest.SpecialDailyPrice != -1)
+                    if (postReservationRequest.SpecialDailyPrice != -1 && specialDailyPrice != -1)
                     {
                         var specialPrice = specialDailyPrice * reservationToken.RentalDuration;
                         apiPaidAmount = apiPaidAmount + specialPrice;

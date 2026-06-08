@@ -1,6 +1,5 @@
 using KolayCAR.Broker.API.Models;
 using KolayCAR.Broker.Domain.Models;
-using KolayCAR.Broker.Domain.Models.NetResys;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,7 +21,8 @@ namespace KolayCAR.Broker.API.Helpers.Netresys
                     var commission = extraTotalPrice * agency.AgencyCommissionAmount / 100f;
                     exCommissionPrice = exCommissionPrice + commission;
                 }
-            };
+            }
+            ;
 
             var agencyCommission = GetAgencyCommissionWithAgencyProfitMarkup(reservation.TotalPrice, reservation.AgencyRentalProfitMarkup, reservation.AgencyCommission);
             var netResysReservationModel = new NetresysRequest
@@ -50,7 +50,7 @@ namespace KolayCAR.Broker.API.Helpers.Netresys
                 Surname = reservation.CustomerSurname,
                 Surname2 = "",
                 Note = reservation.CustomerNote,
-                Options = reservation.ReservationExtras != null ?  string.Join(" | ", reservation.ReservationExtras.Select(x => $"{x.ExtraName}({x.Piece})").ToArray()) : "",
+                Options = reservation.ReservationExtras != null ? string.Join(" | ", reservation.ReservationExtras.Select(x => $"{x.ExtraName}({x.Piece})").ToArray()) : "",
                 PaymentSurcharge = "0,0",
                 PaymentType = "SEPA",
                 PickupDate = reservation.PickupDate.ToString("dd.MM.yyyy HH:mm"),
@@ -134,7 +134,7 @@ namespace KolayCAR.Broker.API.Helpers.Netresys
 
             return netResysCancelModel;
         }
-        public IDictionary<string, object> CreateNetresysRequestModel(NetresysRequest request) 
+        public IDictionary<string, object> CreateNetresysRequestModel(NetresysRequest request)
             => new Dictionary<string, object>()
             {
                 {"id",request.ID ?? "" },
@@ -184,12 +184,12 @@ namespace KolayCAR.Broker.API.Helpers.Netresys
                 {"ExternalCreditCardInfo", request.ExternalCreditCardInfo }
             };
 
-        public IDictionary<string, object> CreateNetresysCancelRequestModel(NetresysRequest request) 
+        public IDictionary<string, object> CreateNetresysCancelRequestModel(NetresysRequest request)
             => new Dictionary<string, object>()
             {
                 {"id",request.ID },
                 {"saleType",request.SaleType },
-                {"broker",request.AgencyNumber },
+                {"agencyNumber", request.AgencyNumber },
                 {"cancellingCharge", request.CancellingCharge == "" || request.CancellingCharge == "0" ? "0" : request.CancellingCharge },
                 {"paymentType",request.PaymentType },
                 {"paymentSurcharge",request.PaymentSurcharge },
@@ -230,7 +230,8 @@ namespace KolayCAR.Broker.API.Helpers.Netresys
                 {"depositPaymentType",request.DepositPaymentType },
                 {"totalPrice",request.TotalPrice },
                 {"note",request.Note },
-                {"charge",request.Charge }
+                {"charge",request.Charge },
+                {"broker",request.Broker },
             };
         public float GetAgencyCommissionWithAgencyProfitMarkup(float price, float agencyRentalProfitMarkup, float commission)
         {

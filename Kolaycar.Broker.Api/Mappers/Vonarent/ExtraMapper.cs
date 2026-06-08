@@ -34,7 +34,6 @@ namespace KolayCAR.Broker.API.Mappers.Vonarent
                     CurrencyType = GetCurrencyType(item.currency),
                     VendorExtraExists = true,
                     Label = item.extraCategoryName.ToStringNullSafe(),
-                    Code = item.extraCategoryId.ToStringNullSafe(),
                     Piece = 1
                 });
             }
