@@ -352,23 +352,27 @@ namespace KolayCAR.Broker.API.Services
                             vehicle = vehicles.Where(x => x.VehicleCode == reservationToken.VehicleCode && x.VendorId == reservationToken.APIVendorId).FirstOrDefault();
                         }
                 }
-                ReservationToken newReservationToken = new ReservationToken();
 
-                if (vehicle != null)
-                    newReservationToken = await _resTokenService.GetReservationTokenByUniqueId(vehicle.ReservationToken);
-
-                Serilog.Log.Error("{@NewReservationToken}", newReservationToken);
-
-                if (vehicle == null || !vehicle.IsAvailable) //Kiralanacak araç müsait değilse
-                {
+                if (vehicle == null) //Kiralanacak araç müsait değilse
                     return new HttpResult<object>
                     {
                         Success = false,
                         Message = await GetResultMessage(ResultCodes.VehicleNotAvailable, languageType),
                         ResultCode = (int)ResultCodes.VehicleNotAvailable
                     };
-                }
-                else if (vehicle != null && newReservationToken != null && newReservationToken.APIDailyPrice != reservationToken.APIDailyPrice) //Kiralanacak araç fiyatı değiştiyse
+
+                var newReservationToken = await _resTokenService.GetReservationTokenByUniqueId(vehicle.ReservationToken);
+                Serilog.Log.Error("{@NewReservationToken}", newReservationToken);
+
+                if (newReservationToken == null)
+                    return new HttpResult<object>
+                    {
+                        Success = false,
+                        Message = await GetResultMessage(ResultCodes.Error, languageType),
+                        ResultCode = (int)ResultCodes.Error
+                    };
+
+                if (newReservationToken.APIDailyPrice > reservationToken.APIDailyPrice * 1.05f) //Kiralanacak araç fiyatı %5'ten fazla arttıysa
                 {
                     Serilog.Log.Error("{@VehiclePriceChange}", $"{newReservationToken.APIDailyPrice}-{reservationToken.APIDailyPrice}-{reservationToken.APIVendorName}");
                     return new HttpResult<object>
@@ -378,25 +382,14 @@ namespace KolayCAR.Broker.API.Services
                         ResultCode = (int)ResultCodes.VehiclePriceChange
                     };
                 }
-                else if (vehicle != null) //success
+
+                return new HttpResult<object>
                 {
-                    return new HttpResult<object>
-                    {
-                        Success = true,
-                        Message = await GetResultMessage(ResultCodes.Success, languageType),
-                        ResultCode = (int)ResultCodes.Success,
-                        Data = vehicle,
-                    };
-                }
-                else //error
-                {
-                    return new HttpResult<object>
-                    {
-                        Success = false,
-                        Message = await GetResultMessage(ResultCodes.Error, languageType),
-                        ResultCode = (int)ResultCodes.Error
-                    };
-                }
+                    Success = true,
+                    Message = await GetResultMessage(ResultCodes.Success, languageType),
+                    ResultCode = (int)ResultCodes.Success,
+                    Data = vehicle,
+                };
             }
             else //Kiralanacak araç müsait değilse
             {
