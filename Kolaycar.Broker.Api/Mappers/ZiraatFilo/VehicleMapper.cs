@@ -13,7 +13,7 @@ namespace KolayCAR.Broker.API.Mappers.ZiraatFilo
               VendorName = vendorName,
               VehicleId = 0,
               VehicleCode = vehicle.Group_ID,
-              VehicleName = $"{vehicle.Group_Name} - {vehicle.Brand} - {vehicle.Type} - {vehicle.CaseType} - {vehicle.Fuel} - {vehicle.Transmission}",
+              VehicleName = $"{vehicle.Group_Name} - {vehicle.Group_Str}",
               FuelType = GetFuelType(vehicle.Fuel),
               FuelTypeName = vehicle.Fuel,
               TransmissionType = GetTransmissionType(vehicle.Transmission),
