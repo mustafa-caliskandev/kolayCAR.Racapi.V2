@@ -190,7 +190,7 @@ namespace KolayCAR.Broker.API.Providers.Renticar
                     }
                 },
                 extras = new List<Domain.Models.Renticar.Response.Extra>(),
-                reservationType = postReservationRequest.FullCredit.ToBoolNullSafe() == true ? "fullCredit"
+                reservationType = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit ? "fullCredit"
                                     : postReservationRequest.PaymentType == PaymentTypes.PayOnDelivery ? "payOnArrival"
                                     : ""
 

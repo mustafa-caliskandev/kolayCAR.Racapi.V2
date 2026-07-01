@@ -15,6 +15,8 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
 {
     public class ReservationProvider : IReservationProvider
     {
+        private const decimal CalculatedPriceTolerance = 0.10m;
+
         private RestManager RestManager { get; set; }
         private AuthProvider AuthProvider { get; set; }
         private readonly IConfigurationService _configurationService;
@@ -136,14 +138,20 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
 
         private static ServiceResponseBase ValidateCalculatedPrice(Pandora2ResponseBase.PriceResponse calculateResponse, Reservation localReservation)
         {
-            var calculatedTotal = Pandora2MapperHelper.ToMoney(calculateResponse.NetTotal);
-            var localTotal = localReservation.APITotalAmount;
-            var priceDifference = calculatedTotal - localTotal;
+            var calculatedTotal = ToMoneyDecimal(calculateResponse.NetTotal);
+            var localTotal = ToMoneyDecimal(localReservation.APITotalAmount);
+            var priceDifference = System.Math.Abs(calculatedTotal - localTotal);
 
-            if (priceDifference >= -0.01f && priceDifference <= 0.01f)
+            if (priceDifference <= CalculatedPriceTolerance)
                 return null;
 
-            var message = $"Pandora fiyat kontrolu basarisiz! Calculate fiyati ile lokal rezervasyon toplam fiyati farkli. Calculate: {calculatedTotal:0.00}, Local: {localTotal:0.00}";
+            var localTotalWithExtras = ToMoneyDecimal(localReservation.APITotalAmount + localReservation.APIExtraAmount);
+            var priceDifferenceWithExtras = System.Math.Abs(calculatedTotal - localTotalWithExtras);
+
+            if (localReservation.APIExtraAmount > 0 && priceDifferenceWithExtras <= CalculatedPriceTolerance)
+                return null;
+
+            var message = $"Pandora fiyat kontrolu basarisiz! Calculate fiyati ile lokal rezervasyon toplam fiyati farkli. Calculate: {calculatedTotal:0.00}, Local: {localTotal:0.00}, LocalExtraDahil: {localTotalWithExtras:0.00}, Tolerans: {CalculatedPriceTolerance:0.00}";
             localReservation.APIMessage = message;
 
             return new ServiceResponseBase(
@@ -153,6 +161,12 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
                 serviceMessage: message,
                 serviceCode: "PriceMismatch");
         }
+
+        private static decimal ToMoneyDecimal(string value) =>
+            ToMoneyDecimal(Pandora2MapperHelper.ToMoney(value));
+
+        private static decimal ToMoneyDecimal(float value) =>
+            decimal.Round((decimal)value, 2, System.MidpointRounding.AwayFromZero);
 
         private static Pandora2CreateRequest CreateBookingRequest(PostReservationRequest postReservationRequest, ResponseReservationStepsAdditionalInformation additionalInformation, ReservationToken reservationToken, Reservation localReservation, string netTotal, List<Pandora2AdditionRequest> additions) =>
             new Pandora2CreateRequest

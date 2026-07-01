@@ -171,7 +171,7 @@ namespace KolayCAR.Broker.API.Providers.AutoHome
                 { "Currency", reservationToken.BaseVendorRequestCurrencyType.ToString() }
             };
 
-            if (vendor.CreditType == CreditType.FullCredit)
+            if (CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit)
                 parameters.Add("FullCredit", 1);
 
             if (postReservationRequest.PaymentType == PaymentTypes.PayOnDelivery)

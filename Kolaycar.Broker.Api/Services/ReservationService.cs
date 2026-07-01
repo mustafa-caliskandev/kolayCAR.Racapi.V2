@@ -925,7 +925,7 @@ namespace KolayCAR.Broker.API.Services
 
                         try
                         {
-                            int postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE SP_ADD_RESERVATION " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
+                            int postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE AddReservation " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
 
                             Serilog.Log.Error("{@PostReservationLocalProcedureResult}", postReservationLocalResult);
                             return new ServiceResponseBase(postReservationRequest, true, postReservationLocalResult > 0 ? "Reservation received successfully!" : "An error occurred during the request!");
@@ -940,7 +940,7 @@ namespace KolayCAR.Broker.API.Services
                                 try
                                 {
                                     _context.Database.SetCommandTimeout(15);
-                                    postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE SP_ADD_RESERVATION " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
+                                    postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE AddReservation " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
                                 }
                                 catch (Exception ex2)
                                 {
@@ -1205,7 +1205,7 @@ namespace KolayCAR.Broker.API.Services
                                     return result;
                                 }
 
-                                if (retryPostReservation)
+                                if (retryPostReservation && vendor.VendorType != VendorTypes.Vonarent)
                                 {
                                     Serilog.Log.Error("{@PostReservationErrorStep4}", "Response kaybolma log adımı 4");
                                     if (string.IsNullOrEmpty(reservation.APIReservationNumber))
@@ -1984,12 +1984,7 @@ namespace KolayCAR.Broker.API.Services
                 };
                 #endregion
 
-                #region Tedarikçi ayarları yapılıyor
-
-                var vendor = await _context.Vendor.FirstOrDefaultAsync(v => v.Vendorid == reservation.VendorId);
-                if (vendor is { Vendorid: > 0 })
-                    reservateNow.FullCredit = vendor.CreditType == 1;
-                #endregion
+                reservateNow.FullCredit = CreditHelper.ResolveTokenCreditType(reservation) == CreditType.FullCredit;
 
                 reservateNow.TotalPrice = totalPrice; // Günlük ücret x Kiralama süresi
                 reservateNow.InstallmentCommissionAmount = installmentCommissionAmount; // Vade Farkı
@@ -2731,7 +2726,7 @@ namespace KolayCAR.Broker.API.Services
 
                 var reservation = result.Data as Reservation;
 
-                if (retryPostReservation)
+                if (retryPostReservation && vendor.VendorType != VendorTypes.Vonarent)
                 {
                     if (string.IsNullOrEmpty(reservation.APIReservationNumber))
                     {

@@ -72,8 +72,8 @@ namespace KolayCAR.Broker.API.Mappers
                 AgencyRentalProfitMarkup = agency.Agencyrentalprofitmarkup.ToFloatNullSafe(),
                 CancellationPenaltyActive = agency.Cancellationpenaltyactive ?? true,
                 SpecialParameters = agency.SpecialParameters.ToBoolNullSafe(),
-                FullCreditPermission = agency.FullCreditPermission.ToBoolNullSafe(),
-                IsActiveSendCheapestCar = agency.IsActiveSendCheapestCar ?? false
+                CreditType = (CommonModels.CreditType)(agency.CreditType ?? 0),
+                IsActiveSendCheapestCar = agency.IsActiveSendCheapestCar ?? false,
             }
             : null;
     }

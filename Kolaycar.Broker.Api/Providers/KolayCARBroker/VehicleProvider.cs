@@ -84,6 +84,14 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                             for (int i = 0; i < tempMappedVehicleList.Count; i++)
                             {
                                 var mappedVehicle = tempMappedVehicleList[i];
+                                var apiCreditType = mappedVehicle.CreditType != CreditType.Non
+                                    ? mappedVehicle.CreditType
+                                    : mappedVehicle.FullCredit
+                                        ? CreditType.FullCredit
+                                        : CreditType.Non;
+
+                                mappedVehicle.CreditType = apiCreditType;
+                                mappedVehicle.FullCredit = apiCreditType == CreditType.FullCredit;
 
                                 var reservationToken = new ReservationToken
                                 {
@@ -128,14 +136,16 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                                     BaseVendorRequestCurrencyType = baseVendorRequestCurrencyType,
                                     VehicleCategoryType = mappedVehicle.VehicleCategoryType,
                                     ApiVendorType = mappedVehicle.VendorType,
-                                    APIFullCredit = mappedVehicle.FullCredit,
+                                    CreditType = apiCreditType,
+                                    APICreditType = apiCreditType,
+                                    APIFullCredit = apiCreditType == CreditType.FullCredit,
                                     SpecialProfitApplied = mappedVehicle.SpecialProfitApplied,
                                     BaggageQuantityType = mappedVehicle.BaggageQuantityType,
                                     PassangerQuantityType = mappedVehicle.PassangerQuantityType,
                                     TotalKmLimit = mappedVehicle.TotalKMLimit ?? 0,
                                     VehicleType = mappedVehicle.VehicleType,
                                     VendorFlightPassRequired = vendor.FlightNumberRequired ?? false,
-                                    FullCredit = mappedVehicle.FullCredit,
+                                    FullCredit = apiCreditType == CreditType.FullCredit,
                                     SippCode = mappedVehicle.SippCode,
                                     BaseBaseVendorRequestCurrencyType = vehicle.value.BaseVendorCurrencyTypes,
                                     APIDeliveryTypeId = mappedVehicle.ApiDeliveryTypeId

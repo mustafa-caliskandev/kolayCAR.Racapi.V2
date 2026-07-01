@@ -66,7 +66,7 @@ namespace KolayCAR.Broker.Domain.Models.Response
             public double DISCOUNT_AMOUNT { get; set; }
             public double NET_AMOUNT { get; set; }
             public string CURRENCY { get; set; }
-            public float DEPOSIT_AMOUNT { get; set; }
+            public float? DEPOSIT_AMOUNT { get; set; }
             public string IS_CAMPAIGN { get; set; } = null;
             public string SEARCH_REFERENCE { get; set; } = null;
             public string MIN_AGE { get; set; }

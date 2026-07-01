@@ -16,6 +16,9 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
 {
     public class VehicleProvider : IVehicleProvider
     {
+        private const string PayNowPaymentType = "Now";
+        private const string PayLocalPaymentType = "Local";
+
         private RestManager RestManager { get; set; }
         private AuthProvider AuthProvider { get; set; }
 
@@ -44,8 +47,21 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
 
                 if (result?.Count > 0)
                 {
+                    var oneWayFeePayToDelivery = GetOneWayFeePayToDelivery(additionalInformation);
+
+                    result = result
+                        .Where(vehicle =>
+                            !HasMandatoryExtra(vehicle) &&
+                            !HasOtherFee(vehicle) &&
+                            IsDropOffFeePaymentTypeAllowed(vehicle, oneWayFeePayToDelivery))
+                        .ToList();
+
+                    if (result.Count == 0)
+                        return new ServiceResponseBase(new List<Vehicle>(), true);
+
+                    var extraPricePayToDelivery = GetExtraPricePayToDelivery(additionalInformation);
                     var apiVehicleList = VehicleHelper.SelectCheapestByGroup(result, x => x.Id, x => Pandora2MapperHelper.ToMoney(x.NetTotalAmount));
-                    var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor);
+                    var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor, extraPricePayToDelivery);
                     var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
 
                     if (vendor.VehicleMappingActive)
@@ -161,6 +177,30 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
 
         internal static string FormatApiDate(DateTime dateTime) =>
             dateTime.ToString("yyyy-MM-ddTHH:mm:ss") + "+03:00";
+
+        private static bool HasMandatoryExtra(Pandora2ResponseBase.AvailableVehicle vehicle) =>
+            vehicle?.Extras != null && vehicle.Extras.Any(extra => extra.Mandatory == true);
+
+        private static bool HasOtherFee(Pandora2ResponseBase.AvailableVehicle vehicle) =>
+            vehicle?.OtherFees?.Any() == true;
+
+        private static bool IsDropOffFeePaymentTypeAllowed(Pandora2ResponseBase.AvailableVehicle vehicle, bool oneWayFeePayToDelivery)
+        {
+            var dropOffFee = vehicle?.DropOffFee;
+
+            if (dropOffFee == null || Pandora2MapperHelper.ToMoney(dropOffFee.NetAmount) <= 0)
+                return true;
+
+            var expectedPaymentType = oneWayFeePayToDelivery ? PayLocalPaymentType : PayNowPaymentType;
+
+            return string.Equals(dropOffFee.PaymentType?.Trim(), expectedPaymentType, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool GetExtraPricePayToDelivery(ResponseReservationStepsAdditionalInformation additionalInformation) =>
+            additionalInformation?.Agency?.AdditionalProductAmountDeliveryPayment ?? false;
+
+        private static bool GetOneWayFeePayToDelivery(ResponseReservationStepsAdditionalInformation additionalInformation) =>
+            additionalInformation?.Agency?.OneWayAmountDeliveryPayment ?? false;
     }
 
     public class AvailabilityRequest

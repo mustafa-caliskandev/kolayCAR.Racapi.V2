@@ -43,6 +43,7 @@ namespace KolayCAR.Broker.API.Models.Dtos
         public string SpecialVendorId { get; set; }
         public string SpecialVendorLogo { get; set; }
         public string BaseVendorId { get; set; }
+        public short CreditType { get; set; }
         public bool FullCredit { get; set; } = false;
         public int PickupLocationId { get; set; }
         public string PickupLocationName { get; set; }

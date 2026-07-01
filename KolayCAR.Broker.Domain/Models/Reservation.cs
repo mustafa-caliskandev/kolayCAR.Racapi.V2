@@ -117,6 +117,7 @@ namespace KolayCAR.Broker.Domain.Models
         public string CreditCardNumber { get; set; }
         public string CardInfo { get; set; }
         public decimal? InstallmentCommissionAmount { get; set; }
+        public CreditType CreditType { get; set; }
         public bool IsFullCredit { get; set; }
         [NotMapped]
         public string VehicleDescription { get; set; }

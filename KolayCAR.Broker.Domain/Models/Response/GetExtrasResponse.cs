@@ -14,8 +14,6 @@ namespace KolayCAR.Broker.Domain.Models.Response
         }
         public List<Extra> Extras { get; set; }
         public Vehicle Vehicle { get; set; }
-        public string PickupLocationAddress { get; set; }
-        public string ReturnLocationAddress { get; set; }
     }
 
     public class GetExtrasResponseRestricted

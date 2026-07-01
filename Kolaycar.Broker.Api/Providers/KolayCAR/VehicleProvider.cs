@@ -77,8 +77,8 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
             KOLAYCARSETTINGS getSettingsResponse = null;
             var client = CreateClient(vendor, vendor.APITimeout);
 
-            #region Full-Credit kontrolü.
-            if (vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.FullCreditPermission)
+            #region Credit kontrolü.
+            if (ShouldFetchCreditSettings(vendor, additionalInformation.Agency))
             {
                 var getSettingsResult = await client.GET_SETTINGSAsync(
                         getVehiclesRequest.ApiKey,
@@ -126,6 +126,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                 var apiVehicleList = VehicleHelper.SelectCheapestByGroup(getVehiclesResponseObject.VEHICLES, v => $"{v.VEHICLEID}-{v.VENDORID}", v => v.DAILYPRICE.ToFloatNullSafe());
                 //var mappedVehicleList = getVehiclesResponseObject.VEHICLES.Map(additionalInformation);
                 var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor);
+                var kolayCarCreditType = ResolveKolayCarCreditType(getSettingsResponse, vendor, additionalInformation.Agency);
                 var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
 
                 if (vendor.VehicleMappingActive)
@@ -150,8 +151,8 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     for (int i = 0; i < tempMappedVehicleList.Count; i++)
                     {
                         var mappedVehicle = tempMappedVehicleList[i];
-                        mappedVehicle.FullCredit = getSettingsResponse != null && additionalInformation.Agency.FullCreditPermission.ToBoolNullSafe()
-                             && vendor.CreditType == CreditType.FullCredit ? getSettingsResponse.FULLCREDITACTIVE : false;
+                        mappedVehicle.CreditType = kolayCarCreditType;
+                        mappedVehicle.FullCredit = kolayCarCreditType == CreditType.FullCredit;
 
                         var reservationToken = new ReservationToken
                         {
@@ -191,7 +192,6 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                             VehicleName = mappedVehicle.VehicleName,
                             VehicleImageUrl = mappedVehicle.VehicleImages.Count > 0 ? mappedVehicle.VehicleImages[0].Url : string.Empty,
                             BaseVendorRequestCurrencyType = baseVendorRequestCurrencyType,
-                            APIFullCredit = getSettingsResponse?.FULLCREDITACTIVE,
                             SpecialProfitApplied = mappedVehicle.SpecialProfitApplied,
                             BaggageQuantityType = mappedVehicle.BaggageQuantityType,
                             PassangerQuantityType = mappedVehicle.PassangerQuantityType,
@@ -199,7 +199,10 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                             VehicleCategoryType = mappedVehicle.VehicleCategoryType,
                             VehicleType = mappedVehicle.VehicleType,
                             VendorFlightPassRequired = vendor.FlightNumberRequired ?? false,
+                            CreditType = mappedVehicle.CreditType,
+                            APICreditType = mappedVehicle.CreditType,
                             FullCredit = mappedVehicle.FullCredit,
+                            APIFullCredit = mappedVehicle.FullCredit,
                             SippCode = mappedVehicle.SippCode
                             //APITotalPrice = vehicle.value.TOTALPRICE
                         };
@@ -219,6 +222,45 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
             }
             return new ServiceResponseBase(null, false, "KolayCAR service could not be reached!", getVehiclesResponseObject.MESSAGE.ToStringNullSafe(), getVehiclesResponseObject.RETURNCODE.ToStringNullSafe());
         }
+
+        private static bool ShouldFetchCreditSettings(Vendor vendor, Agency agency)
+        {
+            return (VendorAllowsCreditType(vendor, CreditType.FullCredit) || VendorAllowsCreditType(vendor, CreditType.LimitedCredit))
+                && (CreditHelper.AgencyAllowsCreditType(agency, CreditType.FullCredit) || CreditHelper.AgencyAllowsCreditType(agency, CreditType.LimitedCredit));
+        }
+
+        private static CreditType ResolveKolayCarCreditType(KOLAYCARSETTINGS settings, Vendor vendor, Agency agency)
+        {
+            if (settings == null)
+                return CreditType.Non;
+
+            if (settings.FULLCREDITLIMITEDACTIVE
+                && VendorAllowsCreditType(vendor, CreditType.LimitedCredit)
+                && CreditHelper.AgencyAllowsCreditType(agency, CreditType.LimitedCredit))
+                return CreditType.LimitedCredit;
+
+            if (settings.FULLCREDITACTIVE
+                && VendorAllowsCreditType(vendor, CreditType.FullCredit)
+                && CreditHelper.AgencyAllowsCreditType(agency, CreditType.FullCredit))
+                return CreditType.FullCredit;
+
+            return CreditType.Non;
+        }
+
+        private static bool VendorAllowsCreditType(Vendor vendor, CreditType creditType)
+        {
+            if (creditType == CreditType.Non)
+                return true;
+
+            if (vendor == null)
+                return false;
+
+            if (vendor.CreditType == creditType)
+                return true;
+
+            return vendor.CreditType == CreditType.FullCredit && creditType == CreditType.LimitedCredit;
+        }
+
         private ServiceSoapClient CreateClient(Vendor vendor, int timeoutSeconds)
         {
             var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport) // HTTPS desteği

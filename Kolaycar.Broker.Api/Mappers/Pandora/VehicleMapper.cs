@@ -22,6 +22,10 @@ namespace KolayCAR.Broker.API.Mappers.Pandora
                 .FirstOrDefault(x => x.ServiceTypeId == 10)?
                 .AmountTotal
                 .ToFloatNullSafe() ?? 0f;
+            float deliveryFee = vehicle.IncludedServices?
+                .Where(x => x.ServiceTypeId == 13)?
+                .Sum(x => x.AmountTotal)
+                .ToFloatNullSafe() ?? 0f;
 
             float dailyPrice = (vehicle.Amount.ToFloatNullSafe() - oneWayFee) / rentalDuration;
 
@@ -44,7 +48,7 @@ namespace KolayCAR.Broker.API.Mappers.Pandora
                 ReturnDateTime = additionalInformation.ReturnDateTime,
                 RentalDuration = vehicle.DaysForPayment,
                 DailyPrice = dailyPrice,
-                OneWayFee = oneWayFee,
+                OneWayFee = oneWayFee + deliveryFee,
                 TotalPrice = vehicle.Amount.ToFloatNullSafe(),
                 IsAvailable = vehicle.Amount > 0,
                 VehicleImages = new List<VehicleImage> { },

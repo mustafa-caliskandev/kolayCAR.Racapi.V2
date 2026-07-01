@@ -191,8 +191,11 @@ namespace KolayCAR.Broker.API.Services
                             var pickupOffice = await _vendorContactInformationService.GetVendorContactInformation(getExtrasRequest.PickupLocationId, vendor.VendorId);
                             var returnOffice = await _vendorContactInformationService.GetVendorContactInformation(getExtrasRequest.ReturnLocationId, vendor.VendorId);
 
-                            extrasData.PickupLocationAddress = pickupOffice?.Address ?? "";
-                            extrasData.ReturnLocationAddress = returnOffice?.Address ?? "";
+                            if (!string.IsNullOrWhiteSpace(pickupOffice?.Address))
+                                extrasData.Vehicle.PickupLocationAddress = pickupOffice.Address;
+
+                            if (!string.IsNullOrWhiteSpace(returnOffice?.Address))
+                                extrasData.Vehicle.ReturnLocationAddress = returnOffice.Address;
                         }
 
                         extrasData.Vehicle = VehicleHelper.MapVehicleProp(
@@ -227,7 +230,7 @@ namespace KolayCAR.Broker.API.Services
                         extrasData.Vehicle.ReservationToken = getExtrasRequest.ReservationToken;
                         extrasData.Vehicle.IsOffice = (vendor.VendorType == VendorTypes.Yolcu360 || vendor.VendorType == VendorTypes.Yolcu360v2) ? extrasData.Vehicle.IsOffice : vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? vendorLocation.Isoffice ?? false : extrasData.Vehicle.IsOffice;
                         extrasData.Vehicle.IsAirport = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? pickupLocation.Airport ?? false : extrasData.Vehicle.IsAirport;
-                        extrasData.Vehicle.VendorLogo = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? $"{configurations.PortalOwnerDomain}{extrasData.Vehicle.VendorLogo}" : extrasData.Vehicle.VendorLogo;
+                        extrasData.Vehicle.VendorLogo = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? (vendor.VendorType != VendorTypes.Yolcu360 && vendor.VendorType != VendorTypes.EnUygun) ? $"{configurations.PortalOwnerDomain}{extrasData.Vehicle.VendorLogo}" : extrasData.Vehicle.VendorLogo : extrasData.Vehicle.VendorLogo;
                         extrasData.Vehicle.CurrencyCode = getExtrasRequest.CurrencyCode;
                         extrasData.Vehicle.VendorCouponUsing = vendor.CouponCodeActive.ToBoolNullSafe();
                         extrasData.Vehicle.VendorScore = vendorScoreResult != null && vendorScore != null ? vendorScore.CurrentScore.ToFloatNullSafe() != 0 && vendorScore.CurrentScore != -1 ? vendorScore.CurrentScore.ToFloatNullSafe() : vendorScore.Score.ToFloatNullSafe() != 0 ? vendorScore.Score.ToFloatNullSafe() : 4 : 4;
@@ -235,7 +238,11 @@ namespace KolayCAR.Broker.API.Services
                         extrasData.Vehicle.IsFindeksRequired = (bool)vendor.FindeksRequired;
                         extrasData.Vehicle.BaseVendorId = reservationToken.VendorId;
 
-                        if (vendor.ExtraMappingActive && !getAPIPrices && (vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations)))
+                        if (vendor.ExtraMappingActive &&
+                            vendor.VendorType != VendorTypes.Pandora2 &&
+                            !getAPIPrices &&
+                            (vendor.VendorType != VendorTypes.KolayCARBroker ||
+                             (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations)))
                         {
                             var apiExtrasData = extrasResult.Data as GetExtrasResponse;
                             var listAll = apiExtrasData.Extras != null && apiExtrasData.Extras.Count > 0 ? apiExtrasData.Extras : new List<Extra>();
@@ -327,9 +334,8 @@ namespace KolayCAR.Broker.API.Services
 
                         extrasData.Vehicle.VendorFlightPassRequired = extrasData.Vehicle.VendorFlightPassRequired ?? false;
 
-                        var newAgency = await _agencyService.GetAgency(reservationToken.AgencyId);
-                        if (!agency.FullCreditPermission)
-                            extrasData.Vehicle.FullCredit = false;
+                        extrasData.Vehicle.CreditType = CreditHelper.ResolveTokenResponseCreditType(reservationToken);
+                        extrasData.Vehicle.FullCredit = extrasData.Vehicle.CreditType == CreditType.FullCredit;
 
                         var langId = Enum.TryParse<LanguageTypes>(
                                             getExtrasRequest.LanguageCode,

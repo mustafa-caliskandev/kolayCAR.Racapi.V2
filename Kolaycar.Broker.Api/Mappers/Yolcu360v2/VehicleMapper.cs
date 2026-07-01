@@ -10,19 +10,19 @@ namespace KolayCAR.Broker.API.Mappers.Yolcu360v2
 {
     public static class VehicleMapper
     {
-        public static List<Vehicle> Map(this List<Yolcu360v2Vehicle> vehicleList, ResponseReservationStepsAdditionalInformation additionalInformation, Domain.Models.Vendor vendor, CurrencyTypes baseVendorCurrencyType, List<ExchangeRates> exchangeRates)
+        public static List<Vehicle> Map(this List<Yolcu360v2Vehicle> vehicleList, ResponseReservationStepsAdditionalInformation additionalInformation, Domain.Models.Vendor vendor, CurrencyTypes baseVendorCurrencyType, List<ExchangeRates> exchangeRates, IReadOnlyDictionary<string, VendorVendor> vendorVendorByName)
         {
             var _vehicles = new List<Vehicle>();
             int i = 0;
             foreach (var vehicle in vehicleList)
             {
                 i++;
-                _vehicles.Add(vehicle.Map(additionalInformation, vendor, baseVendorCurrencyType, exchangeRates, i));
+                _vehicles.Add(vehicle.Map(additionalInformation, vendor, baseVendorCurrencyType, exchangeRates, vendorVendorByName, i));
             }
 
             return _vehicles;
         }
-        public static Vehicle Map(this Yolcu360v2Vehicle vehicle, ResponseReservationStepsAdditionalInformation additionalInformation, Domain.Models.Vendor vendor, CurrencyTypes baseVendorCurrencyType, List<ExchangeRates> exchangeRates, int index)
+        public static Vehicle Map(this Yolcu360v2Vehicle vehicle, ResponseReservationStepsAdditionalInformation additionalInformation, Domain.Models.Vendor vendor, CurrencyTypes baseVendorCurrencyType, List<ExchangeRates> exchangeRates, IReadOnlyDictionary<string, VendorVendor> vendorVendorByName, int index)
         {
             if (vehicle.rentalDurationInDays == 0)
                 return null;
@@ -47,7 +47,9 @@ namespace KolayCAR.Broker.API.Mappers.Yolcu360v2
             var rangeLimit = vehicle.rules.FirstOrDefault(r => r.name == "rangeLimit")?.rangeLimit?.amount;
             var dailyKmLimit = (rangeLimit / vehicle.rentalDurationInDays).ToIntNullSafe();
 
-            var isFullCredit = agency.FullCreditPermission && vendor.CreditType == CreditType.FullCredit && vehicle.applicableForFullCredit.ToBoolNullSafe();
+            var supplierCreditType = ResolveSupplierCreditType(vehicle, vendorVendorByName);
+            var effectiveCreditType = ResolveEffectiveCreditType(agency?.CreditType ?? CreditType.Non, supplierCreditType);
+            var isFullCredit = effectiveCreditType == CreditType.FullCredit;
 
             var deliveryType = GetYolcu360DeliveryType(vehicle.appointment.checkInOffice.deliveryType.id);
             var fromOffice = (deliveryType == Domain.Models.DeliveryType.FromOffice || deliveryType == Domain.Models.DeliveryType.InTerminalOffice);
@@ -97,6 +99,7 @@ namespace KolayCAR.Broker.API.Mappers.Yolcu360v2
                 ReturnLocationName = additionalInformation.ReturnLocationName,
                 PickupDateTime = additionalInformation.PickupDateTime,
                 ReturnDateTime = additionalInformation.ReturnDateTime,
+                CreditType = effectiveCreditType,
                 FullCredit = isFullCredit,
                 DeliveryType = deliveryType,
                 IsOffice = fromOffice,
@@ -118,6 +121,33 @@ namespace KolayCAR.Broker.API.Mappers.Yolcu360v2
                 PickupLocationAddress = vehicle.appointment.checkInOffice.address.street,
                 ReturnLocationAddress = vehicle.appointment.checkOutOffice.address.street,
             } : null;
+        }
+
+        private static CreditType ResolveSupplierCreditType(Yolcu360v2Vehicle vehicle, IReadOnlyDictionary<string, VendorVendor> vendorVendorByName)
+        {
+            var apiVendorName = vehicle?.vendor?.name?.Trim();
+            if (string.IsNullOrWhiteSpace(apiVendorName) || vendorVendorByName?.TryGetValue(apiVendorName, out var vendorVendor) != true)
+                return CreditType.Non;
+
+            return vendorVendor.CreditType switch
+            {
+                CreditType.FullCredit when vehicle.applicableForFullCredit.ToBoolNullSafe() => CreditType.FullCredit,
+                CreditType.LimitedCredit when vehicle.applicableForLimitCredit.ToBoolNullSafe() => CreditType.LimitedCredit,
+                _ => CreditType.Non
+            };
+        }
+
+        private static CreditType ResolveEffectiveCreditType(CreditType agencyCreditType, CreditType supplierCreditType)
+        {
+            if (supplierCreditType == CreditType.Non)
+                return CreditType.Non;
+
+            if (agencyCreditType == supplierCreditType)
+                return supplierCreditType;
+
+            return agencyCreditType == CreditType.FullCredit && supplierCreditType == CreditType.LimitedCredit
+                ? CreditType.LimitedCredit
+                : CreditType.Non;
         }
 
         private static Domain.Models.DeliveryType GetYolcu360DeliveryType(int deliveryTypeId)

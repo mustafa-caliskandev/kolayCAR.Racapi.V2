@@ -77,7 +77,7 @@ namespace KolayCAR.Broker.API.Mappers
             extra.ExtraCode = cyrtpExtra.C;
             extra.ExtraRentalType = cyrtpExtra.R;
             extra.ExtraType = cyrtpExtra.T;
-            extra.Price = extra.Price > 0 ? extra.Price :  cyrtpExtra.P;
+            extra.Price = cyrtpExtra.P;
             extra.ApiPrice = cyrtpExtra.A;
             extra.ApiExtraCode = cyrtpExtra.AC;
             extra.ExtraName = cyrtpExtra.N;

@@ -48,7 +48,16 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
 
             var apiVehicleList = result.results;
             var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
-            var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor, baseVendorRequestCurrencyType, exchangeRates);
+            var apiVendorList = apiVehicleList.Select(e => new VendorVendor(vendor.VendorId, true, e.vendor.name.ToLowerInvariant()))
+                    .GroupBy(e => e.VendorName).Select(e => e.First()).Where(e => vendor.VendorVendors?.Any(v => v.VendorName == e.VendorName) != true).ToList();
+
+            var vendorVendorByName = vendor.VendorVendors?
+                .Where(e => e?.Active == true && !string.IsNullOrWhiteSpace(e.VendorName))
+                .GroupBy(e => e.VendorName.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(e => e.Key, e => e.First(), StringComparer.OrdinalIgnoreCase)
+                ?? new Dictionary<string, VendorVendor>(StringComparer.OrdinalIgnoreCase);
+
+            var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor, baseVendorRequestCurrencyType, exchangeRates, vendorVendorByName);
 
             CalculationHelper.SetVehiclesPrices(mappedVehicleList, vendor, exchangeRates, requestCurrencyType, baseVendorRequestCurrencyType);
             VehicleHelper.SetVehiclesProperties(mappedVehicleList, vendor, additionalInformation.Agency, exchangeRates, baseVendorRequestCurrencyType, requestCurrencyType, profitMarkups);
@@ -59,15 +68,6 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
             var pickupDateTime = ObjectHelper.CombineDateAndTime(getVehiclesRequest.PickupDate, getVehiclesRequest.PickupTime);
             var returnDateTime = ObjectHelper.CombineDateAndTime(getVehiclesRequest.ReturnDate, getVehiclesRequest.ReturnTime);
             var languageType = getVehiclesRequest.LanguageCode.TrimNullSafe().ToUpper().ToEnum<LanguageTypes>();
-
-            var apiVendorList = apiVehicleList.Select(e => new VendorVendor(vendor.VendorId, true, e.vendor.name.ToLowerInvariant()))
-                    .GroupBy(e => e.VendorName).Select(e => e.First()).Where(e => !vendor.VendorVendors.Any(v => v.VendorName == e.VendorName)).ToList();
-
-            var vendorVendorByName = vendor.VendorVendors?
-                .Where(e => e?.Active == true && !string.IsNullOrWhiteSpace(e.VendorName))
-                .GroupBy(e => e.VendorName.Trim(), StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(e => e.Key, e => e.First(), StringComparer.OrdinalIgnoreCase)
-                ?? new Dictionary<string, VendorVendor>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var vehicle in apiVehicleList)
             {
@@ -129,6 +129,9 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                         VehicleType = mappedVehicle.VehicleType,
                         VendorFlightPassRequired = vendor.FlightNumberRequired ?? false,
                         FullCredit = mappedVehicle.FullCredit,
+                        CreditType = mappedVehicle.CreditType,
+                        APICreditType = mappedVehicle.CreditType,
+                        APIFullCredit = mappedVehicle.FullCredit,
                         SippCode = mappedVehicle.SippCode,
                         APIDeliveryTypeId = mappedVehicle.ApiDeliveryTypeId,
                         APIReferenceCode2 = mappedVehicle.PassportRequired.ToStringNullSafe()

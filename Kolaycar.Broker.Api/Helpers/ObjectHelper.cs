@@ -172,6 +172,7 @@ namespace KolayCAR.Broker.API.Helpers
                 PaidAmountAfterUsingCouponCode = postReservationRequest.PaidAmountAfterUsingCouponCode.ToFloatNullSafe(),
                 HighAmountDiscountActive = postReservationRequest.HighAmountDiscountActive,
                 FullCredit = postReservationRequest.FullCredit,
+                CreditType = postReservationRequest.CreditType,
                 CountryCode = postReservationRequest.CountryCode,
                 LanguageCode = postReservationRequest.LanguageCode,
                 PaymentCode = postReservationRequest.PaymentCode

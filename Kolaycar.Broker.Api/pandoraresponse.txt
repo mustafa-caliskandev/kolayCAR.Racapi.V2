@@ -1,0 +1,1874 @@
+[
+    {
+        "Id": "a1-5-1",
+        "SIPP": "EDMR",
+        "ModelName": "Renault Clio 5 ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/renault-clio-5-pandora-rent-a-car-1597424877.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-renault-clio-5-pandora-rent-a-car-1597424877.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "26.98",
+        "NetTotalRentAmount": "53.96",
+        "DailyRentAmount": "26.98",
+        "TotalRentAmount": "53.96",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "53.96",
+        "TotalAmount": "53.96",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "2",
+            "Name": "Benzin",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 2,
+        "MinDriverAge": 22,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 1,
+        "BigBagsCapacity": 1,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-6-1",
+        "SIPP": "EDAR",
+        "ModelName": "Renault Clio 5 ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/renault-clio-5-pandora-rent-a-car-1597424877.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-renault-clio-5-pandora-rent-a-car-1597424877.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "30.89",
+        "NetTotalRentAmount": "61.78",
+        "DailyRentAmount": "30.89",
+        "TotalRentAmount": "61.78",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "61.78",
+        "TotalAmount": "61.78",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "1",
+            "Name": "Otomatik"
+        },
+        "FuelType": {
+            "Id": "2",
+            "Name": "Benzin",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 2,
+        "MinDriverAge": 22,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 1,
+        "BigBagsCapacity": 1,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-7-1",
+        "SIPP": "EDMD",
+        "ModelName": "Renault Clio 5 ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/renault-clio-5-pandora-rent-a-car-1597424877.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-renault-clio-5-pandora-rent-a-car-1597424877.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "29.05",
+        "NetTotalRentAmount": "58.10",
+        "DailyRentAmount": "29.05",
+        "TotalRentAmount": "58.10",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "58.10",
+        "TotalAmount": "58.10",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "1",
+            "Name": "Dizel",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 2,
+        "MinDriverAge": 22,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 1,
+        "BigBagsCapacity": 1,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-9-1",
+        "SIPP": "CDMR",
+        "ModelName": "Renault Symbol ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/renault-symbol-pandora-rent-a-car-1597425224.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-renault-symbol-pandora-rent-a-car-1597425224.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "26.98",
+        "NetTotalRentAmount": "53.96",
+        "DailyRentAmount": "26.98",
+        "TotalRentAmount": "53.96",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "53.96",
+        "TotalAmount": "53.96",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "2",
+            "Name": "Benzin",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 2,
+        "MinDriverAge": 22,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 1,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-10-1",
+        "SIPP": "CDMD",
+        "ModelName": "Renault Symbol ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/renault-symbol-pandora-rent-a-car-1597425224.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-renault-symbol-pandora-rent-a-car-1597425224.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "29.07",
+        "NetTotalRentAmount": "58.14",
+        "DailyRentAmount": "29.07",
+        "TotalRentAmount": "58.14",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "58.14",
+        "TotalAmount": "58.14",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "1",
+            "Name": "Dizel",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 2,
+        "MinDriverAge": 22,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 1,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-11-1",
+        "SIPP": "SDMR",
+        "ModelName": "Citroen C-Elysee ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/peugeot_301-pandora-rent-a-car-1597429965.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-peugeot_301-pandora-rent-a-car-1597429965.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "27.09",
+        "NetTotalRentAmount": "54.18",
+        "DailyRentAmount": "27.09",
+        "TotalRentAmount": "54.18",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "54.18",
+        "TotalAmount": "54.18",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "2",
+            "Name": "Benzin",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 2,
+        "MinDriverAge": 22,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 2,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-13-1",
+        "SIPP": "SDMD",
+        "ModelName": "Citroen C-Elysee ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/peugeot_301-pandora-rent-a-car-1597429965.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-peugeot_301-pandora-rent-a-car-1597429965.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "29.13",
+        "NetTotalRentAmount": "58.26",
+        "DailyRentAmount": "29.13",
+        "TotalRentAmount": "58.26",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "58.26",
+        "TotalAmount": "58.26",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "1",
+            "Name": "Dizel",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 2,
+        "MinDriverAge": 22,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 2,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-19-1",
+        "SIPP": "IWMD",
+        "ModelName": "Ford Courier ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/ford-courier-pandora-rent-a-car-1597425125.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-ford-courier-pandora-rent-a-car-1597425125.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "31.24",
+        "NetTotalRentAmount": "62.48",
+        "DailyRentAmount": "31.24",
+        "TotalRentAmount": "62.48",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "62.48",
+        "TotalAmount": "62.48",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "1",
+            "Name": "Dizel",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 3,
+        "MinDriverAge": 23,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 3,
+        "BigBagsCapacity": 3,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-15-1",
+        "SIPP": "FDMR",
+        "ModelName": "Fiat Egea ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/fiat_egea-pandora-rent-a-car-1597424780.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-fiat_egea-pandora-rent-a-car-1597424780.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "27.15",
+        "NetTotalRentAmount": "54.30",
+        "DailyRentAmount": "27.15",
+        "TotalRentAmount": "54.30",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "54.30",
+        "TotalAmount": "54.30",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "2",
+            "Name": "Benzin",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 3,
+        "MinDriverAge": 23,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 3,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-17-1",
+        "SIPP": "FDMD",
+        "ModelName": "Fiat Egea ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/fiat_egea-pandora-rent-a-car-1597424780.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-fiat_egea-pandora-rent-a-car-1597424780.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "29.22",
+        "NetTotalRentAmount": "58.44",
+        "DailyRentAmount": "29.22",
+        "TotalRentAmount": "58.44",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "58.44",
+        "TotalAmount": "58.44",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "3",
+            "Name": "Manuel"
+        },
+        "FuelType": {
+            "Id": "1",
+            "Name": "Dizel",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 3,
+        "MinDriverAge": 23,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 3,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-18-1",
+        "SIPP": "FDAD",
+        "ModelName": "Fiat Egea ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/fiat_egea-pandora-rent-a-car-1597424780.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-fiat_egea-pandora-rent-a-car-1597424780.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "41.68",
+        "NetTotalRentAmount": "83.36",
+        "DailyRentAmount": "41.68",
+        "TotalRentAmount": "83.36",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "83.36",
+        "TotalAmount": "83.36",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "1",
+            "Name": "Otomatik"
+        },
+        "FuelType": {
+            "Id": "1",
+            "Name": "Dizel",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 3,
+        "MinDriverAge": 23,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 3,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    },
+    {
+        "Id": "a1-16-1",
+        "SIPP": "FDAR",
+        "ModelName": "Renault Taliant ya da benzeri",
+        "ModelImageURL": "https://www.pandorarentacar.com/uploaded/brands/taliantt-1687173260.png",
+        "ModelThumbImageURL": "https://www.pandorarentacar.com/uploaded/brands/thumb-taliantt-1687173260.png",
+        "Supplier": {
+            "Id": "a1-1",
+            "Name": "Pandora Car Hire Izmir - TR",
+            "Logo": "https://www.pandorarentacar.com/uploaded/suppliers/698e16215fd587.77327869_fohqklgeipjmn.png",
+            "Phone": "00908507751415",
+            "Address": "Dokuz Eylül Mahallesi 695 Sokak No:36/D Gaziemir - Izmir",
+            "SpecialInstructions": ""
+        },
+        "Currency": "EUR",
+        "DaysForPayment": 2,
+        "NetDailyRentAmount": "33.42",
+        "NetTotalRentAmount": "66.84",
+        "DailyRentAmount": "33.42",
+        "TotalRentAmount": "66.84",
+        "CdwExcess": "600 EUR",
+        "Deposit": "0 EUR",
+        "DropOffFee": {
+            "Id": "a1-1",
+            "Name": "Tek Yön Ücreti",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "ServiceFee": {
+            "Id": "a1-2",
+            "Name": "Hizmet Bedeli",
+            "Quantity": 1,
+            "NetAmount": "0.00",
+            "AmountTotal": "0.00"
+        },
+        "OtherFees": [],
+        "IncludedServices": [],
+        "Extras": [
+            {
+                "Id": "a1-3",
+                "Name": "Navigasyon",
+                "Description": "Navigasyon",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/gps-1597937905.png",
+                "Currency": "EUR",
+                "NetAmount": "24.00",
+                "TotalAmount": "24.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Bebek / Çocuk Koltuğu",
+                "Description": "Bebek / Çocuk Koltuğu",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/bebek-koltugu-1597937821.png",
+                "Currency": "EUR",
+                "NetAmount": "18.00",
+                "TotalAmount": "18.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-4",
+                "Name": "Kar Zinciri",
+                "Description": "Kar Zinciri",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kar-zinciri-1597937981.png",
+                "Currency": "EUR",
+                "NetAmount": "14.00",
+                "TotalAmount": "14.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-5",
+                "Name": "Kış Lastiği",
+                "Description": "Kış Lastiği",
+                "MaxQuantity": null,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kis-lastik-1597938047.png",
+                "Currency": "EUR",
+                "NetAmount": "20.00",
+                "TotalAmount": "20.00",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 1,
+                    "Name": "Standart Özellik / Eklenti"
+                }
+            },
+            {
+                "Id": "a1-1",
+                "Name": "Full Kasko - EKO",
+                "Description": "Full Kasko - EKO",
+                "MaxQuantity": 1,
+                "ImgSrc": "https://www.pandorarentacar.com/uploaded/vhcl_extras/kasko-icon-1604444447.png",
+                "Currency": "EUR",
+                "NetAmount": "10.92",
+                "TotalAmount": "10.92",
+                "PaymentType": "Now",
+                "Mandatory": false,
+                "ExcessAmount": null,
+                "Group": {
+                    "Id": 2,
+                    "Name": "Lastik, Cam, Far Kaskosu"
+                }
+            }
+        ],
+        "IncludedExtras": [],
+        "TotalOtherFeesToPayNow": "0.00",
+        "TotalOtherFeesToPayLocally": "0.00",
+        "NetTotalAmount": "66.84",
+        "TotalAmount": "66.84",
+        "TotalLocalPayment": "0.00",
+        "CarTransmissionType": {
+            "Id": "1",
+            "Name": "Otomatik"
+        },
+        "FuelType": {
+            "Id": "2",
+            "Name": "Benzin",
+            "FuelPolicy": ""
+        },
+        "MinLicenseAge": 3,
+        "MinDriverAge": 23,
+        "MaxDriverAge": null,
+        "SmallBagsCapacity": 3,
+        "BigBagsCapacity": 2,
+        "PassengerCapacity": 5,
+        "AirConditioning": true,
+        "DoorCount": "5",
+        "BuiltInGps": null,
+        "UnlimitedMileage": true,
+        "MileagePolicy": {
+            "MileageIncluded": null,
+            "DistanceUnit": null,
+            "ExcessMileageRate": null
+        }
+    }
+]

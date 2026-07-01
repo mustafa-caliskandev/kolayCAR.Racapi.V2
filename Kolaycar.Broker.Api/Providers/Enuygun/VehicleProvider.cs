@@ -86,7 +86,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
                     if (mappedVehicle == null)
                         continue;
 
-                    var adress = $"{vehicle.company.name} | pickUpOffice ~ {vehicle.pickUpOffice?.address} - {vehicle.pickUpOffice?.phoneNumber} | dropOffice ~ {vehicle.dropOffOffice?.address} - {vehicle.dropOffOffice?.phoneNumber}";
+                    var adress = $"{vehicle.company.name} | pickUpOffice ~ {vehicle.pickUpOffice?.address} ~ {vehicle.pickUpOffice?.phoneNumber} | dropOffice ~ {vehicle.dropOffOffice?.address} ~ {vehicle.dropOffOffice?.phoneNumber}";
 
                     var reservationToken = new ReservationToken
                     {

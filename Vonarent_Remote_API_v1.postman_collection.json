@@ -1,0 +1,576 @@
+{
+  "info": {
+    "_postman_id": "8b3d3c92-8f0d-4c87-a75c-0a7f9f9b9d01",
+    "name": "Vonarent Remote API v1.0",
+    "description": "Postman collection generated from Vonarent Remote API v1.0 documentation. Set baseUrl, apiKey and secretKey before running. The collection pre-request script creates x-api-key, x-timestamp and x-signature headers using METHOD|path|timestamp|queryString|bodyString. Non-auth requests also receive Authorization: Bearer {{bearerToken}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const apiKey = pm.variables.get('apiKey') || '';",
+          "const secretKey = pm.variables.get('secretKey') || '';",
+          "const bearerToken = pm.variables.get('bearerToken') || '';",
+          "const timestamp = Date.now().toString();",
+          "const method = pm.request.method.toUpperCase();",
+          "",
+          "function resolve(value) {",
+          "  return pm.variables.replaceIn(value == null ? '' : String(value));",
+          "}",
+          "",
+          "const pathParts = (pm.request.url.path || []).map(resolve).filter(Boolean);",
+          "const path = '/' + pathParts.join('/');",
+          "",
+          "const queryString = pm.request.url.query.all()",
+          "  .filter(q => !q.disabled)",
+          "  .map(q => ({ key: resolve(q.key), value: resolve(q.value) }))",
+          "  .filter(q => q.key && q.value !== '')",
+          "  .sort((a, b) => a.key.localeCompare(b.key))",
+          "  .map(q => `${q.key}=${q.value}`)",
+          "  .join('&');",
+          "",
+          "let bodyString = '';",
+          "if (pm.request.body && pm.request.body.mode === 'raw') {",
+          "  const rawBody = resolve(pm.request.body.raw || '').trim();",
+          "  if (rawBody) {",
+          "    try {",
+          "      bodyString = JSON.stringify(JSON.parse(rawBody));",
+          "      pm.request.body.update(bodyString);",
+          "    } catch (error) {",
+          "      bodyString = rawBody;",
+          "    }",
+          "  }",
+          "}",
+          "",
+          "const message = `${method}|${path}|${timestamp}|${queryString}|${bodyString}`;",
+          "const signature = CryptoJS.HmacSHA256(message, secretKey).toString(CryptoJS.enc.Hex).toLowerCase();",
+          "",
+          "pm.request.headers.upsert({ key: 'x-api-key', value: apiKey });",
+          "pm.request.headers.upsert({ key: 'x-timestamp', value: timestamp });",
+          "pm.request.headers.upsert({ key: 'x-signature', value: signature });",
+          "",
+          "if (path.includes('/api/remote/v1/auth/')) {",
+          "  pm.request.headers.remove('Authorization');",
+          "} else if (bearerToken) {",
+          "  pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${bearerToken}` });",
+          "}",
+          "",
+          "pm.collectionVariables.set('lastSignatureMessage', message);"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "1. Authenticate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('Vonarent status is 1', function () {",
+                  "  pm.expect(json.status).to.eql(1);",
+                  "});",
+                  "",
+                  "if (json.token) pm.collectionVariables.set('bearerToken', json.token);",
+                  "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/auth/authenticate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "auth",
+                "authenticate"
+              ]
+            },
+            "description": "Gets JWT access token and refresh token. This request is signed but does not send Authorization."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('bearerToken', json.token);",
+                  "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{bearerToken}}\",\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Refreshes an expired JWT token. This is an auth endpoint, so Authorization is not added by the collection script."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reservation Flow",
+      "item": [
+        {
+          "name": "3. Get Stations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.items && json.items.length) {",
+                  "  pm.collectionVariables.set('pickupStation', json.items[0].id);",
+                  "  pm.collectionVariables.set('returnStation', json.items[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/location/stations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "location",
+                "stations"
+              ]
+            },
+            "description": "Returns active stations. The first station id is saved into pickupStation and returnStation for quick testing."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Select Station",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupStation\": \"{{pickupStation}}\",\n  \"pickupDate\": \"{{pickupDate}}\",\n  \"returnStation\": \"{{returnStation}}\",\n  \"returnDate\": \"{{returnDate}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/location/select-station",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "location",
+                "select-station"
+              ]
+            },
+            "description": "Selects pickup/return stations and rental dates. Dates must be formatted as YYYY-MM-DD HH:mm:ss."
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get Vehicles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.items && json.items.length) {",
+                  "  pm.collectionVariables.set('vehicleId', json.items[0].id);",
+                  "  pm.collectionVariables.set('currency', json.items[0].currency || pm.collectionVariables.get('currency') || 'TRY');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/vehicle/vehicles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "vehicle",
+                "vehicles"
+              ]
+            },
+            "description": "Returns vehicles for the previously selected station/date context. The first vehicle id and currency are saved for quick testing."
+          },
+          "response": []
+        },
+        {
+          "name": "6. Select Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{vehicleId}}\",\n  \"currency\": \"{{currency}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/vehicle/select-vehicle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "vehicle",
+                "select-vehicle"
+              ]
+            },
+            "description": "Selects the vehicle to use for the reservation."
+          },
+          "response": []
+        },
+        {
+          "name": "7. Get Extras",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.items && json.items.length) {",
+                  "  pm.collectionVariables.set('extraId', json.items[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/extra/extras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "extra",
+                "extras"
+              ]
+            },
+            "description": "Returns available extras after vehicle selection. The first extra id is saved for quick testing."
+          },
+          "response": []
+        },
+        {
+          "name": "8. Select Extras",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"extras\": [\n    {\n      \"id\": \"{{extraId}}\",\n      \"quantity\": {{extraQuantity}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/extra/select-extras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "extra",
+                "select-extras"
+              ]
+            },
+            "description": "Selects extras. To send no extras, change the body to {\"extras\":[]}."
+          },
+          "response": []
+        },
+        {
+          "name": "9. Set Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"{{customerFirstName}}\",\n  \"lastName\": \"{{customerLastName}}\",\n  \"mobile\": \"{{customerMobile}}\",\n  \"email\": \"{{customerEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/reservation/set-customer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "reservation",
+                "set-customer"
+              ]
+            },
+            "description": "Sends customer information for the reservation."
+          },
+          "response": []
+        },
+        {
+          "name": "10. Complete Reservation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/reservation/complete-reservation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "reservation",
+                "complete-reservation"
+              ]
+            },
+            "description": "Completes the reservation after all previous steps have succeeded."
+          },
+          "response": []
+        },
+        {
+          "name": "11. Get Reservation Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/remote/v1/reservation/get-reservation-data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "remote",
+                "v1",
+                "reservation",
+                "get-reservation-data"
+              ]
+            },
+            "description": "Optional status/debug endpoint that returns the reservation data collected so far."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://your-vonarent-host.com",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "secretKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bearerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pickupStation",
+      "value": "IST_001",
+      "type": "string"
+    },
+    {
+      "key": "returnStation",
+      "value": "IST_001",
+      "type": "string"
+    },
+    {
+      "key": "pickupDate",
+      "value": "2026-06-01 10:00:00",
+      "type": "string"
+    },
+    {
+      "key": "returnDate",
+      "value": "2026-06-03 10:00:00",
+      "type": "string"
+    },
+    {
+      "key": "vehicleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "currency",
+      "value": "TRY",
+      "type": "string"
+    },
+    {
+      "key": "extraId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "extraQuantity",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "customerFirstName",
+      "value": "Test",
+      "type": "string"
+    },
+    {
+      "key": "customerLastName",
+      "value": "Customer",
+      "type": "string"
+    },
+    {
+      "key": "customerMobile",
+      "value": "+905551112233",
+      "type": "string"
+    },
+    {
+      "key": "customerEmail",
+      "value": "test@example.com",
+      "type": "string"
+    },
+    {
+      "key": "lastSignatureMessage",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

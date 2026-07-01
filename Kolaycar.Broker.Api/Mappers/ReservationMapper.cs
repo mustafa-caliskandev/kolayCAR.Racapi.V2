@@ -171,7 +171,8 @@ namespace KolayCAR.Broker.API.Mappers
                 InstallmentCommissionAmount = reservation.InstallmentCommissionAmount.ToDecimalNullSafe(),
                 //SurveyComment = reservation.SurveyComment,
                 //DetailPageContentUrl = reservation.DetailPageContentUrl
-                IsFullCredit = reservation.IsFullCredit.ToBoolNullSafe(),
+                CreditType = (CreditType)(reservation.CreditType ?? 0),
+                IsFullCredit = reservation.CreditType == (short)CreditType.FullCredit,
                 CouponName = reservation.CouponName.ToStringNullSafe(),
                 PremiumExtraAmount = reservation.PremiumExtraAmount.ToDecimalNullSafe(),
                 PaymentCode = reservation.PaymentCode.ToStringNullSafe(),
@@ -343,7 +344,8 @@ namespace KolayCAR.Broker.API.Mappers
                 InstallmentCommissionAmount = reservation.InstallmentCommissionAmount.ToDecimalNullSafe(),
                 //SurveyComment = reservation.SurveyComment,
                 //DetailPageContentUrl = reservation.DetailPageContentUrl
-                IsFullCredit = reservation.IsFullCredit.ToBoolNullSafe(),
+                CreditType = (CreditType)(reservation.CreditType ?? 0),
+                IsFullCredit = reservation.CreditType == (short)CreditType.FullCredit,
                 CouponName = reservation.CouponName.ToStringNullSafe(),
                 PremiumExtraAmount = reservation.PremiumExtraAmount.ToDecimalNullSafe(),
                 PaymentCode = reservation.PaymentCode.ToStringNullSafe(),
@@ -514,6 +516,7 @@ namespace KolayCAR.Broker.API.Mappers
                CreditCardNumber = reservation.CreditCardNumber,
                InstallmentCommissionAmount = reservation.InstallmentCommissionAmount,
                DetailPageContentUrl = reservation.DetailPageContentUrl,
+               CreditType = reservation.CreditType,
                IsFullCredit = reservation.IsFullCredit,
                CouponName = reservation.CouponName,
                PremiumExtraAmount = reservation.PremiumExtraAmount,
@@ -697,7 +700,13 @@ namespace KolayCAR.Broker.API.Mappers
                 Advancedpaymentwithoutpayment = reservation.AdvancedPaymentWithoutPayment,
                 Penaltyamount = reservation.CancellationPenaltyAmount.ToDecimalNullAvailable(),
                 FriendlyReservationNumber = reservation.FriendlyReservationNumber.ToStringNullSafe(),
-                IsFullCredit = reservation.IsFullCredit.ToBoolNullSafe(),
+                CreditType = (short)(reservation.CreditType != CreditType.Non
+                    ? reservation.CreditType
+                    : reservation.ReservationToken != null && reservation.ReservationToken.CreditType != CreditType.Non
+                        ? reservation.ReservationToken.CreditType
+                        : reservation.IsFullCredit
+                            ? CreditType.FullCredit
+                            : CreditType.Non),
                 ExternalCreditCardInfo = reservation.ExternalCreditCardInfo,
                 PickupOfficeWorkingHours = reservation.PickupOfficeWorkingHours,
                 ReturnOfficeWorkingHours = reservation.ReturnOfficeWorkingHours,
@@ -781,6 +790,7 @@ namespace KolayCAR.Broker.API.Mappers
                 PaidAmountAfterUsingCouponCode = postReservationRequestV2.Pricing.PaidAmountAfterUsingCouponCode.ToFloatNullSafe(),
                 HighAmountDiscountActive = postReservationRequestV2.HighAmountDiscountActive,
                 FullCredit = postReservationRequestV2.FullCredit,
+                CreditType = postReservationRequestV2.CreditType,
                 Bank = postReservationRequestV2.Payment.Bank,
                 BankAccountCode = postReservationRequestV2.Payment.BankAccountCode,
                 BankAccountingCode = postReservationRequestV2.Payment.BankAccountingCode,

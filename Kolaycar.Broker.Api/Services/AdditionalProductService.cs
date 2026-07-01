@@ -86,7 +86,6 @@ public class AdditionalProductService : IAdditionalProductService
                         Icon = extra.Iconpath,
                         CurrencyCode = currency?.Currencyisocode,
                         VendorId = token.VendorId,
-                        VendorName = token.APIVendorName,
                         ShowDayCountStart = extra.Showdaycountstart,
                         ShowDayCountEnd = extra.Showdaycountend,
                         Sequence = extra.Sequence ?? 1,

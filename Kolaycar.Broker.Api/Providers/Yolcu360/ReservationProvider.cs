@@ -329,8 +329,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
                         }
                     },
                     orderedProducts = extraList,
-                    isFullCredit = postReservationRequest.PostReservationRequestV2.FullCredit.ToBoolNullSafe()
-                    //isFullCredit = reservationToken.APIFullCredit.ToBoolNullSafe()
+                    isFullCredit = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit
                 };
 
                 return requestBodyV2;
@@ -402,8 +401,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
                         extraRangeAmount = 1
                     }
                 }).ToList() : new List<Yolcu360RequestBase.ReservationRequestBody.OrderedProduct>(),
-                isFullCredit = postReservationRequest.FullCredit.ToBoolNullSafe()
-                //isFullCredit = reservationToken.APIFullCredit.ToBoolNullSafe()
+                isFullCredit = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit
             };
 
             return requestBody;

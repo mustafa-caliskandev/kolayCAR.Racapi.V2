@@ -261,7 +261,10 @@ namespace KolayCAR.Broker.API.Providers.GreenMotion
                 userid = string.Empty,
                 username = string.Empty,
                 type = "GetVehicles",
-                full_credit = additionalInformation.Vendor.CreditType == CreditType.FullCredit ? "Yes" : ""
+                full_credit = additionalInformation.Vendor.CreditType == CreditType.FullCredit
+                    && additionalInformation.Agency.CreditType == CreditType.FullCredit
+                        ? "Yes"
+                        : ""
             };
 
             var body = GreenMotionHelper.RequestHelper.GetGreenMotionRequestObject(additionalInformation.Vendor, getVehiclesPayload);

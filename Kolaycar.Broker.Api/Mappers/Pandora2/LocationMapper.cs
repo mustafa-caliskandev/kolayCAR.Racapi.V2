@@ -16,6 +16,7 @@ namespace KolayCAR.Broker.API.Mappers.Pandora2
                 CountryCode = location.CountryCode,
                 IataCode = location.Code,
                 IsPickup = true,
+                IsAirport = !string.IsNullOrWhiteSpace(location.Code),
                 IsOffice = true
             }
             : null;

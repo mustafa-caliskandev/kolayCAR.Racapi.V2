@@ -138,7 +138,7 @@ namespace KolayCAR.Broker.API.Providers.ZiraatFilo
                 { "Currency", ZFHelper.CurrencyHelper.GetZiraatFiloCurrencyType(reservationToken.BaseVendorRequestCurrencyType)},
             };
 
-            if ((bool)postReservationRequest.FullCredit)
+            if (CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit)
                 parameters.Add("Full_Credit", "True");
 
             var selectedExtraCodes = postReservationRequest.PostReservationRequestV2 == null ? ReservationHelper.GetSelectedExtaCodes(postReservationRequest.ExtraList)

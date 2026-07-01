@@ -12,5 +12,6 @@
         public bool? UnlimitedKM { get; set; }
         public bool? FlightCardMandatory { get; set; }
         public bool? PassportNumberRequired { get; set; }
+        public short? CreditType { get; set; }
     }
 }

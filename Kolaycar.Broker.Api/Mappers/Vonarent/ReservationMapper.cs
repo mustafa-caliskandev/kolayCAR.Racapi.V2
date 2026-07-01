@@ -49,13 +49,85 @@ namespace KolayCAR.Broker.API.Mappers.Vonarent
                 LastName = customer?.Surname.ToStringNullSafe().TrimNullSafe().Length > 0
                     ? customer.Surname.TrimNullSafe()
                     : postReservationRequest?.CustomerSurname.TrimNullSafe(),
-                Mobile = customer?.PhoneNumber.ToStringNullSafe().TrimNullSafe().Length > 0
-                    ? customer.PhoneNumber.TrimNullSafe()
-                    : postReservationRequest?.CustomerTelephone.TrimNullSafe(),
+                Mobile = CreateMobile(
+                    customer?.PhoneNumber.ToStringNullSafe().TrimNullSafe().Length > 0
+                        ? customer.PhoneNumber.TrimNullSafe()
+                        : postReservationRequest?.CustomerTelephone.TrimNullSafe(),
+                    postReservationRequest?.PostReservationRequestV2?.CountryCode.ToStringNullSafe().TrimNullSafe().Length > 0
+                        ? postReservationRequest.PostReservationRequestV2.CountryCode.TrimNullSafe()
+                        : postReservationRequest?.CountryCode.TrimNullSafe()),
                 Email = customer?.Email.ToStringNullSafe().TrimNullSafe().Length > 0
                     ? customer.Email.TrimNullSafe()
                     : postReservationRequest?.CustomerEmail.TrimNullSafe()
             };
+        }
+
+        private static VonarentMobile CreateMobile(string phoneNumber, string countryCode)
+        {
+            var code = NormalizeDigits(countryCode);
+            var number = NormalizePhoneNumber(phoneNumber);
+
+            if (code.StartsWith("00"))
+                code = code.Substring(2);
+
+            if (number.StartsWith("00"))
+                number = number.Substring(2);
+
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                number = RemoveCountryCode(number, code);
+                return new VonarentMobile
+                {
+                    code = code,
+                    number = RemoveDomesticPrefix(number)
+                };
+            }
+
+            if (number.StartsWith("90") && number.Length > 10)
+            {
+                return new VonarentMobile
+                {
+                    code = "90",
+                    number = RemoveDomesticPrefix(number.Substring(2))
+                };
+            }
+
+            if (phoneNumber.ToStringNullSafe().TrimNullSafe().StartsWith("+") && number.Length > 10)
+            {
+                return new VonarentMobile
+                {
+                    code = number.Substring(0, number.Length - 10),
+                    number = RemoveDomesticPrefix(number.Substring(number.Length - 10))
+                };
+            }
+
+            return new VonarentMobile
+            {
+                code = "90",
+                number = RemoveDomesticPrefix(number)
+            };
+        }
+
+        private static string NormalizePhoneNumber(string value)
+            => NormalizeDigits(value);
+
+        private static string NormalizeDigits(string value)
+            => new string(value.ToStringNullSafe().Where(char.IsDigit).ToArray());
+
+        private static string RemoveCountryCode(string number, string code)
+        {
+            if (!string.IsNullOrWhiteSpace(code) && number.StartsWith(code) && number.Length > code.Length)
+                return number.Substring(code.Length);
+
+            return number;
+        }
+
+        private static string RemoveDomesticPrefix(string number)
+        {
+            if (number.StartsWith("0") && number.Length > 10)
+                return number.Substring(1);
+
+            return number;
         }
 
         private static List<VonarentSelectedExtraItem> GetSelectedExtras(PostReservationRequest postReservationRequest, Reservation localReservation, List<Extra> apiExtras)

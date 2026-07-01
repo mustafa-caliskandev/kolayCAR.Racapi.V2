@@ -180,7 +180,7 @@ namespace KolayCAR.Broker.API.Providers.GreenMotion
 
             var postReservationPayload = new GreenMotionRequestBase.GreenMotionPostReservationRequest
             {
-                full_credit = additionalInformation.Vendor.CreditType == CreditType.FullCredit ? "Yes" : "",
+                full_credit = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit ? "Yes" : "",
                 location_id = additionalInformation.APIPickupLocationCode.ToIntNullSafe(),
                 dropoff_location_id = additionalInformation.APIReturnLocationCode.ToIntNullSafe(),
                 start_date = additionalInformation.PickupDateTime.ToString("yyyy-MM-dd"),

@@ -323,6 +323,13 @@ namespace KolayCAR.Broker.API.Helpers
             postReservationRequest.PickupTime = reservationToken.PickupDateTime.ToString("HH:mm");
             postReservationRequest.ReturnTime = reservationToken.ReturnDateTime.ToString("HH:mm");
             postReservationRequest.VehicleName = reservationToken.VehicleName;
+            var tokenCreditType = CreditHelper.ResolveTokenCreditType(reservationToken);
+            postReservationRequest.CreditType = postReservationRequest.FullCredit == true
+                ? CreditType.FullCredit
+                : tokenCreditType == CreditType.LimitedCredit
+                    ? CreditType.LimitedCredit
+                    : CreditType.Non;
+            postReservationRequest.FullCredit = postReservationRequest.CreditType == CreditType.FullCredit;
             postReservationRequest.ExtraPricePayToDelivery =
                 postReservationRequest.PaymentType == PaymentTypes.PayToAgency ||
                 postReservationRequest.PaymentType == PaymentTypes.PayAll ||
@@ -347,6 +354,13 @@ namespace KolayCAR.Broker.API.Helpers
             postReservationRequest.PickupTime = reservationToken.PickupDateTime.ToString("HH:mm");
             postReservationRequest.ReturnTime = reservationToken.ReturnDateTime.ToString("HH:mm");
             postReservationRequest.VehicleName = reservationToken.VehicleName;
+            var tokenCreditType = CreditHelper.ResolveTokenCreditType(reservationToken);
+            postReservationRequest.CreditType = postReservationRequest.FullCredit == true
+                ? CreditType.FullCredit
+                : tokenCreditType == CreditType.LimitedCredit
+                    ? CreditType.LimitedCredit
+                    : CreditType.Non;
+            postReservationRequest.FullCredit = postReservationRequest.CreditType == CreditType.FullCredit;
             postReservationRequest.Payment.ExtraPricePayToDelivery =
                 postReservationRequest.Payment.PaymentType == PaymentTypes.PayToAgency ||
                 postReservationRequest.Payment.PaymentType == PaymentTypes.PayAll ||
@@ -418,6 +432,8 @@ namespace KolayCAR.Broker.API.Helpers
         {
             if (string.IsNullOrEmpty(postReservationRequest.ReservationToken.TrimNullSafe()))
                 return "Invalid parameters!(empty reservationToken)";
+            else if (!postReservationRequest.FullCredit.HasValue)
+                return "FullCredit field is required!";
             else if (string.IsNullOrEmpty(postReservationRequest.CustomerName.TrimNullSafe()))
                 return "CustomerName field is required!";
             else if (string.IsNullOrEmpty(postReservationRequest.CustomerSurname.TrimNullSafe()))
@@ -452,6 +468,9 @@ namespace KolayCAR.Broker.API.Helpers
 
             else if (string.IsNullOrEmpty(postReservationRequest.ReservationToken.TrimNullSafe()))
                 return "ReservationToken is required.";
+
+            else if (!postReservationRequest.FullCredit.HasValue)
+                return "FullCredit is required.";
 
             else if (string.IsNullOrEmpty(postReservationRequest.Customer.Name.TrimNullSafe()))
                 return "Customer.Name is required.";
@@ -645,10 +664,9 @@ namespace KolayCAR.Broker.API.Helpers
             return (commissionPrice + (price - price * 100 / (100 + agencyRentalProfitMarkup))) * 100 / price;
         }
 
-        public static bool CheckFullCreditPermission(CommonModels.Agency agency, bool vehicleFullCredit)
+        public static bool CheckCreditPermission(CommonModels.Agency agency, CreditType vehicleCreditType)
         {
-            //return agency.FullCreditPermission.ToBoolNullSafe() && vehicle.FullCredit.ToBoolNullSafe();
-            return agency.FullCreditPermission.ToBoolNullSafe() && vehicleFullCredit;
+            return CreditHelper.AgencyAllowsCreditType(agency, vehicleCreditType);
         }
 
     }

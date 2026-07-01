@@ -70,7 +70,7 @@ namespace KolayCAR.Broker.API.Mappers.Yolcu360
                 TransmissionType = GetYolcu360TransmissionType(vehicle.car.transmission),
                 //TransmissionTypeName = vehicle.car.transmission,
                 TransmissionTypeName = "Manuel",
-                DepositPrice = (vehicle.vendor.supportsFullCredit.ToBoolNullSafe() && agency.FullCreditPermission ) ? 0 : vehicle.pricing.provision.ToFloatNullSafe() / 100,
+                DepositPrice = (vendor.CreditType == CreditType.FullCredit && agency.CreditType == CreditType.FullCredit && vehicle.vendor.supportsFullCredit.ToBoolNullSafe()) ? 0 : vehicle.pricing.provision.ToFloatNullSafe() / 100,
                 VendorMinimumDriverAge = vehicle.rules.driverAge,
                 VendorMinimumDrivingLicenseAge = vehicle.rules.licenseYears,
                 DailyPrice = dailyPrice.ToFloatNullSafe(),
@@ -113,7 +113,14 @@ namespace KolayCAR.Broker.API.Mappers.Yolcu360
                 ReturnLocationName = additionalInformation.ReturnLocationName,
                 PickupDateTime = additionalInformation.PickupDateTime,
                 ReturnDateTime = additionalInformation.ReturnDateTime,
-                FullCredit = (vendor.CreditType == CreditType.FullCredit && vehicle.vendor.supportsFullCredit.ToBoolNullSafe()) ? true : false,
+                CreditType = vendor.CreditType == CreditType.FullCredit
+                    && agency.CreditType == CreditType.FullCredit
+                    && vehicle.vendor.supportsFullCredit.ToBoolNullSafe()
+                        ? CreditType.FullCredit
+                        : CreditType.Non,
+                FullCredit = vendor.CreditType == CreditType.FullCredit
+                    && agency.CreditType == CreditType.FullCredit
+                    && vehicle.vendor.supportsFullCredit.ToBoolNullSafe(),
                 VendorType = VendorTypes.Yolcu360,
                 DeliveryType = GetYolcu360DeliveryType(vehicle.office.deliveryType),
                 IsOffice = GetYolcu360DeliveryType(vehicle.office.deliveryType) == DeliveryType.FromOffice,

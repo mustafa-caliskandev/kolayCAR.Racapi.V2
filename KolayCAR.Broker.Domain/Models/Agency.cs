@@ -71,7 +71,7 @@ namespace KolayCAR.Broker.Domain.Models
         public float AgencyRentalProfitMarkup { get; set; }
         public bool CancellationPenaltyActive { get; set; }
         public bool SpecialParameters { get; set; }
-        public bool FullCreditPermission { get; set; }
+        public CreditType CreditType { get; set; }
         public bool? IsActiveSendCheapestCar { get; set; }
     }
 

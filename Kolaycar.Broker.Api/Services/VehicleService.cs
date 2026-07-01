@@ -313,6 +313,8 @@ namespace KolayCAR.Broker.API.Services
 
                     foreach (var vehicle in apiVehiclesData)
                     {
+                        CreditHelper.ApplyEffectiveCreditType(vendor, agency, vehicle);
+
                         var guid = Guid.NewGuid().ToString();
                         resTokenList.Add(new Restoken
                         {
@@ -327,7 +329,7 @@ namespace KolayCAR.Broker.API.Services
                         vehicle.RentalConditions = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? rentalConditionsData : vehicle.RentalConditions;
                         vehicle.IsOffice = (vendor.VendorType == VendorTypes.Yolcu360 || vendor.VendorType == VendorTypes.Yolcu360v2) ? vehicle.IsOffice : vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? vendorLocation.Isoffice ?? false : vehicle.IsOffice;
                         vehicle.IsAirport = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? pickupLocation.Airport ?? false : vehicle.IsAirport;
-                        vehicle.VendorLogo = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? vendor.VendorType != VendorTypes.Yolcu360 ? $"{configurations.PortalOwnerDomain}{vehicle.VendorLogo}" : vehicle.VendorLogo : vehicle.VendorLogo;
+                        vehicle.VendorLogo = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? (vendor.VendorType != VendorTypes.Yolcu360 && vendor.VendorType != VendorTypes.EnUygun) ? $"{configurations.PortalOwnerDomain}{vehicle.VendorLogo}" : vehicle.VendorLogo : vehicle.VendorLogo;
                         vehicle.CurrencyCode = getVehicleRequest.CurrencyCode;
                         VehicleHelper.SetVehiclePropertyBySIPPCode(vehicle);
                         _agencyService.SetVehiclePaymentOptions(vehicle, agency);
@@ -362,9 +364,6 @@ namespace KolayCAR.Broker.API.Services
                                 x,
                                 languageType)).ToList();
                     }
-
-                    if (!agency.FullCreditPermission)
-                        apiVehiclesData.ForEach(e => e.FullCredit = false);
 
                     if (!vendor.UseBrokerConfigurations)
                     {
@@ -460,55 +459,55 @@ namespace KolayCAR.Broker.API.Services
                 if (agency == null)
                     return new(null, false, await _configurationService.GetLabel(2282, languageType));
 
-                if (agency.UserRole != UserRoles.Agency)
+                //if (agency.UserRole != UserRoles.Agency)
+                //{
+                var vendors = await _agencyService.GetVendorsByAgencyAndLocationId(agencyId, getVehicleRequest.PickupLocationId);
+                var vehicleTasks = vendors.Select(vendor =>
                 {
-                    var vendors = await _agencyService.GetVendorsByAgencyAndLocationId(agencyId, getVehicleRequest.PickupLocationId);
-                    var vehicleTasks = vendors.Select(vendor =>
+                    var request = new GetVehiclesRequest
                     {
-                        var request = new GetVehiclesRequest
-                        {
-                            VendorType = (VendorTypes)vendor.VendorType,
-                            ApiKey = vendor.ApiKey,
-                            ApiPassword = vendor.ApiPassword,
-                            ApiClientId = vendor.ApiClientId,
-                            //ApiLocationCode = vendor.VendorLocationCode,
-                            LanguageCode = getVehicleRequest.LanguageCode,
-                            CurrencyCode = getVehicleRequest.CurrencyCode,
-                            PickupLocationId = getVehicleRequest.PickupLocationId,
-                            ReturnLocationId = getVehicleRequest.ReturnLocationId,
-                            PickupDate = getVehicleRequest.PickupDate,
-                            ReturnDate = getVehicleRequest.ReturnDate,
-                            PickupTime = getVehicleRequest.PickupTime,
-                            ReturnTime = getVehicleRequest.ReturnTime,
-                            CouponCode = getVehicleRequest.CouponCode,
-                            SessionCode = getVehicleRequest.SessionCode
-                        };
-                        return ExecuteWithTimeout(request);
-                    });
+                        VendorType = (VendorTypes)vendor.VendorType,
+                        ApiKey = vendor.ApiKey,
+                        ApiPassword = vendor.ApiPassword,
+                        ApiClientId = vendor.ApiClientId,
+                        //ApiLocationCode = vendor.VendorLocationCode,
+                        LanguageCode = getVehicleRequest.LanguageCode,
+                        CurrencyCode = getVehicleRequest.CurrencyCode,
+                        PickupLocationId = getVehicleRequest.PickupLocationId,
+                        ReturnLocationId = getVehicleRequest.ReturnLocationId,
+                        PickupDate = getVehicleRequest.PickupDate,
+                        ReturnDate = getVehicleRequest.ReturnDate,
+                        PickupTime = getVehicleRequest.PickupTime,
+                        ReturnTime = getVehicleRequest.ReturnTime,
+                        CouponCode = getVehicleRequest.CouponCode,
+                        SessionCode = getVehicleRequest.SessionCode
+                    };
+                    return ExecuteWithTimeout(request);
+                });
 
-                    var results = await Task.WhenAll(vehicleTasks);
-                    var allVehicles = results.Where(r => r != null).SelectMany(r => r).ToList();
-                    vehicles.AddRange(allVehicles);
+                var results = await Task.WhenAll(vehicleTasks);
+                var allVehicles = results.Where(r => r != null).SelectMany(r => r).ToList();
+                vehicles.AddRange(allVehicles);
 
-                    if (agency.IsActiveSendCheapestCar.ToBoolNullSafe())
-                    {
-                        var cheapestDuplicates = vehicles
-                            .GroupBy(v => v.VehicleId)
-                            .Where(g => g.Count() > 1)
-                            .Select(g => g.OrderBy(v => v.DailyPrice).First()).ToList();
+                if (agency.IsActiveSendCheapestCar.ToBoolNullSafe())
+                {
+                    var cheapestDuplicates = vehicles
+                        .GroupBy(v => v.VehicleId)
+                        .Where(g => g.Count() > 1)
+                        .Select(g => g.OrderBy(v => v.DailyPrice).First()).ToList();
 
-                        var duplicateIds = new HashSet<int>(cheapestDuplicates.Select(v => v.VehicleId));
+                    var duplicateIds = new HashSet<int>(cheapestDuplicates.Select(v => v.VehicleId));
 
-                        vehicles.RemoveAll(v => duplicateIds.Contains(v.VehicleId));
-                        vehicles.AddRange(cheapestDuplicates);
-                    }
+                    vehicles.RemoveAll(v => duplicateIds.Contains(v.VehicleId));
+                    vehicles.AddRange(cheapestDuplicates);
+                }
                     ;
-                    return new(vehicles, true);
-                }
-                else
-                {
-                    return new(null, false, await _configurationService.GetLabel(2272, languageType));
-                }
+                return new(vehicles, true);
+                //}
+                //else
+                //{
+                //    return new(null, false, await _configurationService.GetLabel(2272, languageType));
+                //}
             }
             catch (Exception ex)
             {

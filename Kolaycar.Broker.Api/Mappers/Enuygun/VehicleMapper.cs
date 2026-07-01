@@ -100,6 +100,8 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
                 ShortAddress = "Request Id = " + requestID + " Reservation ID = " + apiVehicle.referenceId,
                 RentalWorkingTypes = vendor.RentalWorkingType,
                 ProfitMarkupDailyPrice = vendor.ProfitMarkupDailyPrice,
+                PickupLocationAddress = apiVehicle.pickUpOffice?.address ?? "",
+                ReturnLocationAddress = apiVehicle.pickUpOffice?.address ?? ""
             };
             return vehicle;
         }

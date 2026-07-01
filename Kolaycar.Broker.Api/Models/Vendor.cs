@@ -52,7 +52,7 @@ namespace KolayCAR.Broker.API.Models
         public bool Documentrequiredshow { get; set; }
         public string Apidescription { get; set; }
         public bool? PRIORITYFEE { get; set; }
-        public int? CreditType { get; set; }
+        public short? CreditType { get; set; }
 
         public string BankName { get; set; }
         public string BankBranchCode { get; set; }

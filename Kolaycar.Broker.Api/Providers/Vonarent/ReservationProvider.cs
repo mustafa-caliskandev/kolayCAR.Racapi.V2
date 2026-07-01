@@ -1,3 +1,4 @@
+using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.API.Mappers.Vonarent;
 using KolayCAR.Broker.API.Services;
 using KolayCAR.Broker.Domain.Models;
@@ -20,6 +21,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
         private const string SelectExtrasPath = "/api/remote/v1/extra/select-extras";
         private const string SetCustomerPath = "/api/remote/v1/reservation/set-customer";
         private const string CompleteReservationPath = "/api/remote/v1/reservation/complete-reservation";
+        private const string CancelReservationPathPrefix = "/api/remote/v1/reservation-view/cancel-reservation";
 
         public ReservationProvider(string apiBaseUrl, IConfigurationService configurationService)
         {
@@ -36,26 +38,50 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             if (string.IsNullOrWhiteSpace(bearerToken))
                 return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} rezervasyon istegi icin bearer token bulunamadi.");
 
-            var httpManager = new HttpManager(_apiBaseUrl, timeout: vendor.APITimeout);
+            var httpManager = new HttpManager(_apiBaseUrl, DbConnectionHelper.Instance().ConnectionString, timeout: vendor.APITimeout);
             var authProvider = new AuthProvider(_apiBaseUrl, vendor.APITimeout);
 
             try
             {
                 var selectExtrasRequest = postReservationRequest.MapToSelectExtrasRequest(localReservation, apiExtras);
 
-                var selectExtrasResult = await PostStatusAsync(httpManager, authProvider, vendor, bearerToken, SelectExtrasPath, selectExtrasRequest, localReservation, "select-extras", "ekstra secim servisi basarisiz.");
+                if (selectExtrasRequest.Extras?.Count > 0)
+                {
+                    var selectExtrasResult = await PostStatusAsync(httpManager, authProvider, vendor, bearerToken, SelectExtrasPath, selectExtrasRequest, localReservation, "select-extras", "ekstra secim servisi basarisiz.");
 
-                if (!selectExtrasResult.Success)
-                    return selectExtrasResult;
+                    Serilog.Log.Error("{@VonarentExtrasResult}", selectExtrasResult.ToJson());
+
+                    if (!selectExtrasResult.Success)
+                        return selectExtrasResult;
+                }
 
                 var setCustomerRequest = postReservationRequest.MapToSetCustomerRequest();
 
                 var setCustomerResult = await PostStatusAsync(httpManager, authProvider, vendor, bearerToken, SetCustomerPath, setCustomerRequest, localReservation, "set-customer", "musteri bilgisi gonderme servisi basarisiz.");
 
+                Serilog.Log.Error("{@VonarentSetCustomer}", setCustomerResult.ToJson());
+
                 if (!setCustomerResult.Success)
                     return setCustomerResult;
 
-                var completeReservationResult = await GetStatusAsync(httpManager, authProvider, vendor, bearerToken, CompleteReservationPath, localReservation, "complete-reservation", "rezervasyon tamamlama servisi basarisiz.");
+                await WriteStepRequestLog(localReservation, "complete-reservation", new { });
+
+                var completeReservationHeaders = authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, CompleteReservationPath);
+                var completeReservationResponse = await httpManager.GetAsync2<VonarentStatusResponse>(
+                    requestPath: CompleteReservationPath,
+                    headers: completeReservationHeaders,
+                    brokerLogModel: new BrokerLogModel
+                    {
+                        LogKey = localReservation.ReservationNumber,
+                        LogType = BrokerLogTypes.ReservationVendorAPIResponse
+                    },
+                    isReservationRequest: true);
+
+                var completeReservationResult = completeReservationResponse?.Data?.status == 1
+                    ? new ServiceResponseBase(completeReservationResponse.Data, true)
+                    : CreateVendorErrorResponse(localReservation, vendor, completeReservationResponse, "rezervasyon tamamlama servisi basarisiz.");
+
+                Serilog.Log.Error("{@VonarentReservationResult}", completeReservationResult.ToJson());
 
                 localReservation.ReservationPostedToAPI = true;
                 if (!completeReservationResult.Success)
@@ -63,9 +89,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
 
                 localReservation.APIReservationSuccessfully = true;
                 localReservation.APIVendorName = vendor.VendorName;
-                localReservation.APIReservationNumber = !string.IsNullOrWhiteSpace(localReservation.APIReservationNumber)
-                    ? localReservation.APIReservationNumber
-                    : reservationNumber;
+                localReservation.APIReservationNumber = completeReservationResponse.Data.item;
 
                 return new ServiceResponseBase(localReservation, true);
             }
@@ -77,7 +101,51 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
         }
 
         public async Task<ServiceResponseBase> PostCancelReservation(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Reservation localReservation)
-            => new ServiceResponseBase(localReservation, false, "Vonarent rezervasyon iptal entegrasyonu henuz tamamlanmadi.");
+        {
+            var reservationNo = localReservation?.APIReservationNumber.ToStringNullSafe().TrimNullSafe();
+
+            if (string.IsNullOrWhiteSpace(reservationNo))
+                return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} iptal istegi icin rezervasyon numarasi bulunamadi.");
+
+            var requestPath = $"{CancelReservationPathPrefix}/{System.Uri.EscapeDataString(reservationNo)}";
+            var httpManager = new HttpManager(_apiBaseUrl, DbConnectionHelper.Instance().ConnectionString, timeout: vendor.APITimeout);
+            var authProvider = new AuthProvider(_apiBaseUrl, vendor.APITimeout);
+
+            try
+            {
+                await WriteStepRequestLog(
+                    localReservation,
+                    "cancel-reservation",
+                    new { ReservationNo = reservationNo },
+                    BrokerLogTypes.ReservationCancelVendorAPIRequest);
+
+                var headers = authProvider.CreateAuthorizedHeaders(vendor, null, HttpMethod.Get.Method, requestPath);
+                var result = await httpManager.GetAsync2<VonarentStatusResponse>(
+                    requestPath: requestPath,
+                    headers: headers,
+                    brokerLogModel: new BrokerLogModel
+                    {
+                        LogKey = localReservation?.ReservationNumber ?? reservationNo,
+                        LogType = BrokerLogTypes.ReservationCancelVendorAPIResponse
+                    },
+                    isReservationRequest: true);
+
+                if (result?.Data?.status == 1)
+                {
+                    if (localReservation != null)
+                        localReservation.APIReservationCancel = true;
+
+                    return new ServiceResponseBase(localReservation, true, "Iptal islemi basarili.");
+                }
+
+                return CreateVendorErrorResponse(localReservation, vendor, result, "rezervasyon iptal servisi basarisiz.");
+            }
+            catch (System.Exception ex)
+            {
+                Serilog.Log.Error("{@VonarentPostCancelReservationError}", $"{vendor.VendorName} - {localReservation?.ReservationNumber ?? reservationNo} - {ex.ToJson()}");
+                return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} rezervasyon iptal servisinden herhangi bir veri alinamadi.");
+            }
+        }
 
         private async Task<ServiceResponseBase> PostStatusAsync<TRequest>(HttpManager httpManager, AuthProvider authProvider, Vendor vendor, string bearerToken, string requestPath, TRequest request, Reservation localReservation, string stepName, string fallbackMessage)
             where TRequest : class
@@ -104,28 +172,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             return CreateVendorErrorResponse(localReservation, vendor, result, fallbackMessage);
         }
 
-        private async Task<ServiceResponseBase> GetStatusAsync(HttpManager httpManager, AuthProvider authProvider, Vendor vendor, string bearerToken, string requestPath, Reservation localReservation, string stepName, string fallbackMessage)
-        {
-            await WriteStepRequestLog(localReservation, stepName, new { });
-
-            var headers = authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, requestPath);
-            var result = await httpManager.GetAsync2<VonarentStatusResponse>(
-                requestPath: requestPath,
-                headers: headers,
-                brokerLogModel: new BrokerLogModel
-                {
-                    LogKey = localReservation.ReservationNumber,
-                    LogType = BrokerLogTypes.ReservationVendorAPIResponse
-                },
-                isReservationRequest: true);
-
-            if (result?.Data?.status == 1)
-                return new ServiceResponseBase(result.Data, true);
-
-            return CreateVendorErrorResponse(localReservation, vendor, result, fallbackMessage);
-        }
-
-        private async Task WriteStepRequestLog(Reservation localReservation, string stepName, object request)
+        private async Task WriteStepRequestLog(Reservation localReservation, string stepName, object request, BrokerLogTypes logType = BrokerLogTypes.ReservationVendorAPIRequest)
         {
             if (_configurationService == null || localReservation == null)
                 return;
@@ -134,7 +181,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             {
                 LogKey = localReservation.ReservationNumber,
                 Content = new { Step = stepName, Request = request }.ToJson(),
-                LogType = BrokerLogTypes.ReservationVendorAPIRequest
+                LogType = logType
             });
         }
 

@@ -169,7 +169,7 @@ namespace KolayCAR.Broker.API.Providers.Turmobil
                 //paidAmount = PaidAmount,
                 //paidAmount = reservationToken.DailyPrice * additionalInformation.RentalDuration,
                 paidAmount = reservationToken.APIDailyPrice * reservationToken.RentalDuration,
-                fullCredit = additionalInformation.Agency.FullCreditPermission && vendor.CreditType == CreditType.FullCredit && (postReservationRequest.FullCredit).ToBoolNullSafe(),
+                fullCredit = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit,
                 curr = reservationToken.BaseVendorRequestCurrencyType.ToString()
             };
         }

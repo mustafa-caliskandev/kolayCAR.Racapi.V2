@@ -821,12 +821,7 @@ namespace KolayCAR.Broker.API.Helpers
                                     SqlDbType = SqlDbType.Decimal,
                                     Value = postReservationRequest.InstallmentCommissionAmount ?? (object)DBNull.Value
                                 },
-                                 new SqlParameter
-                                {
-                                     ParameterName = "@ISFULLCREDIT",
-                                     SqlDbType = SqlDbType.Bit,
-                                     Value = postReservationRequest.FullCredit ?? (object)DBNull.Value
-                                },
+                                 CreateCreditTypeParameter(postReservationRequest.CreditType),
                                   new SqlParameter
                                 {
                                      ParameterName = "@PREMIUMEXTRAAMOUNT",
@@ -1579,12 +1574,7 @@ namespace KolayCAR.Broker.API.Helpers
                                     SqlDbType = SqlDbType.Decimal,
                                     Value = postReservationRequest.Payment.InstallmentCommissionAmount ?? (object)DBNull.Value
                                 },
-                                 new SqlParameter
-                                {
-                                     ParameterName = "@ISFULLCREDIT",
-                                     SqlDbType = SqlDbType.Bit,
-                                     Value = postReservationRequest.FullCredit ?? (object)DBNull.Value
-                                },
+                                 CreateCreditTypeParameter(postReservationRequest.CreditType),
                                   new SqlParameter
                                 {
                                      ParameterName = "@PREMIUMEXTRAAMOUNT",
@@ -1763,6 +1753,18 @@ namespace KolayCAR.Broker.API.Helpers
                         Value = isBrokerReservation
                     },
                 };
+        }
+
+        private static SqlParameter CreateCreditTypeParameter(CreditType creditType)
+        {
+            return new SqlParameter
+            {
+                ParameterName = global::KolayCAR.Broker.API.Models.BrokerContext.UseLegacyCreditSchema ? "@ISFULLCREDIT" : "@CREDITTYPE",
+                SqlDbType = global::KolayCAR.Broker.API.Models.BrokerContext.UseLegacyCreditSchema ? SqlDbType.Bit : SqlDbType.SmallInt,
+                Value = global::KolayCAR.Broker.API.Models.BrokerContext.UseLegacyCreditSchema
+                    ? creditType == CreditType.FullCredit
+                    : (short)creditType
+            };
         }
     }
 }

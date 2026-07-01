@@ -69,7 +69,7 @@ namespace KolayCAR.Broker.API.Mappers
                 FreeCancellationHour = vendor.Freecancellationhour ?? 0,
                 ShowCustomerNoteArea = vendor.Showcustomernotearea ?? false,
                 ShowFlightNumberArea = vendor.Showflightnumberarea ?? false,
-                CreditType = (CommonModels.CreditType)vendor.CreditType,
+                CreditType = (CommonModels.CreditType)(vendor.CreditType ?? 0),
                 ShowSubVendorLogo = vendor.ShowSubVendorLogo ?? false,
                 AppearingProfitMarkup = vendor.AppearingProfitMarkup ?? 0,
                 FindeksRequired = vendor.FindeksRequired ?? false,
@@ -84,7 +84,12 @@ namespace KolayCAR.Broker.API.Mappers
                 ExtraDescriptionFromVendor = vendor.ExtraDescriptionFromVendor ?? false,
                 SendDefaultMailAddress = vendor.SendDefaultMailAddress ?? false,
                 DeliveryTypeFromVendor = vendor.DeliveryTypeFromVendor ?? false,
-                HideLocationAddressOnPayment = vendor.HideLocationAddressOnPayment
+                HideLocationAddressOnPayment = vendor.HideLocationAddressOnPayment,
+                Address = vendor.Address,
+                BankName = vendor.BankName,
+                BankBranchCode = vendor.BankBranchCode,
+                TaxNumber = vendor.TaxNumber,
+                TaxOffice = vendor.TaxOffice
             }
             : null;
         }
@@ -127,7 +132,8 @@ namespace KolayCAR.Broker.API.Mappers
                 MatchedVendorId = x.MatchedVendorId,
                 MatchedVendorName = x.MatchedVendorName,
                 FlightCardMandatory = x.FlightCardMandatory,
-                PassportNumberRequired = x.PassportNumberRequired
+                PassportNumberRequired = x.PassportNumberRequired,
+                CreditType = (CommonModels.CreditType)(x.CreditType ?? 0)
             }).ToList();
 
             return list;
@@ -157,7 +163,8 @@ namespace KolayCAR.Broker.API.Mappers
                 MatchedVendorId = x.MatchedVendorId,
                 MatchedVendorName = x.MatchedVendorName,
                 FlightCardMandatory = x.FlightCardMandatory,
-                PassportNumberRequired = x.PassportNumberRequired
+                PassportNumberRequired = x.PassportNumberRequired,
+                CreditType = (short)x.CreditType
             }).ToList();
 
             return list;
@@ -170,7 +177,8 @@ namespace KolayCAR.Broker.API.Mappers
                 VendorId = vendor.VendorId,
                 VendorName = vendor.VendorName,
                 Id = vendor.Id,
-                PassportNumberRequired = vendor.PassportNumberRequired
+                PassportNumberRequired = vendor.PassportNumberRequired,
+                CreditType = (CommonModels.CreditType)(vendor.CreditType ?? 0)
             } : null;
         }
     }

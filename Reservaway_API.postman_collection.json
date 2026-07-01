@@ -1,0 +1,704 @@
+{
+  "info": {
+    "_postman_id": "58d2f2d5-6d8f-4d75-8b0e-0ed8d7e98e5a",
+    "name": "KolayCAR - Reservaway API",
+    "description": "KolayCAR Reservaway entegrasyonunun 18 Haziran 2026 tarihli Postman koleksiyonu. Resmi OpenAPI ve uygulamadaki güncel provider akışıyla uyumludur. Satılabilir plan filtresi yalnızca BSC ürün tipi ile PPFC veya PPNC ödeme tiplerini kabul eder; POAFC, POANC ve BSC_PLUS seçilmez. Önerilen çalışma sırası: Setup, Availability, Reservation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('visitorSessionId')) {",
+          "  pm.collectionVariables.set('visitorSessionId', pm.variables.replaceIn('{{$guid}}').replace(/-/g, ''));",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('startDate') || !pm.collectionVariables.get('endDate')) {",
+          "  const start = new Date();",
+          "  start.setUTCDate(start.getUTCDate() + 14);",
+          "  const end = new Date(start);",
+          "  end.setUTCDate(end.getUTCDate() + 3);",
+          "  pm.collectionVariables.set('startDate', start.toISOString().slice(0, 10));",
+          "  pm.collectionVariables.set('endDate', end.toISOString().slice(0, 10));",
+          "}",
+          "",
+          "pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });",
+          "pm.request.headers.upsert({ key: 'visitor-session-id', value: pm.collectionVariables.get('visitorSessionId') });",
+          "pm.request.headers.upsert({ key: 'User-Agent', value: pm.collectionVariables.get('userAgent') });"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Setup",
+      "item": [
+        {
+          "name": "Location List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is successful', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const response = pm.response.json();",
+                  "pm.test('Locations are returned', () => pm.expect(response.locations).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/location/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "location",
+                "list"
+              ]
+            },
+            "description": "Reservaway lokasyon listesini getirir. Aramada kullanılacak pickup/drop-off location id veya code değerlerini buradan seçin."
+          }
+        },
+        {
+          "name": "Product Types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is successful', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const response = pm.response.json();",
+                  "const types = Array.isArray(response.types) ? response.types : [];",
+                  "const bsc = types.find(x => String(x.key || x.description || '').toUpperCase() === 'BSC');",
+                  "pm.test('BSC product type exists', () => pm.expect(bsc, 'BSC product type').to.exist);",
+                  "if (bsc && bsc.id) pm.collectionVariables.set('productTypeId', String(bsc.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vehicle/product-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehicle",
+                "product-types"
+              ]
+            },
+            "description": "BSC ürün tipi id değerini otomatik olarak productTypeId değişkenine yazar."
+          }
+        },
+        {
+          "name": "Payment Types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is successful', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const response = pm.response.json();",
+                  "const types = Array.isArray(response.types) ? response.types : [];",
+                  "for (const key of ['PPFC', 'PPNC']) {",
+                  "  const item = types.find(x => String(x.key || x.description || '').toUpperCase() === key);",
+                  "  if (item && item.id) pm.collectionVariables.set(key.toLowerCase() + 'PaymentTypeId', String(item.id));",
+                  "}",
+                  "pm.test('PPFC or PPNC payment type exists', () => {",
+                  "  pm.expect(pm.collectionVariables.get('ppfcPaymentTypeId') || pm.collectionVariables.get('ppncPaymentTypeId')).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vehicle/payment-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehicle",
+                "payment-types"
+              ]
+            },
+            "description": "PPFC ve PPNC ödeme tipi id değerlerini koleksiyon değişkenlerine yazar."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Availability",
+      "item": [
+        {
+          "name": "Search Vehicles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is successful', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const response = pm.response.json();",
+                  "const vehicles = Array.isArray(response.vehicles) ? response.vehicles : [];",
+                  "let selected = null;",
+                  "",
+                  "for (const vehicle of vehicles) {",
+                  "  const rateCodes = vehicle.prices && vehicle.prices.rate_codes;",
+                  "  if (!rateCodes) continue;",
+                  "  const bscKey = Object.keys(rateCodes).find(key => key.toUpperCase() === 'BSC');",
+                  "  if (!bscKey) continue;",
+                  "",
+                  "  for (const paymentKey of ['PPFC', 'PPNC']) {",
+                  "    const actualPaymentKey = Object.keys(rateCodes[bscKey] || {}).find(key => key.toUpperCase() === paymentKey);",
+                  "    if (!actualPaymentKey) continue;",
+                  "    const rate = rateCodes[bscKey][actualPaymentKey];",
+                  "    const price = Number(rate.total_price || rate.daily_price || Number.MAX_SAFE_INTEGER);",
+                  "    if (!selected || price < selected.price) {",
+                  "      selected = { vehicle, rate, paymentKey, price };",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "pm.test('A sellable BSC + PPFC/PPNC vehicle exists', () => pm.expect(selected, 'sellable vehicle').to.exist);",
+                  "if (selected) {",
+                  "  const vehicle = selected.vehicle;",
+                  "  pm.collectionVariables.set('vehicleId', String(vehicle.id));",
+                  "  pm.collectionVariables.set('searchHash', String(vehicle.search_hash || response.search_hash || ''));",
+                  "  pm.collectionVariables.set('paymentTypeKey', selected.paymentKey);",
+                  "  pm.collectionVariables.set('paymentTypeId', pm.collectionVariables.get(selected.paymentKey.toLowerCase() + 'PaymentTypeId') || '');",
+                  "  if (selected.rate.reservation_token) pm.collectionVariables.set('reservationToken', String(selected.rate.reservation_token));",
+                  "  console.log('Selected sellable plan', { vehicleId: vehicle.id, product: 'BSC', payment: selected.paymentKey, price: selected.price });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vehicles?pickup_location_id={{pickupLocationId}}&drop_off_location_id={{dropOffLocationId}}&start_date={{startDate}}&end_date={{endDate}}&driver_age={{driverAge}}&visitor-session-id={{visitorSessionId}}&currency={{currency}}&locale={{locale}}&country-of-residence={{countryOfResidence}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehicles"
+              ],
+              "query": [
+                {
+                  "key": "pickup_location_id",
+                  "value": "{{pickupLocationId}}"
+                },
+                {
+                  "key": "pickup_location_code",
+                  "value": "{{pickupLocationCode}}",
+                  "disabled": true
+                },
+                {
+                  "key": "drop_off_location_id",
+                  "value": "{{dropOffLocationId}}"
+                },
+                {
+                  "key": "drop_off_location_code",
+                  "value": "{{dropOffLocationCode}}",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "{{startDate}}"
+                },
+                {
+                  "key": "end_date",
+                  "value": "{{endDate}}"
+                },
+                {
+                  "key": "driver_age",
+                  "value": "{{driverAge}}"
+                },
+                {
+                  "key": "visitor-session-id",
+                  "value": "{{visitorSessionId}}"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "country-of-residence",
+                  "value": "{{countryOfResidence}}"
+                }
+              ]
+            },
+            "description": "Güncel müsaitlik endpoint'i. Test scripti yalnızca tam BSC ürün tipindeki PPFC/PPNC planları arasından en düşük fiyatlı aracı seçer. POAFC, POANC ve BSC_PLUS kabul edilmez."
+          }
+        },
+        {
+          "name": "Vehicle Detail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is successful', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const response = pm.response.json();",
+                  "const vehicle = Array.isArray(response.vehicle) ? response.vehicle[0] : response.vehicle;",
+                  "pm.test('Vehicle detail is returned', () => pm.expect(vehicle).to.exist);",
+                  "if (vehicle) {",
+                  "  const rateCodes = vehicle.prices && vehicle.prices.rate_codes;",
+                  "  const bscKey = rateCodes && Object.keys(rateCodes).find(key => key.toUpperCase() === 'BSC');",
+                  "  const paymentKey = pm.collectionVariables.get('paymentTypeKey');",
+                  "  const actualPaymentKey = bscKey && Object.keys(rateCodes[bscKey] || {}).find(key => key.toUpperCase() === paymentKey);",
+                  "  const rate = actualPaymentKey && rateCodes[bscKey][actualPaymentKey];",
+                  "  if (rate && rate.reservation_token) pm.collectionVariables.set('reservationToken', String(rate.reservation_token));",
+                  "  else if (vehicle.reservation_token) pm.collectionVariables.set('reservationToken', String(vehicle.reservation_token));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "search-hash",
+                "value": "{{searchHash}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vehicle?vehicle_id={{vehicleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehicle"
+              ],
+              "query": [
+                {
+                  "key": "vehicle_id",
+                  "value": "{{vehicleId}}"
+                }
+              ]
+            },
+            "description": "Seçilen aracın detayını ve ekstralarını getirir. search-hash ve aynı visitor-session-id korunmalıdır."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Reservation",
+      "item": [
+        {
+          "name": "Create Customer / Reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is successful', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const response = pm.response.json();",
+                  "const orderData = response.order && response.order.data;",
+                  "const reservationNumber = response.customer && response.customer.order_id",
+                  "  || orderData && (orderData.reference_id || orderData.order_id || orderData.id);",
+                  "if (reservationNumber) pm.collectionVariables.set('reservationNumber', String(reservationNumber));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "search-hash",
+                "value": "{{searchHash}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gender\": \"{{customerGender}}\",\n  \"first_name\": \"{{customerFirstName}}\",\n  \"last_name\": \"{{customerLastName}}\",\n  \"date_of_birth\": \"{{customerBirthDate}}\",\n  \"email\": \"{{customerEmail}}\",\n  \"phone\": \"{{customerPhone}}\",\n  \"address\": \"{{customerAddress}}\",\n  \"city\": \"{{customerCity}}\",\n  \"country_id\": {{countryId}},\n  \"postal_code\": \"{{customerPostalCode}}\",\n  \"flight_number\": \"{{flightNumber}}\",\n  \"reservation_token\": \"{{reservationToken}}\",\n  \"extras\": {{extrasJson}},\n  \"payment_type_id\": {{paymentTypeId}},\n  \"product_type_id\": {{productTypeId}},\n  \"vehicle_id\": {{vehicleId}},\n  \"locale\": \"{{locale}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customer"
+              ]
+            },
+            "description": "Seçilen BSC + PPFC/PPNC planıyla rezervasyon oluşturur. Availability klasöründeki istekler önce çalıştırılmalıdır."
+          }
+        },
+        {
+          "name": "Booking Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "search-hash",
+                "value": "{{searchHash}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customer/booking?reference_id={{reservationNumber}}&email={{customerEmail}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customer",
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "reference_id",
+                  "value": "{{reservationNumber}}"
+                },
+                {
+                  "key": "email",
+                  "value": "{{customerEmail}}"
+                }
+              ]
+            },
+            "description": "Resmi API'deki rezervasyon detay sorgusudur. Broker entegrasyonunda şu anda doğrudan kullanılmamaktadır."
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is successful', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "search-hash",
+                "value": "{{searchHash}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customer/cancel?reference_id={{reservationNumber}}&email={{customerEmail}}&reason={{cancelReason}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customer",
+                "cancel"
+              ],
+              "query": [
+                {
+                  "key": "reference_id",
+                  "value": "{{reservationNumber}}"
+                },
+                {
+                  "key": "email",
+                  "value": "{{customerEmail}}"
+                },
+                {
+                  "key": "reason",
+                  "value": "{{cancelReason}}"
+                }
+              ]
+            },
+            "description": "Rezervasyonu reference_id üzerinden iptal eder."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 - Reference",
+      "item": [
+        {
+          "name": "Generate Deeplink",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deeplink?pickup_location_id={{pickupLocationId}}&drop_off_location_id={{dropOffLocationId}}&start_date={{startDate}}&end_date={{endDate}}&currency={{currency}}&country_of_residence={{countryOfResidence}}&driver_age={{driverAge}}&locale={{locale}}&visitor-session-id={{visitorSessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deeplink"
+              ],
+              "query": [
+                {
+                  "key": "pickup_location_id",
+                  "value": "{{pickupLocationId}}"
+                },
+                {
+                  "key": "drop_off_location_id",
+                  "value": "{{dropOffLocationId}}"
+                },
+                {
+                  "key": "start_date",
+                  "value": "{{startDate}}"
+                },
+                {
+                  "key": "end_date",
+                  "value": "{{endDate}}"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                },
+                {
+                  "key": "country_of_residence",
+                  "value": "{{countryOfResidence}}"
+                },
+                {
+                  "key": "driver_age",
+                  "value": "{{driverAge}}"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "visitor-session-id",
+                  "value": "{{visitorSessionId}}"
+                }
+              ]
+            },
+            "description": "Resmi deeplink endpoint'i. Güncel Broker müsaitlik akışı doğrudan /vehicles kullanır."
+          }
+        },
+        {
+          "name": "Vehicle Extras Catalogue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vehicle/extras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehicle",
+                "extras"
+              ]
+            },
+            "description": "Genel ekstra tipleri referansı. Broker, seçilen araca özel ekstraları /vehicle detay yanıtından kullanır."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.reservaway.com",
+      "type": "string"
+    },
+    {
+      "key": "userAgent",
+      "value": "KolayCAR-Broker/1.0",
+      "type": "string"
+    },
+    {
+      "key": "visitorSessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pickupLocationId",
+      "value": "13646",
+      "type": "string"
+    },
+    {
+      "key": "pickupLocationCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dropOffLocationId",
+      "value": "13646",
+      "type": "string"
+    },
+    {
+      "key": "dropOffLocationCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "startDate",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "endDate",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "currency",
+      "value": "EUR",
+      "type": "string"
+    },
+    {
+      "key": "countryOfResidence",
+      "value": "TR",
+      "type": "string"
+    },
+    {
+      "key": "driverAge",
+      "value": "35",
+      "type": "string"
+    },
+    {
+      "key": "locale",
+      "value": "en-GB",
+      "type": "string"
+    },
+    {
+      "key": "vehicleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "searchHash",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "productTypeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentTypeKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentTypeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ppfcPaymentTypeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ppncPaymentTypeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reservationToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "extrasJson",
+      "value": "[]",
+      "type": "string"
+    },
+    {
+      "key": "countryId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "customerGender",
+      "value": "mr",
+      "type": "string"
+    },
+    {
+      "key": "customerFirstName",
+      "value": "Test",
+      "type": "string"
+    },
+    {
+      "key": "customerLastName",
+      "value": "Customer",
+      "type": "string"
+    },
+    {
+      "key": "customerBirthDate",
+      "value": "1990-01-01",
+      "type": "string"
+    },
+    {
+      "key": "customerEmail",
+      "value": "test@example.com",
+      "type": "string"
+    },
+    {
+      "key": "customerPhone",
+      "value": "+905555555555",
+      "type": "string"
+    },
+    {
+      "key": "customerAddress",
+      "value": "Test Address",
+      "type": "string"
+    },
+    {
+      "key": "customerCity",
+      "value": "Istanbul",
+      "type": "string"
+    },
+    {
+      "key": "customerPostalCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "flightNumber",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reservationNumber",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cancelReason",
+      "value": "Customer request",
+      "type": "string"
+    }
+  ]
+}

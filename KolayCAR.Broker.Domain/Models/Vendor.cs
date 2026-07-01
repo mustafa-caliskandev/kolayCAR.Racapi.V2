@@ -69,6 +69,11 @@ namespace KolayCAR.Broker.Domain.Models
         public bool SendDefaultMailAddress { get; set; }
         public bool DeliveryTypeFromVendor { get; set; }
         public bool HideLocationAddressOnPayment { get; set; }
+        public string Address { get; set; }
+        public string TaxNumber { get; set; }
+        public string TaxOffice { get; set; }
+        public string BankName { get; set; }
+        public string BankBranchCode { get; set; }
     }
 
     public enum VendorTypes
@@ -186,7 +191,8 @@ namespace KolayCAR.Broker.Domain.Models
         Eren,
         RentGo,
         Vonarent,
-        Pandora2
+        Pandora2,
+        Reservaway
     }
 
     public enum PriceRoundingTypes
@@ -202,9 +208,10 @@ namespace KolayCAR.Broker.Domain.Models
         Commission
     }
 
-    public enum CreditType
+    public enum CreditType : short
     {
-        Non,
-        FullCredit
+        Non = 0,
+        FullCredit = 1,
+        LimitedCredit = 2
     }
 }

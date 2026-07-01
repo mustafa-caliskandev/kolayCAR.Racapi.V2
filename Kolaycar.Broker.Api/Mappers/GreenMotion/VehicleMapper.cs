@@ -39,10 +39,10 @@ namespace KolayCAR.Broker.API.Mappers.GreenMotion
                 PickupDateTime = additionalInformation.PickupDateTime,
                 ReturnDateTime = additionalInformation.ReturnDateTime,
                 RentalDuration = rentalDuration,
-                DailyPrice = additionalInformation.Vendor.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() / rentalDuration : vehicle.total.__text.ToFloatNullSafe() / rentalDuration,
+                DailyPrice = additionalInformation.Vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() / rentalDuration : vehicle.total.__text.ToFloatNullSafe() / rentalDuration,
                 //OneWayFee = onewayFee == 0 ? 0 : onewayFee,
-                TotalPrice = additionalInformation.Vendor.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() : vehicle.total.__text.ToFloatNullSafe(),
-                IsAvailable = additionalInformation.Vendor.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() > 0 : vehicle.total.__text.ToFloatNullSafe() > 0,
+                TotalPrice = additionalInformation.Vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() : vehicle.total.__text.ToFloatNullSafe(),
+                IsAvailable = additionalInformation.Vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() > 0 : vehicle.total.__text.ToFloatNullSafe() > 0,
                 VehicleImages = new List<VehicleImage>
                 {
                     new VehicleImage
@@ -63,11 +63,18 @@ namespace KolayCAR.Broker.API.Mappers.GreenMotion
                 IsThereAirCondition = vehicle.airConditioning.ToBoolNullSafe(),
                 VendorMinimumDriverAge = null,
                 VendorMinimumDrivingLicenseAge = null,
-                DailyPricePayNow = additionalInformation.Vendor.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() / rentalDuration : vehicle.total.__text.ToFloatNullSafe() / rentalDuration,
-                TotalPricePayNow = additionalInformation.Vendor.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() : vehicle.total.__text.ToFloatNullSafe(),
+                DailyPricePayNow = additionalInformation.Vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() / rentalDuration : vehicle.total.__text.ToFloatNullSafe() / rentalDuration,
+                TotalPricePayNow = additionalInformation.Vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.CreditType == CreditType.FullCredit ? vehicle.fullcredit.__text.ToFloatNullSafe() : vehicle.total.__text.ToFloatNullSafe(),
                 DepositPrice = vehicle.deposit.ToFloatNullAvailable(),
                 Extras = new List<Extra>(),
-                FullCredit = (vendor.CreditType == CreditType.FullCredit && fullCredit) ? true : false,
+                CreditType = vendor.CreditType == CreditType.FullCredit
+                    && additionalInformation.Agency.CreditType == CreditType.FullCredit
+                    && fullCredit
+                        ? CreditType.FullCredit
+                        : CreditType.Non,
+                FullCredit = vendor.CreditType == CreditType.FullCredit
+                    && additionalInformation.Agency.CreditType == CreditType.FullCredit
+                    && fullCredit,
                 RentalWorkingTypes = vendor.RentalWorkingType,
                 ProfitMarkupDailyPrice = vendor.ProfitMarkupDailyPrice,
                 TotalKMLimit = GetTotalKmLimit(vehicle.mileage.ToIntNullSafe(), rentalDuration, vendor, uSaveTotalKmLimits)

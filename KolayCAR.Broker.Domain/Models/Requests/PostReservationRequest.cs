@@ -61,6 +61,9 @@
         public float PaidAmountAfterUsingCouponCode { get; set; }
         public bool HighAmountDiscountActive { get; set; }
         public bool? FullCredit { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(CreditTypeCodeJsonConverter))]
+        [Newtonsoft.Json.JsonConverter(typeof(CreditTypeNewtonsoftJsonConverter))]
+        public CreditType CreditType { get; set; }
 
         public string Bank { get; set; }
         public string BankAccountCode { get; set; }

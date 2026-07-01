@@ -1,0 +1,579 @@
+{
+  "info": {
+    "_postman_id": "f5f8c603-4b3b-4f46-8d55-5b6b43c7d5d1",
+    "name": "Pandora2 Agency API v2.0",
+    "description": "Pandora2 Agency API v2.0 endpointleri. Environment kullanmaz; URL, header ve body degerleri request icinde sabittir. Auth isteyen requestlerde Auth header degerindeki PASTE_ACCESS_TOKEN_HERE alanini manuel olarak access token ile degistirin.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authorization",
+      "item": [
+        {
+          "name": "Yeni Erişim Anahtarı Al",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grant_type\": \"password\",\n  \"client_id\": 2,\n  \"client_secret\": \"topsecret\",\n  \"username\": \"kull@yeniacenta.com\",\n  \"password\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/access_token",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "access_token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token ile Yeni Erişim Anahtarı Al",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grant_type\": \"refresh_token\",\n  \"client_id\": 2,\n  \"client_secret\": \"topsecret\",\n  \"refresh_token\": \"Ml8xMF8AMPbyrpcJ5QSgea2KpRnu68f4GADTlI1Q8i/ZbqHtTw==\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/token",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "token"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lookups",
+      "item": [
+        {
+          "name": "Countries - GET",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/countries",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "countries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Countries - POST",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/countries",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "countries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Residence Countries - GET",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/residenceCountries",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "residenceCountries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Residence Countries - POST",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/residenceCountries",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "residenceCountries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Locations - POST",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"CountryId\": 228\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/locations",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "locations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Locations - GET",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/locations?CountryId=228",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "locations"
+              ],
+              "query": [
+                {
+                  "key": "CountryId",
+                  "value": "228"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"OfficeOutId\": \"a1-2\",\n  \"OfficeInId\": \"a1-2\",\n  \"DateOut\": \"2026-04-10T01:30:00+03:00\",\n  \"DateIn\": \"2026-04-12T02:30:00+03:00\",\n  \"DriverAge\": 23,\n  \"ResidenceCountryCode\": \"TR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/bookings/availability",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "bookings",
+                "availability"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Calculate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"VehicleId\": \"a1-5-1\",\n  \"OfficeOutId\": \"a1-2\",\n  \"OfficeInId\": \"a1-2\",\n  \"DateOut\": \"2026-04-10T01:30:00+03:00\",\n  \"DateIn\": \"2026-04-12T02:30:00+03:00\",\n  \"Additions\": [\n    {\n      \"Id\": \"a1-4\",\n      \"Count\": 2,\n      \"GroupId\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/bookings/calculate",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "bookings",
+                "calculate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"VehicleId\": \"a1-5-1\",\n  \"OfficeOutId\": \"a1-2\",\n  \"OfficeInId\": \"a1-2\",\n  \"DateOut\": \"2026-04-10T01:30:00+03:00\",\n  \"DateIn\": \"2026-04-12T02:30:00+03:00\",\n  \"NetTotal\": \"65.80\",\n  \"Additions\": [\n    {\n      \"Id\": \"a1-4\",\n      \"Count\": 2,\n      \"GroupId\": 1\n    }\n  ],\n  \"CustomerId\": 5,\n  \"DriverInfo\": {\n    \"FirstName\": \"name\",\n    \"LastName\": \"last name\",\n    \"Birthdate\": \"10.10.2002\",\n    \"Phone\": \"05001234567\",\n    \"Id\": 1345,\n    \"Email\": \"test@mydomain.com\",\n    \"FlightNo\": \"\",\n    \"Address\": \"\"\n  },\n  \"CustomerNote\": \"test note\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/bookings/create",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "bookings",
+                "create"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Id\": 3225\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/bookings/cancel",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "bookings",
+                "cancel"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reservation Detail - GET",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/bookings/3225",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "bookings",
+                "3225"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reservation Detail - POST",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Auth",
+                "value": "Bearer PASTE_ACCESS_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "lang",
+                "value": "tr"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://www.pandorarentacar.com/agency_api/v2.0/bookings/3225",
+              "protocol": "https",
+              "host": [
+                "www",
+                "pandorarentacar",
+                "com"
+              ],
+              "path": [
+                "agency_api",
+                "v2.0",
+                "bookings",
+                "3225"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

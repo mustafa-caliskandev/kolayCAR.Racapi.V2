@@ -31,7 +31,12 @@ namespace KolayCAR.Broker.API.Mappers.KolayCARBroker
             _vehicle.ReservationToken = EncryptionHelper.EncryptAES256(reservationToken.ToStringNullSafe());
             _vehicle.TotalKMLimit = _vehicle.TotalKMLimit != null ? _vehicle.TotalKMLimit.ToIntNullSafe() : (int?)null;
             _vehicle.ActivePaymentTypes = new List<PaymentTypes>();
-            _vehicle.FullCredit = additionalInformation.Vendor.CreditType == CreditType.FullCredit && vehicle.FullCredit.ToBoolNullSafe();
+            _vehicle.CreditType = vehicle.CreditType != CreditType.Non
+                ? vehicle.CreditType
+                : additionalInformation.Vendor.CreditType == CreditType.FullCredit && vehicle.FullCredit.ToBoolNullSafe()
+                    ? CreditType.FullCredit
+                    : CreditType.Non;
+            _vehicle.FullCredit = _vehicle.CreditType == CreditType.FullCredit;
             _vehicle.ApiDailyPrice = vehicle.DailyPrice;
             _vehicle.RentalWorkingTypes = additionalInformation.Vendor.RentalWorkingType;
             _vehicle.ProfitMarkupDailyPrice = additionalInformation.Vendor.ProfitMarkupDailyPrice;

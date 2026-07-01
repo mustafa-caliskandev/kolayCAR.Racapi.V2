@@ -157,7 +157,8 @@ namespace KolayCAR.Broker.API.Providers.Renticar
                             }
                         }
                     }
-                    mappedVehicleList.RemoveAll(x => x.FullCredit == false);
+                    if (vendor.CreditType == CreditType.FullCredit)
+                        mappedVehicleList.RemoveAll(x => x.FullCredit == false);
                     return new ServiceResponseBase
                     {
                         Success = mappedVehicleList.Count > 0,

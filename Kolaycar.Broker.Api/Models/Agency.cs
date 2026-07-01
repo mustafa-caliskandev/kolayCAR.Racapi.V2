@@ -70,7 +70,7 @@ namespace KolayCAR.Broker.API.Models
         public int? Surveyposttypeid { get; set; }
         public bool? Cancellationpenaltyactive { get; set; }
         public bool? SpecialParameters { get; set; }
-        public bool? FullCreditPermission { get; set; }
+        public short? CreditType { get; set; }
         public bool? IsActiveSendCheapestCar { get; set; }
 
         public virtual ICollection<ProfitMarkupAgency> ProfitMarkupAgencies { get; set; }

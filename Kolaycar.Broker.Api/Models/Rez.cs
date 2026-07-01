@@ -180,8 +180,7 @@ namespace KolayCAR.Broker.API.Models
         public string AgencyReturnInvoiceNumber { get; set; }
         public string CreditCardNumber { get; set; }
         public decimal? InstallmentCommissionAmount { get; set; }
-        public bool? IsFullCredit { get; set; }
-
+        public short? CreditType { get; set; }
         public string CouponName { get; set; }
         public decimal? PremiumExtraAmount { get; set; }
         public string PaymentCode { get; set; }

@@ -3,7 +3,6 @@ using KolayCAR.Broker.API.Mappers;
 using KolayCAR.Broker.API.Models;
 using KolayCAR.Broker.API.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;

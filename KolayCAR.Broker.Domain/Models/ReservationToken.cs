@@ -56,6 +56,8 @@ namespace KolayCAR.Broker.Domain.Models
         public string VehicleImageUrl { get; set; }
         public CurrencyTypes BaseVendorRequestCurrencyType { get; set; }
         public CurrencyTypes BaseBaseVendorRequestCurrencyType { get; set; }
+        public CreditType CreditType { get; set; }
+        public CreditType? APICreditType { get; set; }
         public bool? APIFullCredit { get; set; }
         public VendorTypes? ApiVendorType { get; set; }
         public int? VehicleClassNo { get; set; }

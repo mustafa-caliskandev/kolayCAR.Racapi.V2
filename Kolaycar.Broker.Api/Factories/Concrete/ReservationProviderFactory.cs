@@ -46,6 +46,7 @@ using OtorentoProvider = KolayCAR.Broker.API.Providers.Otorento;
 using OtoturProvider = KolayCAR.Broker.API.Providers.Ototur;
 using PandoraProvider = KolayCAR.Broker.API.Providers.Pandora;
 using Pandora2Provider = KolayCAR.Broker.API.Providers.Pandora2;
+using ReservawayProvider = KolayCAR.Broker.API.Providers.Reservaway;
 using RenteonProvider = KolayCAR.Broker.API.Providers.Renteon;
 using RentGoProvider = Kolaycar.Broker.Api.Providers.RentGo;
 using RenticarProvider = KolayCAR.Broker.API.Providers.Renticar;
@@ -131,6 +132,7 @@ namespace KolayCAR.Broker.API.Factories.Concrete
                 VendorTypes.Eren => new ErenProvider.ReservationProvider(vendor.APIBaseUrl, configurationService),
                 VendorTypes.Vonarent => new VonarentProvider.ReservationProvider(vendor.APIBaseUrl, configurationService),
                 VendorTypes.Pandora2 => new Pandora2Provider.ReservationProvider(vendor.APIBaseUrl, configurationService),
+                VendorTypes.Reservaway => new ReservawayProvider.ReservationProvider(vendor.APIBaseUrl, configurationService),
                 _ => null
             };
         }

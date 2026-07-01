@@ -96,7 +96,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     getExtrasResponse.Vehicle = VehicleHelper.MapLocalVehicle(getExtrasResponse.Vehicle, localVehicles.Where(x => x.VehicleCode == getExtrasResponse.Vehicle.VehicleCode).FirstOrDefault(), sourceCurrenyType: sourceCurrenyType, targetCurrenyType: requestCurrencyType, useLocalDeposit: (bool)vendor.UseLocalDeposit, exchangeRates: exchangeRates);
                 }
 
-                if (vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.FullCreditPermission)
+                if (vendor.CreditType == CreditType.FullCredit && additionalInformation.Agency.CreditType == CreditType.FullCredit)
                 {
                     var getSettingsResult = await _kolayCARService.GET_SETTINGSAsync(
                             getExtrasRequest.ApiKey,
@@ -108,7 +108,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                         getSettingsResponse = JsonConvert.DeserializeObject<KOLAYCARSETTINGS>(getSettingsResult.Body.GET_SETTINGSResult);
 
                 }
-                getExtrasResponse.Vehicle.FullCredit = getSettingsResponse != null && additionalInformation.Agency.FullCreditPermission.ToBoolNullSafe() ? getSettingsResponse.FULLCREDITACTIVE : false;
+                getExtrasResponse.Vehicle.FullCredit = getSettingsResponse != null && additionalInformation.Agency.CreditType == CreditType.FullCredit ? getSettingsResponse.FULLCREDITACTIVE : false;
 
                 return new ServiceResponseBase
                 {

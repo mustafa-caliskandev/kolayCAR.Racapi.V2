@@ -101,7 +101,8 @@ namespace KolayCAR.Broker.API.Services
                 ExtraDescriptionFromVendor = vendorDb.ExtraDescriptionFromVendor ?? false,
                 SendAvailabilityRequest = vendorDb.SendAvailabilityRequest ?? false,
                 SendDefaultMailAddress = vendorDb.SendDefaultMailAddress ?? false,
-                DeliveryTypeFromVendor = vendorDb.DeliveryTypeFromVendor ?? false
+                DeliveryTypeFromVendor = vendorDb.DeliveryTypeFromVendor ?? false,
+                Address = vendorDb.Address
             };
         }
 

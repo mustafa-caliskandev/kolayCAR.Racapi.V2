@@ -58,10 +58,10 @@ namespace Kolaycar.Broker.Api.Mappers.YesOto
                 CountryCode = countryCode,
                 City = request.City,
                 CityName = request.City,
-                Address = request.CustomerAddress,
+                Address = vendor.Address,
                 Nationality = countryCode,
                 Gender = null,
-                BillingInformation = CreateBillingInformation(request),
+                BillingInformation = CreateBillingInformation(request, vendor),
                 ReservationAdditionalServiceAddress = null,
                 FlightNumber = FirstText(request.FlightNumberArrival, request.FlightNumberDeparture),
                 CommunicationConfirmation = request.ContactPermission ?? false,
@@ -107,20 +107,16 @@ namespace Kolaycar.Broker.Api.Mappers.YesOto
             };
         }
 
-        private static YesOtoBillingInformation CreateBillingInformation(PostReservationRequest request)
+        private static YesOtoBillingInformation CreateBillingInformation(PostReservationRequest request, KolayCAR.Broker.Domain.Models.Vendor vendor)
         {
-            var isCorporate = !string.IsNullOrWhiteSpace(request.CompanyTitle) ||
-                              !string.IsNullOrWhiteSpace(request.CompanyTaxNumber);
 
             return new YesOtoBillingInformation
             {
-                Address = FirstText(request.CustomerAddress, request.CompanyTitle),
-                BillingType = isCorporate ? "Corporate" : "Individual",
-                FullName = isCorporate
-                    ? request.CompanyTitle
-                    : FirstText($"{request.CustomerName} {request.CustomerSurname}".Trim(), request.CustomerName, request.CustomerSurname),
-                TaxNumber = FirstText(request.CompanyTaxNumber, request.CustomerPersonalNumber),
-                TaxOffice = request.CompanyTaxOffice
+                Address = vendor.Address,
+                BillingType = "Corporate",
+                FullName = vendor.BankName,
+                TaxNumber = vendor.TaxNumber,
+                TaxOffice = vendor.TaxOffice
             };
         }
 

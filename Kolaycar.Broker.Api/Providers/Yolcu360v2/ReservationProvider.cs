@@ -302,8 +302,8 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
                     passportNo = postReservationRequest.CustomerPersonalNumber.Any(char.IsLetter) ? postReservationRequest.CustomerPersonalNumber : null,
                     birthDate = postReservationRequest.CustomerBirthDay.ToDateTimeNullSafe().ToString("yyyy-MM-dd")
                 },
-                isFullCredit = reservationToken.FullCredit,
-                isLimitedCredit = false,
+                isFullCredit = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit,
+                isLimitedCredit = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.LimitedCredit,
                 trackingID = postReservationRequest.SendAgencyReservationNumber ? postReservationRequest.AgencyReservationReference : ""
             };
             return entity;

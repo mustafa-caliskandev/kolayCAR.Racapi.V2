@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace KolayCAR.Broker.Domain.Models.Requests
@@ -27,6 +28,9 @@ namespace KolayCAR.Broker.Domain.Models.Requests
         public int? ReservationSourceId { get; set; }    
         public bool HighAmountDiscountActive { get; set; }
         public bool? FullCredit { get; set; }
+        [JsonConverter(typeof(CreditTypeCodeJsonConverter))]
+        [Newtonsoft.Json.JsonConverter(typeof(CreditTypeNewtonsoftJsonConverter))]
+        public CreditType CreditType { get; set; }
         public string Country { get; set; }
         public string City { get; set; }
         public string District { get; set; }
@@ -51,6 +55,7 @@ namespace KolayCAR.Broker.Domain.Models.Requests
         public string SessionCode { get; set; }
         public string ApiLocationCode { get; set; }
         public string LanguageCode { get; set; }
+        [JsonConverter(typeof(PostReservationExtraListJsonConverter))]
         public List<Extra> Extras { get; set; }
         private string reservationToken;
         public string ReservationToken { get => reservationToken; set => reservationToken = value?.Replace(" ", "+"); }

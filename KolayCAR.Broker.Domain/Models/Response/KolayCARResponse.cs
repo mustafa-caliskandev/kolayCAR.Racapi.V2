@@ -392,6 +392,7 @@ namespace KolayCAR.Broker.Domain.Models.Response
         public string AGENCYEXTRASFEETYPE { get; set; }
         public string AGENCYONEWAYFEETYPE { get; set; }
         public bool FULLCREDITACTIVE { get; set; }
+        public bool FULLCREDITLIMITEDACTIVE { get; set; }
         public string RESQUERYTRANSFORMATION { get; set; }
         public List<object> RESSOURCETYPE { get; set; }
         public string UPDATERESERVATIONTYPE { get; set; }

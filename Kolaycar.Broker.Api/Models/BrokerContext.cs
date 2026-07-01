@@ -19,6 +19,8 @@ namespace KolayCAR.Broker.API.Models
 {
     public partial class BrokerContext : DbContext
     {
+        public static bool UseLegacyCreditSchema { get; set; }
+
         //public BrokerContext()
         //{
         //}
@@ -678,9 +680,26 @@ namespace KolayCAR.Broker.API.Models
                     .HasColumnName("SPECIALPARAMETERS")
                     .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.FullCreditPermission)
-                    .HasColumnName("FULLCREDITPERMISSION")
-                    .HasDefaultValueSql("((0))");
+                var agencyCreditType = entity.Property(e => e.CreditType);
+                if (UseLegacyCreditSchema)
+                {
+                    agencyCreditType
+                        .HasColumnName("FULLCREDITPERMISSION")
+                        .HasColumnType("bit")
+                        .HasConversion<bool>(
+                            creditType => creditType == (short)CreditType.FullCredit,
+                            isFullCredit => isFullCredit
+                                ? (short?)CreditType.FullCredit
+                                : (short?)CreditType.Non)
+                        .HasDefaultValueSql("((0))");
+                }
+                else
+                {
+                    agencyCreditType
+                        .HasColumnName("CREDITTYPE")
+                        .HasColumnType("smallint")
+                        .HasDefaultValueSql("((0))");
+                }
 
                 entity.Property(e => e.IsActiveSendCheapestCar)
                     .HasColumnName("ISACTIVESENDCHEAPESTCAR")
@@ -3094,8 +3113,26 @@ namespace KolayCAR.Broker.API.Models
                                 .HasColumnType("decimal(18,2)")
                                 .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.IsFullCredit)
-                                 .HasColumnName("ISFULLCREDIT");
+                var reservationCreditType = entity.Property(e => e.CreditType);
+                if (UseLegacyCreditSchema)
+                {
+                    reservationCreditType
+                        .HasColumnName("ISFULLCREDIT")
+                        .HasColumnType("bit")
+                        .HasConversion<bool>(
+                            creditType => creditType == (short)CreditType.FullCredit,
+                            isFullCredit => isFullCredit
+                                ? (short?)CreditType.FullCredit
+                                : (short?)CreditType.Non)
+                        .HasDefaultValueSql("((0))");
+                }
+                else
+                {
+                    reservationCreditType
+                        .HasColumnName("CREDITTYPE")
+                        .HasColumnType("smallint")
+                        .HasDefaultValueSql("((0))");
+                }
 
                 entity.Property(e => e.CreditCardBank).HasColumnName("CREDITCARDBANK");
                 entity.Property(e => e.CouponName).HasColumnName("COUPONNAME");
@@ -3964,7 +4001,22 @@ namespace KolayCAR.Broker.API.Models
                 entity.Property(e => e.Extramappingactive).HasColumnName("EXTRAMAPPINGACTIVE").HasDefaultValueSql("((0))");
                 entity.Property(e => e.Vendorname).HasColumnName("VENDORNAME").HasMaxLength(150);
                 entity.Property(e => e.Vendortype).HasColumnName("VENDORTYPE");
-                entity.Property(e => e.CreditType).HasColumnName("CREDITTYPE");
+                var vendorCreditType = entity.Property(e => e.CreditType);
+                if (UseLegacyCreditSchema)
+                {
+                    vendorCreditType
+                        .HasColumnName("CREDITTYPE")
+                        .HasColumnType("int")
+                        .HasConversion<int>(
+                            creditType => creditType.GetValueOrDefault(),
+                            creditType => (short?)creditType);
+                }
+                else
+                {
+                    vendorCreditType
+                        .HasColumnName("CREDITTYPE")
+                        .HasColumnType("smallint");
+                }
                 entity.Property(e => e.BankName).HasColumnName("BANKNAME");
                 entity.Property(e => e.BankBranchCode).HasColumnName("BANKBRANCHCODE");
                 entity.Property(e => e.IBAN).HasColumnName("IBAN");
@@ -4042,6 +4094,11 @@ namespace KolayCAR.Broker.API.Models
                 entity.Property(e => e.UnlimitedKM).HasColumnName("UNLIMITEDKM").HasDefaultValueSql("((0))");
                 entity.Property(e => e.FlightCardMandatory).HasColumnName("FLIGHTCARDMANDATORY").HasDefaultValueSql("((0))");
                 entity.Property(e => e.PassportNumberRequired).HasColumnName("PASSPORTNUMBERREQUIRED");
+
+                if (UseLegacyCreditSchema)
+                    entity.Ignore(e => e.CreditType);
+                else
+                    entity.Property(e => e.CreditType).HasColumnName("CREDITTYPE");
             });
 
             modelBuilder.Entity<Yonlendirme>(entity =>

@@ -235,7 +235,7 @@ namespace KolayCAR.Broker.API.Providers.Turevrac2
                 { "PKH2", selectedExtraCodes != null ? selectedExtraCodes.Contains("PKH2") ? "ON" : "": ""},
                 { "Winter_Tire", selectedExtraCodes != null ? selectedExtraCodes.Contains("Winter_Tire") ? "ON" : "": ""},
 
-                { "Full_Credit", vendor.CreditType == CreditType.FullCredit }
+                { "Full_Credit", CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit }
             };
             if (postReservationRequest.SpecialDailyPrice != -1 && !isObilet)
             {

@@ -54,6 +54,7 @@ namespace KolayCAR.Broker.Domain.Models.Response
             public int Quantity { get; set; }
             public string NetAmount { get; set; }
             public string AmountTotal { get; set; }
+            public string PaymentType { get; set; } //Enum: Now, Local
             public bool? Mandatory { get; set; }
             public bool? IncludedInVehiclePrice { get; set; }
             public string RentalPrice { get; set; }
@@ -89,6 +90,7 @@ namespace KolayCAR.Broker.Domain.Models.Response
             public string TotalAmount { get; set; } //Price including commissions
             public string PaymentType { get; set; } //Enum: Now, Local
             public string ExcessAmount { get; set; }
+            public bool? Mandatory { get; set; }
         }
 
         public class Lookup
@@ -140,7 +142,7 @@ namespace KolayCAR.Broker.Domain.Models.Response
             public int? MaxDriverAge { get; set; }
             public int? SmallBagsCapacity { get; set; }
             public int? BigBagsCapacity { get; set; }
-            public int? PassengerCapacity { get; set; }
+            public string PassengerCapacity { get; set; }
             public bool AirConditioning { get; set; }
             public string DoorCount { get; set; }
             public bool? BuiltInGps { get; set; }

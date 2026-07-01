@@ -8,6 +8,9 @@
         public int? ShowDayCountEnd { get; set; }
         public int Sequence { get; set; }
         public bool? IsRequired { get; set; } = false;
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public float? RequestPrice { get; set; }
         public float DefaultPrice { get; set; }
         public float ApiPrice { get; set; }
 

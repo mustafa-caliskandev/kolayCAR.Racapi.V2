@@ -499,7 +499,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
         {
             string returnValue;
 
-            if ((bool)postReservationRequest.FullCredit.ToBoolNullSafe())
+            if (CreditHelper.ResolveTokenCreditType(additionalInformation.ReservationToken) == CreditType.FullCredit)
                 return "1111";
 
             if (postReservationRequest.PaymentType == PaymentTypes.PayOnDelivery)

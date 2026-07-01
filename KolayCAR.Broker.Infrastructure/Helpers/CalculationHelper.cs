@@ -674,7 +674,7 @@ namespace KolayCAR.Broker.Infrastructure.Helpers
                         (convertedMinimum == 0 || convertedMinimum <= (dailyPrice)) &&
                         (convertedMaximum == 0 || convertedMaximum >= (dailyPrice));
                 })
-                .OrderBy(p => p.Priority == 0 ? int.MaxValue : p.Priority ?? int.MaxValue)
+                .OrderByDescending(p => p.Priority)
                 .FirstOrDefault();
         }
 

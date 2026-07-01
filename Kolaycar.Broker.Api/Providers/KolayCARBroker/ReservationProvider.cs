@@ -306,6 +306,11 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
 
             var specialDailyPrice = localReservation.PaymentType == PaymentTypes.PayOnDelivery ? localReservation.DailyPrice : -1;
             var specialOneWayFee = localReservation.PaymentType == PaymentTypes.PayOnDelivery ? localReservation.OneWayFee : -1;
+            var creditType = postReservationRequest.FullCredit == true
+                ? CreditType.FullCredit
+                : postReservationRequest.CreditType == CreditType.LimitedCredit
+                    ? CreditType.LimitedCredit
+                    : CreditType.Non;
             if (!string.IsNullOrEmpty(postReservationRequest.ExtraList))
             {
                 List<string> extraListBuilder = new List<string>();
@@ -421,7 +426,8 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                 { "skyscannerRedirectID", string.Empty},
                 { "commercialAllowance", postReservationRequest.CommercialAllowance},
                 { "advancedPaymentWithoutPayment", postReservationRequest.PaymentType == PaymentTypes.AdvancePayment },
-                { "fullCredit", postReservationRequest.FullCredit },
+                { "fullCredit", creditType == CreditType.FullCredit },
+                { "creditType", (short)creditType },
                 { "countryCode", postReservationRequest.CountryCode },
                 { "SendAgencyReservationNumber", vendor.ResAgencyNameSending},
                 { "apiExtras", postReservationRequest.ApiExtras},
@@ -472,6 +478,11 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
         {
             var brokerName = _configuration["AppSettings:BrokerName"].ToStringNullSafe();
             var paidAmount = GetPaidAmount(reservationToken, postReservationRequest, vendor, reservation);
+            var creditType = postReservationRequest.FullCredit == true
+                ? CreditType.FullCredit
+                : postReservationRequest.CreditType == CreditType.LimitedCredit
+                    ? CreditType.LimitedCredit
+                    : CreditType.Non;
             return new PostReservationRequestV2
             {
                 Customer = new Customer
@@ -526,7 +537,8 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                 },
                 SkyscannerRedirectID = "",
                 CommercialAllowance = postReservationRequest.CommercialAllowance,
-                FullCredit = postReservationRequest.FullCredit ?? false,
+                FullCredit = creditType == CreditType.FullCredit,
+                CreditType = creditType,
                 CountryCode = postReservationRequest.CountryCode,
                 SendAgencyReservationNumber = vendor.ResAgencyNameSending,
             };

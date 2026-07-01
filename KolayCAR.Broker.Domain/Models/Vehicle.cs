@@ -53,6 +53,7 @@ namespace KolayCAR.Broker.Domain.Models
         public string PickupLocationAddress { get; set; }
         public string ReturnLocationAddress { get; set; }
         public bool PassportRequired { get; set; }
+        public int Excess { get; set; }
     }
 
     public class RestrictedVehicle : VehicleListItem
@@ -65,6 +66,9 @@ namespace KolayCAR.Broker.Domain.Models
         public string SpecialVendorId { get; set; }
         public string SpecialVendorLogo { get; set; }
         public int BaseVendorId { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(CreditTypeCodeJsonConverter))]
+        [Newtonsoft.Json.JsonConverter(typeof(CreditTypeNewtonsoftJsonConverter))]
+        public CreditType CreditType { get; set; }
         public bool FullCredit { get; set; } = false;
         public int PickupLocationId { get; set; }
         public string PickupLocationName { get; set; }

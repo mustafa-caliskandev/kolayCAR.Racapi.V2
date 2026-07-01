@@ -51,6 +51,7 @@ using OtocarProvider = KolayCAR.Broker.API.Providers.Otocar;
 using OtorentoProvider = KolayCAR.Broker.API.Providers.Otorento;
 using PandoraProvider = KolayCAR.Broker.API.Providers.Pandora;
 using Pandora2Provider = KolayCAR.Broker.API.Providers.Pandora2;
+using ReservawayProvider = KolayCAR.Broker.API.Providers.Reservaway;
 using RenticarProvider = KolayCAR.Broker.API.Providers.Renticar;
 using RigorentProvider = KolayCAR.Broker.API.Providers.Rigorent;
 using SixtProvider = KolayCAR.Broker.API.Providers.Sixt;
@@ -410,6 +411,11 @@ namespace KolayCAR.Broker.API.Services
                                         summaryProvider = new VonarentProvider.SummaryProvider(vendor);
                                         break;
                                     }
+                                case VendorTypes.Reservaway:
+                                    {
+                                        summaryProvider = new ReservawayProvider.SummaryProvider(vendor);
+                                        break;
+                                    }
                             }
 
                             var summaryResult = summaryProvider.GetSummary(getSummaryRequest, vendor, additionalInformation, mappedExchangeRates, localVehicles, subVendors).Result;
@@ -491,6 +497,8 @@ namespace KolayCAR.Broker.API.Services
 
                                     summaryData.Vehicle.RentalConditions = rentalConditionsData;
                                     summaryData.Vehicle.ReservationToken = getSummaryRequest.ReservationToken;
+                                    summaryData.Vehicle.CreditType = CreditHelper.ResolveTokenCreditType(reservationToken);
+                                    summaryData.Vehicle.FullCredit = summaryData.Vehicle.CreditType == CreditType.FullCredit;
                                     summaryData.Vehicle.IsAirport = pickupLocation.Airport ?? false;
                                     summaryData.Vehicle.VendorLogo = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? $"{configurations.PortalOwnerDomain}{summaryData.Vehicle.VendorLogo}" : summaryData.Vehicle.VendorLogo;
                                     summaryData.Vehicle.CurrencyCode = getSummaryRequest.CurrencyCode;

@@ -27,7 +27,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
                 entity: CreateJsonBody(new AccessTokenRequest
                 {
                     grant_type = "password",
-                    client_id = vendor.ApiClientId.ToIntNullSafe(),
+                    client_id = vendor.ApiClientId.Split('-')[0].ToIntNullSafe(),
                     client_secret = vendor.SecretKey,
                     username = vendor.ApiKey,
                     password = vendor.ApiPassword
