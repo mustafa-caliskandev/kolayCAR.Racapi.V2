@@ -262,6 +262,7 @@ namespace KolayCAR.Broker.API.Controllers
             string paidAmountAfterUsingCouponCode,
             bool highAmountDiscountActive,
             bool? fullCredit,
+            CreditType? creditType,
             string bank,
             string bankAccountCode,
             string bankAccountingCode,
@@ -350,6 +351,7 @@ namespace KolayCAR.Broker.API.Controllers
                 PaidAmountAfterUsingCouponCode = paidAmountAfterUsingCouponCode.ToFloatNullSafe(),
                 HighAmountDiscountActive = highAmountDiscountActive,
                 FullCredit = fullCredit,
+                CreditType = creditType ?? CreditType.Non,
                 Bank = bank,
                 BankAccountCode = bankAccountCode,
                 BankAccountingCode = bankAccountingCode,
@@ -399,6 +401,7 @@ namespace KolayCAR.Broker.API.Controllers
             if (!string.IsNullOrEmpty(checkPostReservationRequestResult))
                 return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, checkPostReservationRequestResult, ResultCodes.Error, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
 
+            var requestedFullCredit = request.FullCredit == true;
             var token = await _resTokenService.GetReservationTokenByUniqueId(request.ReservationToken);
 
             var vendor = await _vendorService.GetVendorById(token.VendorId, agency);
@@ -421,7 +424,6 @@ namespace KolayCAR.Broker.API.Controllers
                 return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, message.Replace("{time}", DateTime.Now.ToString("dd.MM.yyyy HH:mm")), ResultCodes.Error, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
             }
 
-            Vehicle vehicleFullCreditInfo = null;
             if (sendAvailabilityRequest)
             {
                 var getVehiclesRequest = new GetVehiclesRequest
@@ -451,15 +453,21 @@ namespace KolayCAR.Broker.API.Controllers
                 var vehicles = vehiclesResponse.Data as List<Vehicle>;
                 var checkVehicleIsAvailable = await _reservationStepsService.CheckReservationVehicleIsAvailable(vehicles, token, request.LanguageCode.ToEnum<LanguageTypes>(), vendor);
                 Serilog.Log.Error("{@CheckVehicleIsAvailable}", checkVehicleIsAvailable);
-                vehicleFullCreditInfo = checkVehicleIsAvailable.Data as Vehicle;
 
                 if (!checkVehicleIsAvailable.Success)
                     return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, checkVehicleIsAvailable.Message, (ResultCodes)checkVehicleIsAvailable.ResultCode, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
             }
 
-            if (request.FullCredit.ToBoolNullSafe())
-                if (!ReservationHelper.CheckFullCreditPermission(agency, vehicleFullCreditInfo?.FullCredit ?? token.FullCredit))
-                    return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, "No Full-Credit permit", ResultCodes.NoFullCreditPermit, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
+            var tokenCreditType = CreditHelper.ResolveTokenCreditType(token);
+            if (requestedFullCredit && tokenCreditType != CreditType.FullCredit)
+                return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, "No Full-Credit permit", ResultCodes.NoFullCreditPermit, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
+
+            request.CreditType = requestedFullCredit
+                ? CreditType.FullCredit
+                : tokenCreditType == CreditType.LimitedCredit
+                    ? CreditType.LimitedCredit
+                    : CreditType.Non;
+            request.FullCredit = requestedFullCredit;
 
             if (_userRole == UserRoles.External && request.Payment.PaymentType == PaymentTypes.AdvancePayment && request.Pricing.PaidAmount > 0)
             {
@@ -470,7 +478,12 @@ namespace KolayCAR.Broker.API.Controllers
             var extras = new List<Extra>();
             try
             {
-                extras = request.Extras?.Where(e => e.Code != null).Select(e => e.MapCyrpt(token.CyrptExtras)).ToList() ?? new List<Extra>();
+                var mappedExtrasResult = MapReservationExtras(request.Extras, token.CyrptExtras, agency);
+
+                if (!string.IsNullOrWhiteSpace(mappedExtrasResult.ErrorMessage))
+                    return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, mappedExtrasResult.ErrorMessage, ResultCodes.Error, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
+
+                extras = mappedExtrasResult.Extras;
             }
             catch (Exception ex)
             {
@@ -604,6 +617,7 @@ namespace KolayCAR.Broker.API.Controllers
             if (!string.IsNullOrEmpty(checkPostReservationRequestResult))
                 return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, checkPostReservationRequestResult, ResultCodes.Error, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
 
+            var requestedFullCredit = postReservationRequest.FullCredit == true;
             var reservationTokenObj = await _resTokenService.GetReservationTokenByUniqueId(postReservationRequest.ReservationToken);
 
             Serilog.Log.Error("{@ReservationToken}", reservationTokenObj);
@@ -623,7 +637,6 @@ namespace KolayCAR.Broker.API.Controllers
             #endregion
 
             var vehicles = new List<Vehicle>();
-            Vehicle vehicleFullCreditInfo = null;
             if (sendAvailabilityRequest)
             {
                 var getVehiclesRequest = new GetVehiclesRequest
@@ -653,21 +666,20 @@ namespace KolayCAR.Broker.API.Controllers
                 vehicles = vehiclesResponse.Data as List<Vehicle>;
                 var checkVehicleIsAvailable = await _reservationStepsService.CheckReservationVehicleIsAvailable(vehicles, reservationTokenObj, postReservationRequest.LanguageCode.ToEnum<LanguageTypes>(), vendor);
                 Serilog.Log.Error("{@CheckVehicleIsAvailable}", checkVehicleIsAvailable);
-                vehicleFullCreditInfo = checkVehicleIsAvailable.Data as Vehicle;
 
                 if (!checkVehicleIsAvailable.Success)
                     return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, checkVehicleIsAvailable.Message, (ResultCodes)checkVehicleIsAvailable.ResultCode, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
             }
-            #region Full-Credit kontrolü
-            if (postReservationRequest.FullCredit.ToBoolNullSafe())
-            {
-                //bool fullCreditPermission = ReservationHelper.CheckFullCreditPermission(await _agencyService.GetAgency((long)postReservationRequest.AgencyId), checkVehicleIsAvailable.Data as Vehicle);
-                bool fullCreditPermission = ReservationHelper.CheckFullCreditPermission(agency, vehicleFullCreditInfo?.FullCredit ?? reservationTokenObj.FullCredit);
+            var tokenCreditType = CreditHelper.ResolveTokenCreditType(reservationTokenObj);
+            if (requestedFullCredit && tokenCreditType != CreditType.FullCredit)
+                return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, "No Full-Credit permit", ResultCodes.NoFullCreditPermit, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
 
-                if (!fullCreditPermission)
-                    return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, "No Full-Credit permit", ResultCodes.NoFullCreditPermit, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
-            }
-            #endregion
+            postReservationRequest.CreditType = requestedFullCredit
+                ? CreditType.FullCredit
+                : tokenCreditType == CreditType.LimitedCredit
+                    ? CreditType.LimitedCredit
+                    : CreditType.Non;
+            postReservationRequest.FullCredit = requestedFullCredit;
 
             var getExtrasRequest = new GetExtrasRequest
             {
@@ -1097,7 +1109,8 @@ namespace KolayCAR.Broker.API.Controllers
                             postReservationRequest.ExtraPricePayToDelivery,
                             postReservationRequest.OneWayFeePayToDelivery,
                             postReservationRequest.PaymentType,
-                            postReservationRequest.FullCredit
+                            postReservationRequest.FullCredit,
+                            postReservationRequest.CreditType
                         };
                     }
                 default: return StringHelper.MaskCreditCard(JsonConvert.DeserializeObject<PostReservationRequest>(JsonConvert.SerializeObject(postReservationRequest)));
@@ -1132,7 +1145,8 @@ namespace KolayCAR.Broker.API.Controllers
                             postReservationRequest.Payment.ExtraPricePayToDelivery,
                             postReservationRequest.Payment.OneWayFeePayToDelivery,
                             postReservationRequest.Payment.PaymentType,
-                            postReservationRequest.FullCredit
+                            postReservationRequest.FullCredit,
+                            postReservationRequest.CreditType
                         };
                     }
                 default: return StringHelper.MaskCreditCard(JsonConvert.DeserializeObject<PostReservationRequest>(JsonConvert.SerializeObject(postReservationRequest)));
@@ -1193,5 +1207,50 @@ namespace KolayCAR.Broker.API.Controllers
 
             return null;
         }
+
+        private static (List<Extra> Extras, string ErrorMessage) MapReservationExtras(List<Extra> requestExtras, List<CyrptExtra> tokenExtras, Agency agency)
+        {
+            var extras = new List<Extra>();
+
+            if (requestExtras == null)
+                return (extras, string.Empty);
+
+            foreach (var requestExtra in requestExtras.Where(e => e?.Code != null))
+            {
+                var requestPrice = requestExtra.RequestPrice;
+                var mappedExtra = requestExtra.MapCyrpt(tokenExtras);
+
+                if (requestPrice.HasValue && requestPrice != 0)
+                {
+                    var validationMessage = ValidateReservationExtraPrice(mappedExtra, requestPrice.Value, agency);
+
+                    if (!string.IsNullOrWhiteSpace(validationMessage))
+                        return (extras, validationMessage);
+
+                    mappedExtra.Price = requestPrice.Value;
+                }
+
+                extras.Add(mappedExtra);
+            }
+
+            return (extras, string.Empty);
+        }
+
+        private static string ValidateReservationExtraPrice(Extra extra, float requestPrice, Agency agency)
+        {
+            if (requestPrice < 0)
+                return "Extra price cannot be negative.";
+
+            if (agency?.FreePriceShowActive == true)
+                return string.Empty;
+
+            if (NormalizePrice(requestPrice) < NormalizePrice(extra.Price))
+                return $"Extra price cannot be lower than token price. ExtraCode: {extra.ExtraCode}";
+
+            return string.Empty;
+        }
+
+        private static decimal NormalizePrice(float price)
+            => Math.Round((decimal)price, 2, MidpointRounding.AwayFromZero);
     }
 }

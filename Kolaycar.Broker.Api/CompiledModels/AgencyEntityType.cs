@@ -318,16 +318,17 @@ namespace KolayCAR.Broker.API.CompiledModels
             freepriceshowactive.AddAnnotation("Relational:ColumnName", "FREEPRICESHOWACTIVE");
             freepriceshowactive.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var fullCreditPermission = runtimeEntityType.AddProperty(
-                "FullCreditPermission",
-                typeof(bool?),
-                propertyInfo: typeof(Agency).GetProperty("FullCreditPermission", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(Agency).GetField("<FullCreditPermission>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            var creditType = runtimeEntityType.AddProperty(
+                "CreditType",
+                typeof(short?),
+                propertyInfo: typeof(Agency).GetProperty("CreditType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(Agency).GetField("<CreditType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true,
                 valueGenerated: ValueGenerated.OnAdd);
-            fullCreditPermission.AddAnnotation("Relational:ColumnName", "FULLCREDITPERMISSION");
-            fullCreditPermission.AddAnnotation("Relational:DefaultValueSql", "((0))");
-            fullCreditPermission.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            creditType.AddAnnotation("Relational:ColumnName", "CREDITTYPE");
+            creditType.AddAnnotation("Relational:ColumnType", "smallint");
+            creditType.AddAnnotation("Relational:DefaultValueSql", "((0))");
+            creditType.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var isActiveSendCheapestCar = runtimeEntityType.AddProperty(
                 "IsActiveSendCheapestCar",

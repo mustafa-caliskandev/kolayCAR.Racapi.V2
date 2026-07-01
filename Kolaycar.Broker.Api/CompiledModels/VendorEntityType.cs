@@ -234,11 +234,12 @@ namespace KolayCAR.Broker.API.CompiledModels
 
             var creditType = runtimeEntityType.AddProperty(
                 "CreditType",
-                typeof(int?),
+                typeof(short?),
                 propertyInfo: typeof(Vendor).GetProperty("CreditType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(Vendor).GetField("<CreditType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             creditType.AddAnnotation("Relational:ColumnName", "CREDITTYPE");
+            creditType.AddAnnotation("Relational:ColumnType", "smallint");
             creditType.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var currencyid = runtimeEntityType.AddProperty(

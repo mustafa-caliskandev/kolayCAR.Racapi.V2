@@ -19,7 +19,7 @@ namespace KolayCAR.Broker.API.CompiledModels
                 "KolayCAR.Broker.API.Models.VendorVendor",
                 typeof(VendorVendor),
                 baseEntityType,
-                propertyCount: 10,
+                propertyCount: 11,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -43,6 +43,15 @@ namespace KolayCAR.Broker.API.CompiledModels
             active.AddAnnotation("Relational:ColumnName", "ACTIVE");
             active.AddAnnotation("Relational:DefaultValueSql", "((1))");
             active.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var creditType = runtimeEntityType.AddProperty(
+                "CreditType",
+                typeof(short?),
+                propertyInfo: typeof(VendorVendor).GetProperty("CreditType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(VendorVendor).GetField("<CreditType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            creditType.AddAnnotation("Relational:ColumnName", "CREDITTYPE");
+            creditType.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var flightCardMandatory = runtimeEntityType.AddProperty(
                 "FlightCardMandatory",

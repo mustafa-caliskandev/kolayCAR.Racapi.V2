@@ -106,6 +106,7 @@
 		<Folder Include="Helpers\YesOto\" />
 		<Folder Include="Properties\PublishProfiles\" />
 		<Folder Include="Providers\Vonarent\" />
+		<Folder Include="Scripts\" />
 	</ItemGroup>
 
 	<ItemGroup>

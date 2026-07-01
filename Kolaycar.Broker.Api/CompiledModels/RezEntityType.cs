@@ -811,14 +811,16 @@ namespace KolayCAR.Broker.API.CompiledModels
             ip.AddAnnotation("Relational:ColumnName", "IP");
             ip.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var isFullCredit = runtimeEntityType.AddProperty(
-                "IsFullCredit",
-                typeof(bool?),
-                propertyInfo: typeof(Rez).GetProperty("IsFullCredit", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(Rez).GetField("<IsFullCredit>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            var creditType = runtimeEntityType.AddProperty(
+                "CreditType",
+                typeof(short?),
+                propertyInfo: typeof(Rez).GetProperty("CreditType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(Rez).GetField("<CreditType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
-            isFullCredit.AddAnnotation("Relational:ColumnName", "ISFULLCREDIT");
-            isFullCredit.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            creditType.AddAnnotation("Relational:ColumnName", "CREDITTYPE");
+            creditType.AddAnnotation("Relational:ColumnType", "smallint");
+            creditType.AddAnnotation("Relational:DefaultValueSql", "((0))");
+            creditType.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var iscancelable = runtimeEntityType.AddProperty(
                 "Iscancelable",

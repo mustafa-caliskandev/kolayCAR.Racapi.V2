@@ -4,6 +4,7 @@ using KolayCAR.Broker.Domain.Models.NetResys;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetResysNew;
+using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -264,7 +265,7 @@ namespace KolayCAR.Broker.API.Controllers
                 ID = id,
                 SaleType = saleType,
                 AgencyNumber = agencyNumber,
-                CancellingCharge = cancellingCharge == null || cancellingCharge == "" ? "0" : cancellingCharge,
+                CancellingCharge = string.IsNullOrWhiteSpace(cancellingCharge) ? "0" : ToRefundPrice(cancellingCharge),
                 PaymentType = paymentType,
                 PaymentSurcharge = paymentSurcharge,
                 ReservationDate = reservationDate,
@@ -295,17 +296,17 @@ namespace KolayCAR.Broker.API.Controllers
                 RentACarProviderId = rentACarProviderId,
                 Options = options,
                 FuelType = fuelType,
-                DailyPrice = dailyPrice,
-                SistemUcreti = sistemUcreti,
-                DropBedeli = dropBedeli,
-                Deposit = deposit,
-                Extras = extras,
-                PurchasePrice = purchasePrice,
+                DailyPrice = ToRefundPrice(dailyPrice),
+                SistemUcreti = ToRefundPrice(sistemUcreti),
+                DropBedeli = ToRefundPrice(dropBedeli),
+                Deposit = ToRefundPrice(deposit),
+                Extras = ToRefundPrice(extras),
+                PurchasePrice = ToRefundPrice(purchasePrice),
                 DepositPaymentType = depositPaymentType,
-                TotalPrice = totalPrice,
+                TotalPrice = ToRefundPrice(totalPrice),
                 Note = note,
                 Broker = broker,
-                Charge = charge
+                Charge = ToRefundPrice(charge)
             };
             try
             {
@@ -400,6 +401,30 @@ namespace KolayCAR.Broker.API.Controllers
             }
 
             return element;
+        }
+
+        private static string ToRefundPrice(string price)
+        {
+            if (string.IsNullOrWhiteSpace(price))
+                return price;
+
+            var trimmedPrice = price.Trim();
+
+            if (trimmedPrice.StartsWith("-") || IsZeroPrice(trimmedPrice))
+                return trimmedPrice;
+
+            return $"-{trimmedPrice}";
+        }
+
+        private static bool IsZeroPrice(string price)
+        {
+            var normalizedPrice = price.Replace(".", ",");
+
+            return decimal.TryParse(
+                normalizedPrice,
+                NumberStyles.Number,
+                CultureInfo.GetCultureInfo("tr-TR"),
+                out var parsedPrice) && parsedPrice == 0;
         }
 
     }
