@@ -49,5 +49,6 @@ namespace KolayCAR.Broker.Domain.Models.Logo
         public int VendorId { get; set; }
         public decimal RefundAmount { get; set; }
         public bool IsCancel { get; set; }
+        public bool IsRefund { get; set; }
     }
 }
