@@ -182,13 +182,14 @@ namespace KolayCAR.Broker.API.Services
             try
             {
                 #region Dbden verilerin çekilmesi işlemi
-                var result = await _context.Payments.FromSqlRaw("EXEC GETPAYMENTLIST @startDate = {0}, @endDate = {1}, @agencyId = {2}, @canceledOnly = {3}",
+                var result = await _context.Payments.FromSqlRaw("EXEC GETPAYMENTLIST @startDate = {0}, @endDate = {1}, @agencyId = {2}, @canceledOnly = {3}, @partialActionsOnly = {4}",
                                     getPaymentListRequest.StartDate.ToDateTimeNullSafe(),
                                     getPaymentListRequest.EndDate.ToDateTimeNullSafe(),
                                     string.IsNullOrEmpty(getPaymentListRequest.BranchID) ||
                                                     getPaymentListRequest.BranchID == "0" ? 0 :
                                                     getPaymentListRequest.BranchID.ToIntNullSafe(),
-                                    getPaymentListRequest.CancelledOnly).ToListAsync();
+                                    getPaymentListRequest.CancelledOnly,
+                                    getPaymentListRequest.PartialActionsOnly).ToListAsync();
                 #endregion
 
                 return new PaymentListResponse

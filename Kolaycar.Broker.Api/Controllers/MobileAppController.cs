@@ -217,7 +217,17 @@ namespace KolayCAR.Broker.API.Controllers
                 getVehicleDto,
                 (List<Vehicle>)resultVehicles);
 
-            var awsResult = await _awsService.PushListingData(resultVehicles, null, await _agencyService.GetCurrentAgencyType());
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _awsService.PushListingData(resultVehicles, null, await _agencyService.GetCurrentAgencyType());
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Error("{@AWSPushListingData}", ex.Message);
+                }
+            });
 
             return Ok(new
             {
@@ -273,13 +283,20 @@ namespace KolayCAR.Broker.API.Controllers
             return resultList;
         }
 
-        private async Task<List<Vehicle>> ExecuteWithTimeout(GetVehiclesRequest request)
+        private async Task<List<Vehicle>> ExecuteWithTimeout(GetVehiclesRequest request, int timeoutMs = 20000)
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
                 var _vehicleService = scope.ServiceProvider.GetRequiredService<IVehicleService>();
-                var data = await _vehicleService.GetVehicles(request, _agencyService.GetCurrentAgencyId(), request.SessionCode);
+                var task = _vehicleService.GetVehicles(request, _agencyService.GetCurrentAgencyId(), request.SessionCode);
+                var completed = await Task.WhenAny(task, Task.Delay(timeoutMs));
+                if (completed != task)
+                {
+                    Serilog.Log.Warning("{@ExecuteWithTimeout}", $"Vendor fetch timed out after {timeoutMs}ms: {request.VendorType}");
+                    return null;
+                }
+                var data = await task;
                 return data.Data as List<Vehicle>;
             }
             catch (Exception ex)
@@ -347,11 +364,12 @@ namespace KolayCAR.Broker.API.Controllers
                 var badges = allBadges.Where(b => b.LanguageId == languageId).ToList();
                 var locationVendorContacts = await _memoryCacheService.GetLocationVendorContacts(getVehicleDto.PickupLocationId);
                 var deliveryTypes = await _memoryCacheService.GetVendorLocationDeliveryTypes();
-                resultVehicles.ForEach(async v =>
+                var deliveryTasks = resultVehicles.Select(async v =>
                 {
                     var typeId = deliveryTypes?.FirstOrDefault(x => x.VendorId == v.VendorId && x.LocationId == v.PickupLocationId)?.DeliveryTypeId ?? 0;
                     v.DeliveryType = typeId > 0 ? (DeliveryType)typeId : (DeliveryType)await GetDeliveryTypeId(v.IsOffice, v.IsAirport, languageId);
                 });
+                await Task.WhenAll(deliveryTasks);
 
                 var vehicleList = new VehicleListDto();
                 vehicleList.SearchId = sessionId;
@@ -367,7 +385,7 @@ namespace KolayCAR.Broker.API.Controllers
                 //    ReturnLocation = await CreateMobileLocation(getVehicleDto.ReturnLocationId, languageId)
                 //};
                 vehicleList.Vehicles = await _creator.SortVehicles(vehicles, getVehicleDto.PickupLocationId, languageId);
-                vehicleList.Popup = await CreateVehicleListPopup(podomain, languageId);
+                //vehicleList.Popup = await CreateVehicleListPopup(podomain, languageId);
                 vehicleList.PickupDate = DateTime.Parse(getVehicleDto.PickupDate + " " + getVehicleDto.PickupTime);
                 vehicleList.ReturnDate = DateTime.Parse(getVehicleDto.ReturnDate + " " + getVehicleDto.ReturnTime);
 
@@ -547,7 +565,7 @@ namespace KolayCAR.Broker.API.Controllers
                             }));
                     break;
                 case MobileVehicleFutureTypes.DeliveryType:
-                    var deliveryTypesCache = _memoryCacheService.GetDeliveryTypes().Result;
+                    var deliveryTypesCache = await _memoryCacheService.GetDeliveryTypes();
                     var deliveryTypes = deliveryTypesCache.Where(d => d.LanguageId == languageId);
 
                     children.AddRange(
@@ -589,7 +607,7 @@ namespace KolayCAR.Broker.API.Controllers
                     {
                         Type = Enum.GetName(typeof(MobileVehicleFutureTypes), filter.Type),
                         Value = "Discount",
-                        Name = "Ýndirimli Araçlar"
+                        Name = "Ä°ndirimli AraÃ§lar"
                     });
                     break;
             }
@@ -701,16 +719,19 @@ namespace KolayCAR.Broker.API.Controllers
             var currencySymbol = await GetCurrencySymbol(getVehicleDto.CurrencyCode);
             var alllabels = await _memoryCacheService.GetLabels(languageId);
             var labels = alllabels.Where(l => l.Dilid == languageId).ToList();
-            var totalKmLabel = labels.FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalKmLimit")?.Labeladi ?? "[totalkm]";
+            var labelDict = labels
+                .Where(l => !string.IsNullOrEmpty(l.LabelKodu))
+                .GroupBy(l => l.LabelKodu)
+                .ToDictionary(g => g.Key, g => g.First().Labeladi);
+            var totalKmLabel = labelDict.TryGetValue("VehicleMobile.VehicleList.TotalKmLimit", out var tkl) ? tkl : "[totalkm]";
             var vehicleDetails = await _memoryCacheService.GetVehicleDetails();
             var vehicleFutures = await _memoryCacheService.GetVehicleFutures();
-            //var vendorCoupons = await _memoryCacheService.GetVendorActiveCoupons();
-            //var locationCoupons = allCoupons.Where(c => c.StartDate >= DateTime.Now && c.EndDate <= DateTime.Now).ToList();
             var settings = await _memoryCacheService.GetMobileSettings();
             var vendorLocationIconPath = podomain + settings?.FirstOrDefault(s => s.Parameter == "VendorDetails")?.IconPath;
 
             var vehicleDtos = new List<VehicleDto>();
             var vendorOffice = await _memoryCacheService.GetVendorOffices(getVehicleDto.PickupLocationId);
+            var vendorOfficeDict = vendorOffice?.GroupBy(x => x.VendorId).ToDictionary(g => g.Key, g => g.First());
 
             foreach (var rv in resultVehicles)
             {
@@ -745,17 +766,17 @@ namespace KolayCAR.Broker.API.Controllers
                     VendorId = rv.VendorId,
                     VendorMinimumDriverAge = rv.VendorMinimumDriverAge,
                     VendorMinimumDrivingLicenseAge = rv.VendorMinimumDrivingLicenseAge,
-                    IsFlightNumberRequired = vendorOffice?.FirstOrDefault(x => x.VendorId == rv.VendorId)?.FlightCardRequired ?? false,
+                    IsFlightNumberRequired = vendorOfficeDict != null && vendorOfficeDict.TryGetValue(rv.VendorId, out var vo) ? vo.FlightCardRequired ?? false : false,
 
                     SortableParameters = CreateSortableParameters(rv, sortingOptions),
                     VehicleBadges = CreateVehicleBadges(rv, badges, podomain),
-                    VehicleFeatures = await CreateVehicleFeatures(rv, vehicleFutures, labels, podomain, languageId, totalKmLabel, MobilePages.VehicleList),
+                    VehicleFeatures = await CreateVehicleFeatures(rv, vehicleFutures, labels, labelDict, podomain, languageId, totalKmLabel, MobilePages.VehicleList),
                     //VehiclePromotion = CreateVehiclePromotions(rv, vendorCoupons, labels, getVehicleDto.PickupLocationId, currencySymbol),
                 };
 
-                vehicleDto.MobileFilterParameters = CreateFilterParameters(rv, filters, vehicleDto.VehiclePromotion);
+                vehicleDto.MobileFilterParameters = await CreateFilterParameters(rv, filters, vehicleDto.VehiclePromotion);
 
-                vehicleDto.VehicleDetails = await CreateVehicleDetailsAsync(rv, vehicleDetails, labels, podomain, languageId);
+                vehicleDto.VehicleDetails = await CreateVehicleDetailsAsync(rv, vehicleDetails, labels, labelDict, podomain, languageId, currencySymbol);
                 vehicleDtos.Add(vehicleDto);
             }
 
@@ -771,7 +792,7 @@ namespace KolayCAR.Broker.API.Controllers
             return currencySymbol;
         }
 
-        private List<MobileFilterParameters> CreateFilterParameters(Vehicle rv, List<MobileVehicleListFilter> filters, VehiclePromotion vehiclePromotion)
+        private async Task<List<MobileFilterParameters>> CreateFilterParameters(Vehicle rv, List<MobileVehicleListFilter> filters, VehiclePromotion vehiclePromotion)
         {
             var filterParameters = new List<MobileFilterParameters>();
 
@@ -836,7 +857,7 @@ namespace KolayCAR.Broker.API.Controllers
                         });
                         break;
                     case MobileVehicleFutureTypes.VehicleCampaign:
-                        if (CanCouponBeUsed(rv.VendorId).Result)
+                        if (await CanCouponBeUsed(rv.VendorId))
                         {
                             filterParameters.Add(new MobileFilterParameters
                             {
@@ -960,12 +981,9 @@ namespace KolayCAR.Broker.API.Controllers
                 .ToList();
         }
 
-        private async Task<List<VehicleDetail>> CreateVehicleDetailsAsync(Vehicle rv, List<MobileVehicleDetail> details, List<Label> labels, string podomain, int languageId)
+        private async Task<List<VehicleDetail>> CreateVehicleDetailsAsync(Vehicle rv, List<MobileVehicleDetail> details, List<Label> labels, Dictionary<string, string> labelDict, string podomain, int languageId, string currencySymbol)
         {
             var vehicleDetails = new List<VehicleDetail>();
-            var currencies = await _memoryCacheService.GetCurrencies();
-            var currency = currencies.FirstOrDefault(c => c.Currencyisocode == rv.CurrencyCode);
-            var currencySymbol = currency?.Symbol ?? "";
 
             foreach (var detail in details)
             {
@@ -978,14 +996,11 @@ namespace KolayCAR.Broker.API.Controllers
                             Type = detail.Type,
                             Icon = podomain + detail.IconPath,
                             Value = rv.DailyPrice.Round().ToString(),
-                            Text = (labels
-                                .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.DailyPrice")?.Labeladi ?? "[price][currencySymbol]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.DailyPrice", out var dpLabel) ? dpLabel : "[price][currencySymbol]")
                                 .Replace("[price]", rv.DailyPrice.Round().ToString())
                                 .Replace("[currencySymbol]", currencySymbol),
-                            Title = labels
-                                .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.DailyPriceTitle")?.Labeladi,
-                            Description = (labels
-                                .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.DailyPriceDescription")?.Labeladi ?? "[price][currencySymbol]")
+                            Title = labelDict.TryGetValue("VehicleMobile.VehicleList.DailyPriceTitle", out var dpTitle) ? dpTitle : null,
+                            Description = (labelDict.TryGetValue("VehicleMobile.VehicleList.DailyPriceDescription", out var dpDesc) ? dpDesc : "[price][currencySymbol]")
                                 .Replace("[price]", rv.DailyPrice.Round().ToString())
                                 .Replace("[currencySymbol]", currencySymbol)
                         });
@@ -997,14 +1012,11 @@ namespace KolayCAR.Broker.API.Controllers
                             Type = detail.Type,
                             Icon = podomain + detail.IconPath,
                             Value = rv.TotalPrice.Round().ToString(),
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalPrice")?.Labeladi ?? "[price][currencySymbol]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.TotalPrice", out var tpLabel) ? tpLabel : "[price][currencySymbol]")
                                 .Replace("[price]", rv.TotalPrice.Round().ToString())
                                 .Replace("[currencySymbol]", currencySymbol),
-                            Title = labels
-                                .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalPriceTitle")?.Labeladi,
-                            Description = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalPriceDescription")?.Labeladi ?? "[price][currencySymbol]")
+                            Title = labelDict.TryGetValue("VehicleMobile.VehicleList.TotalPriceTitle", out var tpTitle) ? tpTitle : null,
+                            Description = (labelDict.TryGetValue("VehicleMobile.VehicleList.TotalPriceDescription", out var tpDesc) ? tpDesc : "[price][currencySymbol]")
                                 .Replace("[price]", rv.TotalPrice.Round().ToString())
                                 .Replace("[currencySymbol]", currencySymbol)
                         });
@@ -1016,23 +1028,13 @@ namespace KolayCAR.Broker.API.Controllers
                             Type = detail.Type,
                             Icon = podomain + detail.IconPath,
                             Value = rv.DepositPrice?.ToString(CultureInfo.InvariantCulture) ?? "0.0",
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleDepositPrice")?.Labeladi ?? "[price][currencySymbol]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleDepositPrice", out var depLabel) ? depLabel : "[price][currencySymbol]")
                                 .Replace("[price]", rv.DepositPrice.ToString())
                                 .Replace("[currencySymbol]", currencySymbol),
-                            Title = labels
-                                .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleDepositPriceTitle")?.Labeladi,
-                            Description = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleDepositPriceDescription")?.Labeladi ?? "[price][currencySymbol]")
+                            Title = labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleDepositPriceTitle", out var depTitle) ? depTitle : null,
+                            Description = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleDepositPriceDescription", out var depDesc) ? depDesc : "[price][currencySymbol]")
                                 .Replace("[price]", rv.DepositPrice.ToString())
                                 .Replace("[currencySymbol]", currencySymbol)
-                            //Info = new Info
-                            //{
-                            //    IconPath = podomain + InfoIconPath,
-                            //    Text = (labels
-                            //        .FirstOrDefault(l => l.LabelKodu == "Mobile.Vehiclelist.DepositInfo")?.Labeladi ?? "[DepositPrice] [CurrencyType]")
-                            //    .Replace("[DepositPrice]", rv.DepositPrice.ToString()).Replace("[CurrencyType]", currencySymbol),
-                            //}
                         });
                         break;
                     case MobileVehicleDetailTypes.TotalKmLimit:
@@ -1042,13 +1044,10 @@ namespace KolayCAR.Broker.API.Controllers
                             Type = detail.Type,
                             Icon = podomain + detail.IconPath,
                             Value = rv.TotalKMLimit.ToString(),
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalKmLimit")?.Labeladi ?? "[totalkm]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.TotalKmLimit", out var kmLabel) ? kmLabel : "[totalkm]")
                                 .Replace("[totalkm]", rv.TotalKMLimit.ToString()),
-                            Title = labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalKmLimitTitle")?.Labeladi,
-                            Description = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalKmLimitDescription")?.Labeladi ?? "[totalkm]")
+                            Title = labelDict.TryGetValue("VehicleMobile.VehicleList.TotalKmLimitTitle", out var kmTitle) ? kmTitle : null,
+                            Description = (labelDict.TryGetValue("VehicleMobile.VehicleList.TotalKmLimitDescription", out var kmDesc) ? kmDesc : "[totalkm]")
                                 .Replace("[totalkm]", rv.TotalKMLimit.ToString())
                         });
                         break;
@@ -1059,13 +1058,10 @@ namespace KolayCAR.Broker.API.Controllers
                             Type = detail.Type,
                             Icon = podomain + detail.IconPath,
                             Value = rv.VendorMinimumDriverAge.ToString(),
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumDriverAge")?.Labeladi ?? "[age]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleMinimumDriverAge", out var ageLabel) ? ageLabel : "[age]")
                                 .Replace("[age]", rv.VendorMinimumDriverAge.ToString()),
-                            Title = labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumDriverAgeTitle")?.Labeladi,
-                            Description = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumDriverAgeDescription")?.Labeladi ?? "[age]")
+                            Title = labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleMinimumDriverAgeTitle", out var ageTitle) ? ageTitle : null,
+                            Description = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleMinimumDriverAgeDescription", out var ageDesc) ? ageDesc : "[age]")
                                 .Replace("[age]", rv.VendorMinimumDriverAge.ToString())
                         });
                         break;
@@ -1076,13 +1072,10 @@ namespace KolayCAR.Broker.API.Controllers
                             Type = detail.Type,
                             Icon = podomain + detail.IconPath,
                             Value = rv.VendorMinimumDrivingLicenseAge.ToString(),
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumLicenseAge")?.Labeladi ?? "[age]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleMinimumLicenseAge", out var licLabel) ? licLabel : "[age]")
                                 .Replace("[age]", rv.VendorMinimumDrivingLicenseAge.ToString()),
-                            Title = labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumLicenseAgeTitle")?.Labeladi,
-                            Description = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumLicenseAgeDescription")?.Labeladi ?? "[age]")
+                            Title = labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleMinimumLicenseAgeTitle", out var licTitle) ? licTitle : null,
+                            Description = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleMinimumLicenseAgeDescription", out var licDesc) ? licDesc : "[age]")
                                 .Replace("[age]", rv.VendorMinimumDrivingLicenseAge.ToString())
                         });
                         break;
@@ -1095,13 +1088,10 @@ namespace KolayCAR.Broker.API.Controllers
                             Type = detail.Type,
                             Icon = podomain + detail.IconPath,
                             Value = deliveryType?.Name ?? string.Empty,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleDeliveryType")?.Labeladi ?? "[DeliveryType]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleDeliveryType", out var delLabel) ? delLabel : "[DeliveryType]")
                                 .Replace("[DeliveryType]", deliveryType?.Name ?? string.Empty),
-                            Title = labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleDeliveryTypeTitle")?.Labeladi,
-                            Description = labels
-                                    .FirstOrDefault(l => l.LabelKodu == $"VehicleMobile.VehicleList.VehicleDeliveryTypeDescription.{rv.DeliveryType.ToString()}")?.Labeladi
+                            Title = labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleDeliveryTypeTitle", out var delTitle) ? delTitle : null,
+                            Description = labelDict.TryGetValue($"VehicleMobile.VehicleList.VehicleDeliveryTypeDescription.{rv.DeliveryType.ToString()}", out var delDesc) ? delDesc : null
                         });
                         break;
                     default:
@@ -1133,13 +1123,12 @@ namespace KolayCAR.Broker.API.Controllers
             return deliveryType;
         }
 
-        private async Task<List<VehicleFeature>> CreateVehicleFeatures(Vehicle rv, List<MobileVehicleFeature> features, List<Label> labels, string podomain, int languageId, string totalKmLabel, MobilePages page)
+        private async Task<List<VehicleFeature>> CreateVehicleFeatures(Vehicle rv, List<MobileVehicleFeature> features, List<Label> labels, Dictionary<string, string> labelDict, string podomain, int languageId, string totalKmLabel, MobilePages page)
         {
             var vehicleFeatures = new List<VehicleFeature>();
 
             var deliveryType = await GetDeliveryType(rv, languageId);
             string deliveryTypeLabel = GetDeliveryTypeLabel(labels, deliveryType.Id);
-            string InfoIconPath = "/assets/image/mobile/info.png";
             string passengerQuantityLabelName = page == MobilePages.Details
                                                         ? "VehicleMobile.VehicleList.PassangerQuantityTypeGetDetail"
                                                         : "VehicleMobile.VehicleList.PassangerQuantityType";
@@ -1155,8 +1144,7 @@ namespace KolayCAR.Broker.API.Controllers
                             Value = rv.FuelType.ToString(),
                             Order = feature.Order,
                             //Icon = podomain + feature.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.FuelType")?.Labeladi ?? "[name]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.FuelType", out var fuelLabel) ? fuelLabel : "[name]")
                                 .Replace("[name]", rv.FuelTypeName)
                         });
                         break;
@@ -1167,8 +1155,7 @@ namespace KolayCAR.Broker.API.Controllers
                             Value = rv.TransmissionType.ToString(),
                             Order = feature.Order,
                             //Icon = podomain + feature.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TransmissionType")?.Labeladi ?? "[name]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.TransmissionType", out var transLabel) ? transLabel : "[name]")
                                 .Replace("[name]", rv.TransmissionTypeName)
                         });
                         break;
@@ -1179,8 +1166,7 @@ namespace KolayCAR.Broker.API.Controllers
                             Value = rv.VehicleCategoryType.ToString(),
                             Order = feature.Order,
                             //Icon = podomain + feature.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.CategoryType")?.Labeladi ?? "[name]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.CategoryType", out var catLabel) ? catLabel : "[name]")
                                 .Replace("[name]", rv.VehicleCategoryTypeName)
                         });
                         break;
@@ -1191,8 +1177,7 @@ namespace KolayCAR.Broker.API.Controllers
                             Value = rv.VehicleType.ToString(),
                             Order = feature.Order,
                             //Icon = podomain + feature.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleType")?.Labeladi ?? "[name]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.VehicleType", out var vtLabel) ? vtLabel : "[name]")
                                 .Replace("[name]", rv.VehicleTypeName)
                         });
                         break;
@@ -1203,8 +1188,7 @@ namespace KolayCAR.Broker.API.Controllers
                             Value = rv.PassangerQuantityType.ToString(),
                             Order = feature.Order,
                             //Icon = podomain + feature.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == passengerQuantityLabelName)?.Labeladi ?? "[name]")
+                            Text = (labelDict.TryGetValue(passengerQuantityLabelName, out var pqLabel) ? pqLabel : "[name]")
                                 .Replace("[name]", rv.PassangerQuantityName)
                         });
                         break;
@@ -1215,8 +1199,7 @@ namespace KolayCAR.Broker.API.Controllers
                             Value = ((int)rv.BaggageQuantityType + 1).ToString(),
                             Order = feature.Order,
                             //Icon = podomain + feature.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.BaggageQuantityType")?.Labeladi ?? "[name]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.BaggageQuantityType", out var bqLabel) ? bqLabel : "[name]")
                                 .Replace("[name]", rv.BaggageQuantityName)
                         });
                         break;
@@ -1242,8 +1225,7 @@ namespace KolayCAR.Broker.API.Controllers
                             Value = deliveryType?.Name,
                             Order = feature.Order,
                             //Icon = podomain + feature.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.DeliveryType")?.Labeladi ?? "[DeliveryType]")
+                            Text = (labelDict.TryGetValue("VehicleMobile.VehicleList.DeliveryType", out var dtLabel) ? dtLabel : "[DeliveryType]")
                                 .Replace("[DeliveryType]", deliveryType?.Name),
                             //Info = new Info
                             //{
@@ -1533,7 +1515,7 @@ namespace KolayCAR.Broker.API.Controllers
                 {
                     success = false,
                     resultCode = ResultCodes.Success,
-                    message = "Rezervasyon bulunamadý!"
+                    message = "Rezervasyon bulunamadÄ±!"
                 });
             }
             var vehicleCategoryTypes = await _vehicleService.GetVehicleCategoryLangList(getReservationsDto.LanguageId);
@@ -1839,6 +1821,10 @@ namespace KolayCAR.Broker.API.Controllers
                     var vendorSettings = mobileAppSettings.Where(s => s.Parameter == "VendorDetails" && s.LanguageId == languageId).ToList();
                     var rentalConditionsSettings = mobileAppSettings.Where(s => s.Parameter.Contains("RentalConditions-"));
                     var totalKmLabel = labels.FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleDetail.TotalKmLimit")?.Labeladi ?? "[totalkm]";
+                    var detailsLabelDict = labels
+                        .Where(l => !string.IsNullOrEmpty(l.LabelKodu))
+                        .GroupBy(l => l.LabelKodu)
+                        .ToDictionary(g => g.Key, g => g.First().Labeladi);
                     var vehicleDetails = await _memoryCacheService.GetVehicleDetails();
                     var allBadges = await _memoryCacheService.GetBadges();
                     var badges = allBadges.Where(b => b.LanguageId == languageId).ToList();
@@ -1855,8 +1841,8 @@ namespace KolayCAR.Broker.API.Controllers
                     vehicle.DeliveryType = deliveryTypeId > 0 ? (DeliveryType)deliveryTypeId : (DeliveryType)await GetDeliveryTypeId(vehicle.IsOffice, vehicle.IsAirport, languageId);
                     getDetailsResponseDto.Extras = await CreateAndEditExtras(extras, vehicle.RentalDuration);
                     getDetailsResponseDto.Insurances = (serviceResponse.Data as GetExtrasResponse).Extras?.Where(e => e.ExtraType == AdditionalProductTypes.Insurance)?.ToList();
-                    getDetailsResponseDto.VehicleFeatures = await CreateVehicleFeatures(vehicle, vehicleFeatures, labels, podomain, languageId, totalKmLabel, MobilePages.Details);
-                    getDetailsResponseDto.VehicleDetails = await CreateVehicleDetailsAsync(vehicle, vehicleDetails, labels, podomain, languageId);
+                    getDetailsResponseDto.VehicleFeatures = await CreateVehicleFeatures(vehicle, vehicleFeatures, labels, detailsLabelDict, podomain, languageId, totalKmLabel, MobilePages.Details);
+                    getDetailsResponseDto.VehicleDetails = await CreateVehicleDetailsAsync(vehicle, vehicleDetails, labels, detailsLabelDict, podomain, languageId, currencySymbol);
                     getDetailsResponseDto.VehicleBadges = CreateVehicleBadges(vehicle, badges, podomain);
                     getDetailsResponseDto.RequiredDocumentsOnDelivery = GetRequiredDocuments(requiredSettings, vehicle, podomain);
                     getDetailsResponseDto.SpecialAdvantages = GetSpecialAdvantages(specialSettings, vehicle, podomain);
@@ -1944,7 +1930,7 @@ namespace KolayCAR.Broker.API.Controllers
                         data = "",
                         success = false,
                         resultCode = HttpStatusCode.OK,
-                        message = "Token alýnamadý"
+                        message = "Token alÄ±namadÄ±"
                     });
 
                 var sessionId = await _reservationTokenService.GetReservationTokenSessionId(result);
@@ -1958,7 +1944,7 @@ namespace KolayCAR.Broker.API.Controllers
                     },
                     success = true,
                     resultCode = HttpStatusCode.OK,
-                    message = "Baþarýlý"
+                    message = "BaÅŸarÄ±lÄ±"
                 });
             }
             catch (Exception e)
@@ -2425,7 +2411,7 @@ namespace KolayCAR.Broker.API.Controllers
 
                     editorText = editorText.Replace("{{REZ_PICKUP_DATE}}", resToken.PickupDateTime.ToString("dd.MM.yyyy HH:mm"));
                     editorText = editorText.Replace("{{REZ_RETURN_DATE}}", resToken.ReturnDateTime.ToString("dd.MM.yyyy HH:mm"));
-                    editorText = editorText.Replace("{{REZ_RENTAL_DURATION}}", $"{resToken.RentalDuration} Gün");
+                    editorText = editorText.Replace("{{REZ_RENTAL_DURATION}}", $"{resToken.RentalDuration} GÃ¼n");
 
                     editorText = editorText.Replace("{{PICKUPLOCATION_ADDRESS}}", $"{pickupAddress}");
                     editorText = editorText.Replace("{{RETURNLOCATION_ADDRESS}}", $"{returnAddress}");
@@ -2501,7 +2487,7 @@ namespace KolayCAR.Broker.API.Controllers
 
                     editorText = editorText.Replace("{{REZ_DATE}}", reservationToken.PickupDateTime.ToString("dd.MM.yyyy HH:mm"));
                     editorText = editorText.Replace("{{REZ_RETURN_DATE}}", reservationToken.ReturnDateTime.ToString("dd.MM.yyyy HH:mm"));
-                    editorText = editorText.Replace("{{SUM_REZ_DAY}}", $"{reservationToken.RentalDuration} Gün");
+                    editorText = editorText.Replace("{{SUM_REZ_DAY}}", $"{reservationToken.RentalDuration} GÃ¼n");
                     editorText = editorText.Replace("{{PICKUP_LOCATION}}", $"{allLocations.Where(l => l.Id == reservationToken.PickupLocationId).FirstOrDefault().Locationname}");
                     editorText = editorText.Replace("{{DROP_LOCATION}}", $"{allLocations.Where(l => l.Id == reservationToken.ReturnLocationId).FirstOrDefault().Locationname}");
 
@@ -2557,7 +2543,7 @@ namespace KolayCAR.Broker.API.Controllers
                         data = "",
                         success = false,
                         resultCode = HttpStatusCode.OK,
-                        message = "Ayný token ile iki rezervasyon oluþturulamaz!"
+                        message = "AynÄ± token ile iki rezervasyon oluÅŸturulamaz!"
                     });
                 }
 
@@ -2574,7 +2560,7 @@ namespace KolayCAR.Broker.API.Controllers
                         data = "",
                         success = false,
                         resultCode = HttpStatusCode.OK,
-                        message = "Ýstek client tarafýndan iptal edildi!"
+                        message = "Ä°stek client tarafÄ±ndan iptal edildi!"
                     });
                 }
 
@@ -2616,7 +2602,7 @@ namespace KolayCAR.Broker.API.Controllers
                                 CustomerEmail = driverInfo?.Email,
                                 CustomerPhone = $"{driverInfo?.CountryPhoneCode}{driverInfo?.PhoneNumber}",
                                 PaymentType = "cash",
-                                PaymentMethod = "Masterpass Ödeme Sistemi",
+                                PaymentMethod = "Masterpass Ã–deme Sistemi",
                                 PaymentCard = $"{creditCardNo[..6]}*****{creditCardNo[^4..]}",
                                 InstallmentCount = installmentCount ?? 0,
                                 LateCharge = (decimal)(installmentCommission ?? 0),
@@ -2626,7 +2612,7 @@ namespace KolayCAR.Broker.API.Controllers
                             var couponDetail = new kolayCAR.Broker.AWS.Models.AwsModels.Kinesis.CouponModel
                             {
                                 CouponCode = couponCode,
-                                CouponName = couponCode,// TODO : Düzeltme yapýlacak
+                                CouponName = couponCode,// TODO : DÃ¼zeltme yapÄ±lacak
                                 CouponAmount = couponAmount ?? 0
                             };
 
@@ -2650,7 +2636,7 @@ namespace KolayCAR.Broker.API.Controllers
                     success = false,
                     resultCode = HttpStatusCode.OK,
                     message = string.IsNullOrEmpty(postReservationResponse.Message)
-                              ? "Rezervasyon oluþturulamadý!"
+                              ? "Rezervasyon oluÅŸturulamadÄ±!"
                               : postReservationResponse.Message
                 });
             }
@@ -2813,7 +2799,7 @@ namespace KolayCAR.Broker.API.Controllers
                 paymentDetails.Add(new PaymentDetail
                 {
                     Name = couponTitle,
-                    Description = null, //Fatmanur'un Talebi Ýle Null yapýldý
+                    Description = null, //Fatmanur'un Talebi Ä°le Null yapÄ±ldÄ±
                     Amount = -response.CouponDiscountAmount
                 });
             }
@@ -2990,6 +2976,10 @@ namespace KolayCAR.Broker.API.Controllers
         {
             var cardTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.VehicleDetailsCardTitle").Labeladi;
             var totalKmLabel = labels.FirstOrDefault(l => l.LabelKodu == "VehicleMobile.ReservationSuccess.TotalKmLimit")?.Labeladi ?? "[totalkm]";
+            var successLabelDict = labels
+                .Where(l => !string.IsNullOrEmpty(l.LabelKodu))
+                .GroupBy(l => l.LabelKodu)
+                .ToDictionary(g => g.Key, g => g.First().Labeladi);
 
             var vehicle = new Vehicle
             {
@@ -3021,7 +3011,7 @@ namespace KolayCAR.Broker.API.Controllers
                 VehicleModelName = response.VehicleModelName,
                 VehicleBrandName = response.VehicleBrandName,
                 VehicleCategoryTypeName = response.VehicleCategoryTypeName,
-                VehicleFeatures = await CreateVehicleFeatures(vehicle, vehicleFeatures, labels, podomain, languageId, totalKmLabel, MobilePages.Success)
+                VehicleFeatures = await CreateVehicleFeatures(vehicle, vehicleFeatures, labels, successLabelDict, podomain, languageId, totalKmLabel, MobilePages.Success)
             };
         }
 
@@ -3135,7 +3125,7 @@ namespace KolayCAR.Broker.API.Controllers
 
             var vendor = await _vendorService.GetVendorById(reservationTokenObj.VendorId);
 
-            //Kiralanacak aracýn müsaitliði ve fiyatý tekrar tedarikçi servisinden sorgulanýr
+            //Kiralanacak aracÄ±n mÃ¼saitliÄŸi ve fiyatÄ± tekrar tedarikÃ§i servisinden sorgulanÄ±r
             var getVehiclesRequest = new GetVehiclesRequest
             {
                 VendorType = vendor.VendorType,
@@ -3156,7 +3146,7 @@ namespace KolayCAR.Broker.API.Controllers
 
             Serilog.Log.Error("{@MobileGetVehiclesRequest}", getVehiclesRequest);
 
-            #region Alýþ tarihi kontolü
+            #region AlÄ±ÅŸ tarihi kontolÃ¼
             bool checkPickUpDate = ReservationHelper.CheckPickUpDate(reservationTokenObj);
             if (checkPickUpDate)
             {
@@ -3246,7 +3236,7 @@ namespace KolayCAR.Broker.API.Controllers
                             {
                                 ReservationNumber = reservationNumber,
                                 CustomerEmail = customerMail,
-                                CancelNote = "Otomatik Ýptal!",
+                                CancelNote = "Otomatik Ä°ptal!",
                                 LanguageCode = LanguageTypes.TR.ToString(),
                                 IsBrokerReservation = false,
                                 PenaltyStatus = _penaltyStatus.None,
@@ -3259,15 +3249,13 @@ namespace KolayCAR.Broker.API.Controllers
 
                             var cancelResponse = await _reservationService.CancelReservationLocal(postCancelReservationRequest);
 
-                            await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, "Rezervasyon tedarikçi API iletilemediði için otomatik iptal!", BrokerLogTypes.ReservationCancelVendorAPIRequest));
-
-                            await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, "Rezervasyon tedarikçi API iletilemediði için otomatik iptal!", BrokerLogTypes.ReservationCancelVendorAPIResponse));
+                            await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, "Rezervasyon tedarikÃ§i API iletilemediÄŸi iÃ§in otomatik iptal!", BrokerLogTypes.ReservationCancelVendorAPIRequest));
 
                             postReservationResponse = HttpResult<object>.Result(
                                  data: null,
                                  httpResultType: HttpStatusCode.BadGateway,
                                  success: false,
-                                 message: "Rezervasyon tedarikçi API tarafýna iletilemedi!",
+                                 message: "Rezervasyon tedarikÃ§i API tarafÄ±na iletilemedi!",
                                  resultCode: ResultCodes.Error);
 
                             await _configurationService.WriteLog(new BrokerLogModel
@@ -3371,7 +3359,7 @@ namespace KolayCAR.Broker.API.Controllers
                     vendor,
                     postReservationRequest.ReservationToken);
 
-                // Araç müsaitse direkt dön
+                // AraÃ§ mÃ¼saitse direkt dÃ¶n
                 if (result.Success)
                     return result;
 
@@ -3380,7 +3368,7 @@ namespace KolayCAR.Broker.API.Controllers
                     attempt);
             }
 
-            // Ýkinci denemenin sonucunu döndür
+            // Ä°kinci denemenin sonucunu dÃ¶ndÃ¼r
             return await _reservationStepsService.CheckReservationVehicleIsAvailable(
                 (await _vehicleService.GetVehicles(
                     getVehiclesRequest,
@@ -3796,7 +3784,7 @@ namespace KolayCAR.Broker.API.Controllers
 
             if (!string.IsNullOrEmpty(getSearchedLocations.SearchText))
             {
-                // Aramaya göre dönüþ yapýlýyor
+                // Aramaya gÃ¶re dÃ¶nÃ¼ÅŸ yapÄ±lÄ±yor
                 var searchKeys = getSearchedLocations.SearchText.ToLower().ToEnglishLetters().Split();
                 IEnumerable<SearchLocationDto> searchLocations = Enumerable.Empty<SearchLocationDto>();
                 foreach (var searchKey in searchKeys)
@@ -3829,7 +3817,7 @@ namespace KolayCAR.Broker.API.Controllers
             }
             else
             {
-                // Popüler Lokasyonlar Dönülüyor
+                // PopÃ¼ler Lokasyonlar DÃ¶nÃ¼lÃ¼yor
                 var result = activeLocations
                                 .Where(l => l.IsPopular)
                                 .OrderByDescending(l => l.IsAirport)

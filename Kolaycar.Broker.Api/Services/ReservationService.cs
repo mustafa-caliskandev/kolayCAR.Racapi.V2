@@ -298,11 +298,15 @@ namespace KolayCAR.Broker.API.Services
 
         public async Task<List<Rez>> GetUpdatedReservations(DateTime startDate, DateTime endDate)
         {
-            return await _context.Rez
-                                 .Where(r => _context.Reservationupdate
+            var updateHistory = _context.Reservationupdate
                                      .Where(u => u.Updatedate >= startDate && u.Updatedate <= endDate)
-                                     .Select(u => u.Reservatinonumber)
-                                     .Contains(r.Rezno))
+                                     .Select(u => u.Reservatinonumber);
+            var stateHistory = _context.Resstatushistory
+                                     .Where(u => u.Inserteddate >= startDate && u.Inserteddate <= endDate && u.Resstatusid == -4 && u.Userid != null && u.Userid == 123518)
+                                     .Select(u => u.Resno);
+
+            return await _context.Rez
+                                 .Where(r => updateHistory.Contains(r.Rezno) || stateHistory.Contains(r.Rezno))
                                  .ToListAsync();
         }
 

@@ -6,5 +6,6 @@
         public string EndDate { get; set; }
         public string BranchID { get; set; }
         public bool CancelledOnly { get; set; } = false;
+        public bool PartialActionsOnly { get; set; } = false;
     }
 }
