@@ -22,3 +22,26 @@ public class ReservawayCreateCustomerRequest
     public long vehicle_id { get; set; }
     public string locale { get; set; }
 }
+
+public class ReservawayPartnerReserveRequest
+{
+    public long vehicle_id { get; set; }
+    public string booking_token { get; set; }
+    public string visitor_session_id { get; set; }
+    public string currency { get; set; }
+    public ReservawayPartnerReserveCustomerRequest customer { get; set; }
+}
+
+public class ReservawayPartnerReserveCustomerRequest
+{
+    public string first_name { get; set; }
+    public string last_name { get; set; }
+    public string email { get; set; }
+    public string phone { get; set; }
+    public string date_of_birth { get; set; }
+    public string locale { get; set; }
+    public string gender { get; set; }
+    public string country_of_residence { get; set; }
+    public string address { get; set; }
+    public string flight_number { get; set; }
+}

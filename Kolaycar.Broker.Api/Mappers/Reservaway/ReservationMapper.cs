@@ -44,6 +44,39 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
             };
         }
 
+        public static ReservawayPartnerReserveRequest MapToPartnerReserveRequest(
+            this PostReservationRequest postReservationRequest,
+            ReservationToken resToken,
+            ReservawayVehicleDetail vehicleDetail,
+            string bookingToken,
+            string visitorSessionId)
+        {
+            var customer = postReservationRequest?.PostReservationRequestV2?.Customer;
+            var languageCode = GetFirstNonEmpty(postReservationRequest?.PostReservationRequestV2?.LanguageCode, postReservationRequest?.LanguageCode);
+            var locale = ReservawayMapperHelper.GetLocale(languageCode);
+
+            return new ReservawayPartnerReserveRequest
+            {
+                vehicle_id = resToken.VehicleCode.ToLongNullSafe(),
+                booking_token = bookingToken,
+                visitor_session_id = visitorSessionId,
+                currency = ResolveCurrency(postReservationRequest, vehicleDetail),
+                customer = new ReservawayPartnerReserveCustomerRequest
+                {
+                    gender = "mr",
+                    first_name = GetFirstNonEmpty(customer?.Name, postReservationRequest?.CustomerName),
+                    last_name = GetFirstNonEmpty(customer?.Surname, postReservationRequest?.CustomerSurname),
+                    date_of_birth = FormatDate(GetFirstNonEmpty(customer?.BirthDay, postReservationRequest?.CustomerBirthDay)),
+                    email = GetFirstNonEmpty(customer?.Email, postReservationRequest?.CustomerEmail),
+                    phone = NormalizePhone(GetFirstNonEmpty(customer?.PhoneNumber, postReservationRequest?.CustomerTelephone)),
+                    address = GetFirstNonEmpty(customer?.Address, postReservationRequest?.CustomerAddress),
+                    flight_number = GetFirstNonEmpty(postReservationRequest?.PostReservationRequestV2?.FlightNumberArrival, postReservationRequest?.FlightNumberArrival),
+                    locale = locale,
+                    country_of_residence = ResolveCountryOfResidence(postReservationRequest, vehicleDetail)
+                }
+            };
+        }
+
         private static List<string> GetSelectedExtraCodes(PostReservationRequest postReservationRequest, List<Extra> apiExtras)
         {
             var selectedExtras = new List<ReservationExtra>();
@@ -84,6 +117,29 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
 
         private static string GetFirstNonEmpty(params string[] values)
             => values?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))?.Trim() ?? string.Empty;
+
+        private static string ResolveCurrency(PostReservationRequest postReservationRequest, ReservawayVehicleDetail vehicleDetail)
+            => GetFirstNonEmpty(
+                    postReservationRequest?.PostReservationRequestV2?.CurrencyCode,
+                    postReservationRequest?.CurrencyCode,
+                    vehicleDetail?.base_currency,
+                    vehicleDetail?.prices?.price_definition?.currency)
+                .ToUpperInvariant();
+
+        private static string ResolveCountryOfResidence(PostReservationRequest postReservationRequest, ReservawayVehicleDetail vehicleDetail)
+        {
+            var candidates = new[]
+            {
+                postReservationRequest?.PostReservationRequestV2?.CountryCode,
+                postReservationRequest?.CountryCode,
+                postReservationRequest?.PostReservationRequestV2?.Country,
+                postReservationRequest?.Country,
+                vehicleDetail?.country_of_residence?.code
+            };
+
+            var countryCode = candidates.FirstOrDefault(x => x.ToStringNullSafe().Trim().Length == 2);
+            return !string.IsNullOrWhiteSpace(countryCode) ? countryCode.Trim().ToUpperInvariant() : "TR";
+        }
 
         private static string NormalizePhone(string phone)
         {

@@ -1759,11 +1759,9 @@ namespace KolayCAR.Broker.API.Helpers
         {
             return new SqlParameter
             {
-                ParameterName = global::KolayCAR.Broker.API.Models.BrokerContext.UseLegacyCreditSchema ? "@ISFULLCREDIT" : "@CREDITTYPE",
-                SqlDbType = global::KolayCAR.Broker.API.Models.BrokerContext.UseLegacyCreditSchema ? SqlDbType.Bit : SqlDbType.SmallInt,
-                Value = global::KolayCAR.Broker.API.Models.BrokerContext.UseLegacyCreditSchema
-                    ? creditType == CreditType.FullCredit
-                    : (short)creditType
+                ParameterName = "@CREDITTYPE",
+                SqlDbType = SqlDbType.SmallInt,
+                Value = (short)creditType
             };
         }
     }

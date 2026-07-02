@@ -925,7 +925,7 @@ namespace KolayCAR.Broker.API.Services
 
                         try
                         {
-                            int postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE AddReservation " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
+                            int postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE SP_ADD_RESERVATION " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
 
                             Serilog.Log.Error("{@PostReservationLocalProcedureResult}", postReservationLocalResult);
                             return new ServiceResponseBase(postReservationRequest, true, postReservationLocalResult > 0 ? "Reservation received successfully!" : "An error occurred during the request!");
@@ -940,7 +940,7 @@ namespace KolayCAR.Broker.API.Services
                                 try
                                 {
                                     _context.Database.SetCommandTimeout(15);
-                                    postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE AddReservation " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
+                                    postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE SP_ADD_RESERVATION " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
                                 }
                                 catch (Exception ex2)
                                 {

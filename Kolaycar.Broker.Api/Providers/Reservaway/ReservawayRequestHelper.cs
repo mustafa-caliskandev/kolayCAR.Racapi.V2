@@ -19,6 +19,7 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
         internal const string PaymentTypesPath = "/vehicle/payment-types";
         internal const string LocationListPath = "/location/list";
         internal const string CreateCustomerPath = "/customer";
+        internal const string PartnerReservePath = "/external/partner/reserve";
         internal const string CancelPath = "/customer/cancel";
         private const string UserAgent = "KolayCAR-Broker/1.0";
 
@@ -32,6 +33,16 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
 
             if (!string.IsNullOrWhiteSpace(searchHash))
                 headers["search-hash"] = searchHash;
+
+            return headers;
+        }
+
+        internal static Dictionary<string, object> CreatePartnerHeaders(string visitorSessionId, string partnerKey)
+        {
+            var headers = CreateHeaders(visitorSessionId);
+
+            if (!string.IsNullOrWhiteSpace(partnerKey))
+                headers["X-Partner-Key"] = partnerKey;
 
             return headers;
         }

@@ -66,15 +66,6 @@ CacheSettings.Initialize(
 );
 
 var connectionString = new DbConnectionHelper(builder.Configuration).ConnectionString;
-var legacyCreditSchemaSetting = builder.Configuration["Compatibility:UseLegacyCreditSchema"];
-var useLegacyCreditSchema = legacyCreditSchemaSetting?.Trim().ToLowerInvariant() switch
-{
-    "true" => true,
-    "false" => false,
-    "auto" or "" or null => CreditSchemaCompatibilityDetector.UsesLegacySchema(connectionString),
-    _ => throw new InvalidOperationException("Compatibility:UseLegacyCreditSchema must be true, false, or auto.")
-};
-BrokerContext.UseLegacyCreditSchema = useLegacyCreditSchema;
 
 builder.Services.AddCors();
 builder.Services.AddMemoryCache();
@@ -97,8 +88,7 @@ builder.Services.AddDbContextPool<BrokerContext>(options =>
         sqlOptions.EnableRetryOnFailure(1000, TimeSpan.FromSeconds(5), null);
     });
     options.UseLazyLoadingProxies(false);
-    if (!useLegacyCreditSchema)
-        options.UseModel(BrokerContextModel.Instance);
+    options.UseModel(BrokerContextModel.Instance);
 }, poolSize: 128);
 
 builder.Services.AddDbContext<LoggingDbContext>(options =>

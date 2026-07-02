@@ -1,3 +1,4 @@
+using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.API.Mappers.Reservaway;
 using KolayCAR.Broker.API.Services;
 using KolayCAR.Broker.Domain.Models;
@@ -20,7 +21,7 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
 
         public ReservationProvider(string apiBaseUrl, IConfigurationService configurationService)
         {
-            _httpManager = new HttpManager(ReservawayMapperHelper.NormalizeBaseUrl(apiBaseUrl));
+            _httpManager = new HttpManager(ReservawayMapperHelper.NormalizeBaseUrl(apiBaseUrl), DbConnectionHelper.Instance().ConnectionString);
             _configurationService = configurationService;
             _vehicleProvider = new VehicleProvider(new Vendor { APIBaseUrl = apiBaseUrl }, false);
         }
@@ -54,23 +55,27 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
             if (ratePrice == null)
                 return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} secilen PPFC/PPNC odeme plani artik kullanilabilir degil.");
 
-            var apiReservationToken = ratePrice?.reservation_token.ToStringNullSafe();
+            var bookingToken = ratePrice?.reservation_token.ToStringNullSafe();
 
-            if (string.IsNullOrWhiteSpace(apiReservationToken))
-                return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} rezervasyon tokeni alinamadi.");
+            if (string.IsNullOrWhiteSpace(bookingToken))
+                return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} booking token alinamadi.");
 
-            var request = postReservationRequest.MapToCreateCustomerRequest(reservationToken, detail.ApiVehicle, planReference, apiReservationToken, apiExtras);
-            if (request.country_id <= 0 || request.payment_type_id <= 0 || request.product_type_id <= 0 || request.vehicle_id <= 0)
+            var visitorSessionId = ReservawayRequestHelper.CreateVisitorSessionId(postReservationRequest, reservationToken);
+            var request = postReservationRequest.MapToPartnerReserveRequest(reservationToken, detail.ApiVehicle, bookingToken, visitorSessionId);
+            if (request.vehicle_id <= 0 || string.IsNullOrWhiteSpace(request.booking_token) || string.IsNullOrWhiteSpace(request.visitor_session_id) || string.IsNullOrWhiteSpace(request.currency))
                 return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} rezervasyon zorunlu alanlari eksik.");
+
+            if (string.IsNullOrWhiteSpace(vendor.ApiClientId))
+                return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} partner key bulunamadi.");
 
             try
             {
-                await WriteStepRequestLog(localReservation, "create-customer", request);
+                await WriteStepRequestLog(localReservation, "external-partner-reserve", request);
 
-                var result = await _httpManager.PostAsyncWithModelResult<ReservawayCreateCustomerRequest, ReservawayCustomerResponse>(
-                    requestPath: ReservawayRequestHelper.CreateCustomerPath,
+                var result = await _httpManager.PostAsyncWithModelResult<ReservawayPartnerReserveRequest, ReservawayPartnerReserveResponse>(
+                    requestPath: ReservawayRequestHelper.PartnerReservePath,
                     entity: request,
-                    headers: ReservawayRequestHelper.CreateHeaders(reservationToken.APIReferenceCode3, reservationToken.APIReferenceCode),
+                    headers: ReservawayRequestHelper.CreatePartnerHeaders(visitorSessionId, vendor.ApiClientId),
                     brokerLogModel: new BrokerLogModel
                     {
                         LogKey = localReservation.ReservationNumber,
@@ -84,9 +89,9 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
                     localReservation.APIReservationSuccessfully = true;
                     localReservation.APIVendorName = vendor.VendorName;
                     localReservation.APIReservationNumber = ResolveReservationNumber(result.Data, reservationNumber);
-                    localReservation.APIReferenceCode = apiReservationToken;
+                    localReservation.APIReferenceCode = bookingToken;
                     localReservation.APIReferenceCode2 = reservationToken.APIReferenceCode;
-                    localReservation.APIReferenceCode3 = reservationToken.APIReferenceCode3;
+                    localReservation.APIReferenceCode3 = visitorSessionId;
 
                     return new ServiceResponseBase(localReservation, true);
                 }
@@ -193,6 +198,11 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
 
             return !string.IsNullOrWhiteSpace(referenceId) ? referenceId : fallbackReservationNumber;
         }
+
+        private static string ResolveReservationNumber(ReservawayPartnerReserveResponse response, string fallbackReservationNumber)
+            => !string.IsNullOrWhiteSpace(response?.reservationNumber)
+                ? response.reservationNumber
+                : fallbackReservationNumber;
 
         private static ServiceResponseBase CreateVendorErrorResponse<T>(Reservation localReservation, Vendor vendor, HttpResult<T> result, string fallbackMessage)
             where T : ReservawayResponseBase

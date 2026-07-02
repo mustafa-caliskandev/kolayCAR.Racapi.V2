@@ -38,7 +38,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             if (string.IsNullOrWhiteSpace(bearerToken))
                 return new ServiceResponseBase(localReservation, false, $"{vendor.VendorName} rezervasyon istegi icin bearer token bulunamadi.");
 
-            var httpManager = new HttpManager(_apiBaseUrl, DbConnectionHelper.Instance().ConnectionString, timeout: vendor.APITimeout);
+            var httpManager = new HttpManager(_apiBaseUrl, DbConnectionHelper.Instance().ConnectionString);
             var authProvider = new AuthProvider(_apiBaseUrl, vendor.APITimeout);
 
             try

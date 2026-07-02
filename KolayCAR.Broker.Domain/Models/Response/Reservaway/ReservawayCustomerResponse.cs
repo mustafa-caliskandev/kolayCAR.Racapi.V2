@@ -9,6 +9,12 @@ public class ReservawayCustomerResponse : ReservawayResponseBase
     public ReservawayOrder order { get; set; }
 }
 
+public class ReservawayPartnerReserveResponse : ReservawayResponseBase
+{
+    public int customerId { get; set; }
+    public string reservationNumber { get; set; }
+}
+
 public class ReservawayCustomer
 {
     public int id { get; set; }

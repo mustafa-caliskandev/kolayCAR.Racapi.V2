@@ -1023,7 +1023,9 @@ namespace KolayCAR.Broker.API.Controllers
                             var netresys = await _netResysService.SendNetresysCancelRequestAsync(CreateBrokerAuthRequestHeader(_agencyService.GetCurrentBearerToken()), reservationMapped);
                         }
 
-                        await _reservationService.PostReservationMail(reservation);
+                        if (brokerName != "Obilet")
+                            await _reservationService.PostReservationMail(reservation);
+
                     }
                     catch (Exception ex)
                     {
@@ -1220,15 +1222,15 @@ namespace KolayCAR.Broker.API.Controllers
                 var requestPrice = requestExtra.RequestPrice;
                 var mappedExtra = requestExtra.MapCyrpt(tokenExtras);
 
-                if (requestPrice.HasValue && requestPrice != 0)
-                {
-                    var validationMessage = ValidateReservationExtraPrice(mappedExtra, requestPrice.Value, agency);
+                //if (requestPrice.HasValue && requestPrice != 0)
+                //{
+                //    var validationMessage = ValidateReservationExtraPrice(mappedExtra, requestPrice.Value, agency);
 
-                    if (!string.IsNullOrWhiteSpace(validationMessage))
-                        return (extras, validationMessage);
+                //    if (!string.IsNullOrWhiteSpace(validationMessage))
+                //        return (extras, validationMessage);
 
-                    mappedExtra.Price = requestPrice.Value;
-                }
+                //    mappedExtra.Price = requestPrice.Value;
+                //}
 
                 extras.Add(mappedExtra);
             }
