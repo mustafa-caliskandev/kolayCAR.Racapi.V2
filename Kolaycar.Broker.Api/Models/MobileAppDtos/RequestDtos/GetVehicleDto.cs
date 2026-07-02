@@ -1,4 +1,6 @@
-﻿namespace KolayCAR.Broker.API.Models.MobileAppDtos.RequestDtos
+﻿using System.Collections.Generic;
+
+namespace KolayCAR.Broker.API.Models.MobileAppDtos.RequestDtos
 {
     public class GetVehicleDto
     {
@@ -9,6 +11,7 @@
         public string LanguageCode { get; set; }
         public string CurrencyCode { get; set; }
         public int PickupLocationId { get; set; }
+        public List<int> PickupLocationIds { get; set; }
         public int ReturnLocationId { get; set; }
         public string PickupDate { get; set; }
         public string ReturnDate { get; set; }

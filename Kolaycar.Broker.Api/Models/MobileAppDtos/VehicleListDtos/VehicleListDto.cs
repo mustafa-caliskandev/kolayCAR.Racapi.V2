@@ -5,6 +5,7 @@ namespace KolayCAR.Broker.API.Models.MobileAppDtos.VehicleListDtos
 {
     public class VehicleListDto
     {
+        public int PickupLocationId { get; set; }
         public string SearchId { get; set; }
         public List<VehicleListFilter> Filters { get; set; }
         public List<VehicleListFastFilter> FastFilters { get; set; }

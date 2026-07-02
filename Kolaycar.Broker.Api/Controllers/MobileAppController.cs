@@ -34,9 +34,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using static KolayCAR.Broker.Domain.Models.Requests.FindeksRequestBase;
@@ -92,6 +95,7 @@ namespace KolayCAR.Broker.API.Controllers
 
         private readonly IAWSService _awsService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private static readonly SemaphoreSlim _vendorSemaphore = new SemaphoreSlim(30, 30);
         public MobileAppController(
             IOptions<AppSettings> appSettings,
             BrokerContext context,
@@ -192,6 +196,17 @@ namespace KolayCAR.Broker.API.Controllers
                 });
             }
 
+            if (getVehicleDto.PickupLocationId <= 0 || getVehicleDto.ReturnLocationId <= 0)
+            {
+                return BadRequest(new
+                {
+                    data = "",
+                    success = false,
+                    resultCode = ResultCodes.Error,
+                    message = "PickupLocationId and ReturnLocationId cannot be empty."
+                });
+            }
+
             var languageId = await _memoryCacheService.GetLanguageId(getVehicleDto.LanguageCode);
 
             if (string.IsNullOrEmpty(getVehicleDto.SessionCode))
@@ -199,29 +214,29 @@ namespace KolayCAR.Broker.API.Controllers
                 getVehicleDto.SessionCode = _httpContextAccessor?.HttpContext?.Session.GetString("user-code") ?? "";
             }
 
-            var resultVehicles = await GetVehiclesFromService(getVehicleDto);
+            var langId = languageId > 0 ? languageId : 1;
+            var (locationId, vehicles) = await FetchVehiclesForLocationAsync(getVehicleDto, getVehicleDto.PickupLocationId, getVehicleDto.ReturnLocationId);
 
-            if (!resultVehicles.Any())
+            if (vehicles == null || !vehicles.Any())
             {
                 return Ok(new
                 {
-                    data = Activator.CreateInstance<VehicleListDto>(),
+                    data = new VehicleListDto(),
                     success = false,
                     resultCode = ResultCodes.Error
                 });
             }
 
-            var vehicleList = await MobileVehicles(
-                languageId > 0 ? languageId : 1,
-                sessionId: getVehicleDto.SessionCode,
-                getVehicleDto,
-                (List<Vehicle>)resultVehicles);
+            var vehicleList = await MobileVehicles(langId, getVehicleDto.SessionCode, getVehicleDto, vehicles, locationId, _memoryCacheService);
+            vehicleList.PickupLocationId = locationId;
 
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    await _awsService.PushListingData(resultVehicles, null, await _agencyService.GetCurrentAgencyType());
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var agencyService = scope.ServiceProvider.GetRequiredService<IAgencyService>();
+                    await _awsService.PushListingData(vehicles, null, await agencyService.GetCurrentAgencyType());
                 }
                 catch (Exception ex)
                 {
@@ -237,43 +252,222 @@ namespace KolayCAR.Broker.API.Controllers
             });
         }
 
-        private async Task<List<Vehicle>> GetVehiclesFromService(GetVehicleDto getVehicleDto)
+        [HttpPost]
+        [Route("GetVehiclesList")]
+        public async Task<IActionResult> GetVehiclesList(GetVehicleDto getVehicleDto)
+        {
+            var dateTimeString = $"{getVehicleDto.PickupDate} {getVehicleDto.PickupTime}";
+
+            if (!DateTime.TryParse(dateTimeString, out var pickupDateTime) || pickupDateTime <= DateTime.Now)
+            {
+                return BadRequest(new
+                {
+                    data = "",
+                    success = false,
+                    resultCode = ResultCodes.VehicleNotAvailable,
+                    message = "Invalid or past pickup date provided. Please enter a valid future date and time."
+                });
+            }
+
+            if (getVehicleDto.PickupLocationIds == null || !getVehicleDto.PickupLocationIds.Any())
+            {
+                return BadRequest(new
+                {
+                    data = "",
+                    success = false,
+                    resultCode = ResultCodes.Error,
+                    message = "PickupLocationId list cannot be empty."
+                });
+            }
+
+            var languageId = await _memoryCacheService.GetLanguageId(getVehicleDto.LanguageCode);
+
+            if (string.IsNullOrEmpty(getVehicleDto.SessionCode))
+            {
+                getVehicleDto.SessionCode = _httpContextAccessor?.HttpContext?.Session.GetString("user-code") ?? "";
+            }
+
+            // Phase 1: Fetch vehicles from all locations IN PARALLEL (vendor API calls)
+            var firstLocationId = getVehicleDto.PickupLocationIds.First();
+            var fetchTasks = getVehicleDto.PickupLocationIds.Select(locationId =>
+            {
+                var returnLocationId = locationId == firstLocationId ? getVehicleDto.ReturnLocationId : locationId;
+                return FetchVehiclesForLocationAsync(getVehicleDto, locationId, returnLocationId);
+            });
+
+            var fetchResults = await Task.WhenAll(fetchTasks);
+
+            // Phase 2: Transform vehicles SEQUENTIALLY (uses controller-scoped services with DbContext)
+            var vehicleListResults = new List<VehicleListDto>();
+            var langId = languageId > 0 ? languageId : 1;
+            foreach (var (locationId, vehicles) in fetchResults)
+            {
+                if (vehicles == null || !vehicles.Any())
+                    continue;
+
+                var vehicleList = await MobileVehicles(langId, getVehicleDto.SessionCode, getVehicleDto, vehicles, locationId, _memoryCacheService);
+                vehicleList.PickupLocationId = locationId;
+                vehicleListResults.Add(vehicleList);
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        using var scope = _serviceScopeFactory.CreateScope();
+                        var agencyService = scope.ServiceProvider.GetRequiredService<IAgencyService>();
+                        await _awsService.PushListingData(vehicles, null, await agencyService.GetCurrentAgencyType());
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error("{@AWSPushListingData}", ex.Message);
+                    }
+                });
+            }
+
+            if (!vehicleListResults.Any())
+            {
+                return Ok(new
+                {
+                    data = new List<VehicleListDto>(),
+                    success = false,
+                    resultCode = ResultCodes.Error
+                });
+            }
+
+            var result = new
+            {
+                data = vehicleListResults,
+                success = true,
+                resultCode = ResultCodes.Success
+            };
+
+            return CompressedJson(result);
+        }
+
+        private async Task<(int locationId, List<Vehicle> vehicles)> FetchVehiclesForLocationAsync(GetVehicleDto getVehicleDto, int pickupLocationId, int returnLocationId)
+        {
+            try
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var memoryCacheService = scope.ServiceProvider.GetRequiredService<IMemoryCacheService>();
+                var vehicles = await GetVehiclesFromService(getVehicleDto, pickupLocationId, returnLocationId, memoryCacheService);
+                return (pickupLocationId, vehicles);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@FetchVehiclesForLocationAsync}", $"Location {pickupLocationId} fetch failed: {ex.Message}");
+                return (pickupLocationId, null);
+            }
+        }
+
+        private IActionResult CompressedJson(object data)
+        {
+            var acceptEncoding = Request.Headers["Accept-Encoding"].ToString();
+            var jsonBytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            if (acceptEncoding.Contains("br", StringComparison.OrdinalIgnoreCase))
+            {
+                using var output = new MemoryStream();
+                using (var br = new BrotliStream(output, CompressionLevel.Optimal, leaveOpen: true))
+                {
+                    br.Write(jsonBytes, 0, jsonBytes.Length);
+                }
+                Response.Headers["Content-Encoding"] = "br";
+                Response.Headers["Vary"] = "Accept-Encoding";
+                return File(output.ToArray(), "application/json");
+            }
+            else if (acceptEncoding.Contains("gzip", StringComparison.OrdinalIgnoreCase))
+            {
+                using var output = new MemoryStream();
+                using (var gz = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true))
+                {
+                    gz.Write(jsonBytes, 0, jsonBytes.Length);
+                }
+                Response.Headers["Content-Encoding"] = "gzip";
+                Response.Headers["Vary"] = "Accept-Encoding";
+                return File(output.ToArray(), "application/json");
+            }
+
+            return File(jsonBytes, "application/json");
+        }
+
+
+        private async Task<VehicleListDto> ProcessLocationAsync(GetVehicleDto getVehicleDto, int pickupLocationId, int returnLocationId, int languageId)
+        {
+            try
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var memoryCacheService = scope.ServiceProvider.GetRequiredService<IMemoryCacheService>();
+
+                var resultVehicles = await GetVehiclesFromService(getVehicleDto, pickupLocationId, returnLocationId, memoryCacheService);
+
+                if (resultVehicles == null || !resultVehicles.Any())
+                    return null;
+
+                var vehicleList = await MobileVehicles(
+                    languageId,
+                    sessionId: getVehicleDto.SessionCode,
+                    getVehicleDto,
+                    resultVehicles,
+                    pickupLocationId,
+                    memoryCacheService);
+
+                vehicleList.PickupLocationId = pickupLocationId;
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _awsService.PushListingData(resultVehicles, null, await _agencyService.GetCurrentAgencyType());
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error("{@AWSPushListingData}", ex.Message);
+                    }
+                });
+
+                return vehicleList;
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@ProcessLocationAsync}", $"Location {pickupLocationId} failed: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async Task<List<Vehicle>> GetVehiclesFromService(GetVehicleDto getVehicleDto, int pickupLocationId, int returnLocationId, IMemoryCacheService memoryCacheService)
         {
             var resultList = new List<Vehicle>();
-            var vendors = await _memoryCacheService.GetLocationVendors(getVehicleDto.PickupLocationId);
+            var vendors = await memoryCacheService.GetLocationVendors(pickupLocationId);
 
             var tasks = new List<Task<List<Vehicle>>>();
-            var batchSize = 100;
-            var numberOfBatches = (int)Math.Ceiling((double)vendors.Count() / batchSize);
-
-            for (var i = 0; i < numberOfBatches; i++)
+            foreach (var vendor in vendors)
             {
-                var currentVendors = vendors.Skip(i * batchSize).Take(batchSize);
-
-                foreach (var vendor in currentVendors)
+                var request = new GetVehiclesRequest
                 {
-                    var request = new GetVehiclesRequest
-                    {
-                        VendorType = (VendorTypes)vendor.VendorType,
-                        ApiKey = vendor.ApiKey,
-                        ApiPassword = vendor.ApiPassword,
-                        ApiClientId = vendor.ApiClientId,
-                        ApiLocationCode = vendor.VendorLocationCode,
-                        LanguageCode = getVehicleDto.LanguageCode,
-                        CurrencyCode = getVehicleDto.CurrencyCode,
-                        PickupLocationId = getVehicleDto.PickupLocationId,
-                        ReturnLocationId = getVehicleDto.ReturnLocationId,
-                        PickupDate = getVehicleDto.PickupDate,
-                        ReturnDate = getVehicleDto.ReturnDate,
-                        PickupTime = getVehicleDto.PickupTime,
-                        ReturnTime = getVehicleDto.ReturnTime,
-                        CouponCode = getVehicleDto.CouponCode,
-                        SessionCode = getVehicleDto.SessionCode,
-                        SecretKey = vendor.SecretKey,
-                    };
-                    tasks.Add(ExecuteWithTimeout(request));
-                }
+                    VendorType = (VendorTypes)vendor.VendorType,
+                    ApiKey = vendor.ApiKey,
+                    ApiPassword = vendor.ApiPassword,
+                    ApiClientId = vendor.ApiClientId,
+                    ApiLocationCode = vendor.VendorLocationCode,
+                    LanguageCode = getVehicleDto.LanguageCode,
+                    CurrencyCode = getVehicleDto.CurrencyCode,
+                    PickupLocationId = pickupLocationId,
+                    ReturnLocationId = returnLocationId,
+                    PickupDate = getVehicleDto.PickupDate,
+                    ReturnDate = getVehicleDto.ReturnDate,
+                    PickupTime = getVehicleDto.PickupTime,
+                    ReturnTime = getVehicleDto.ReturnTime,
+                    CouponCode = getVehicleDto.CouponCode,
+                    SessionCode = getVehicleDto.SessionCode,
+                    SecretKey = vendor.SecretKey,
+                };
+                tasks.Add(ExecuteWithTimeout(request));
             }
+
             var results = await Task.WhenAll(tasks);
             foreach (var vehicleList in results)
             {
@@ -285,24 +479,28 @@ namespace KolayCAR.Broker.API.Controllers
 
         private async Task<List<Vehicle>> ExecuteWithTimeout(GetVehiclesRequest request, int timeoutMs = 20000)
         {
+            await _vendorSemaphore.WaitAsync();
             try
             {
+                using var cts = new CancellationTokenSource(timeoutMs);
                 using var scope = _serviceScopeFactory.CreateScope();
-                var _vehicleService = scope.ServiceProvider.GetRequiredService<IVehicleService>();
-                var task = _vehicleService.GetVehicles(request, _agencyService.GetCurrentAgencyId(), request.SessionCode);
-                var completed = await Task.WhenAny(task, Task.Delay(timeoutMs));
-                if (completed != task)
-                {
-                    Serilog.Log.Warning("{@ExecuteWithTimeout}", $"Vendor fetch timed out after {timeoutMs}ms: {request.VendorType}");
-                    return null;
-                }
-                var data = await task;
+                var vehicleService = scope.ServiceProvider.GetRequiredService<IVehicleService>();
+                var data = await vehicleService.GetVehicles(request, _agencyService.GetCurrentAgencyId(), request.SessionCode).WaitAsync(cts.Token);
                 return data.Data as List<Vehicle>;
+            }
+            catch (OperationCanceledException)
+            {
+                Serilog.Log.Warning("{@ExecuteWithTimeout}", $"Vendor fetch timed out after {timeoutMs}ms: {request.VendorType}");
+                return null;
             }
             catch (Exception ex)
             {
                 Serilog.Log.Error("{@ExecuteWithTimeout}", $"Vendor fetch failed: {ex.Message}");
                 return null;
+            }
+            finally
+            {
+                _vendorSemaphore.Release();
             }
         }
 
@@ -351,19 +549,19 @@ namespace KolayCAR.Broker.API.Controllers
             };
         }
 
-        private async Task<VehicleListDto> MobileVehicles(int languageId, string sessionId, GetVehicleDto getVehicleDto, List<Vehicle> resultVehicles)
+        private async Task<VehicleListDto> MobileVehicles(int languageId, string sessionId, GetVehicleDto getVehicleDto, List<Vehicle> resultVehicles, int pickupLocationId, IMemoryCacheService memoryCacheService)
         {
             try
             {
                 var podomain = _parameterService.GetParameterValue("PODOMAIN");
-                var allFilters = await _memoryCacheService.GetFilters();
+                var allFilters = await memoryCacheService.GetFilters();
                 var filters = allFilters.Where(f => f.LanguageId == languageId).ToList();
-                var allSortingOptions = await _memoryCacheService.GetSortingOptions();
+                var allSortingOptions = await memoryCacheService.GetSortingOptions();
                 var sortingOptions = allSortingOptions.Where(s => s.LanguageId == languageId).ToList();
-                var allBadges = await _memoryCacheService.GetBadges();
+                var allBadges = await memoryCacheService.GetBadges();
                 var badges = allBadges.Where(b => b.LanguageId == languageId).ToList();
-                var locationVendorContacts = await _memoryCacheService.GetLocationVendorContacts(getVehicleDto.PickupLocationId);
-                var deliveryTypes = await _memoryCacheService.GetVendorLocationDeliveryTypes();
+                var locationVendorContacts = await memoryCacheService.GetLocationVendorContacts(pickupLocationId);
+                var deliveryTypes = await memoryCacheService.GetVendorLocationDeliveryTypes();
                 var deliveryTasks = resultVehicles.Select(async v =>
                 {
                     var typeId = deliveryTypes?.FirstOrDefault(x => x.VendorId == v.VendorId && x.LocationId == v.PickupLocationId)?.DeliveryTypeId ?? 0;
@@ -377,14 +575,14 @@ namespace KolayCAR.Broker.API.Controllers
                 vehicleList.FastFilters = await CreateFastFilters(languageId, vehicleList.Filters, podomain);
                 vehicleList.PopularFilters = await CreatePopularFilters(languageId, vehicleList.Filters);
                 vehicleList.OrderOptions = CreateOrderOptions(allSortingOptions, podomain, languageId);
-                vehicleList.VendorLocations = await CreateVendorLocations(languageId, getVehicleDto.PickupLocationId, resultVehicles, locationVendorContacts);
-                var vehicles = await CreateVehicles(languageId, getVehicleDto, resultVehicles, filters, sortingOptions, badges, locationVendorContacts);
+                vehicleList.VendorLocations = await CreateVendorLocations(languageId, pickupLocationId, resultVehicles, locationVendorContacts);
+                var vehicles = await CreateVehicles(languageId, getVehicleDto, resultVehicles, filters, sortingOptions, badges, locationVendorContacts, pickupLocationId, memoryCacheService);
                 //vehicleList.LocationInfo = new LocationInfo
                 //{
                 //    PickupLocation = await CreateMobileLocation(getVehicleDto.PickupLocationId, languageId),
                 //    ReturnLocation = await CreateMobileLocation(getVehicleDto.ReturnLocationId, languageId)
                 //};
-                vehicleList.Vehicles = await _creator.SortVehicles(vehicles, getVehicleDto.PickupLocationId, languageId);
+                vehicleList.Vehicles = await _creator.SortVehicles(vehicles, pickupLocationId, languageId);
                 //vehicleList.Popup = await CreateVehicleListPopup(podomain, languageId);
                 vehicleList.PickupDate = DateTime.Parse(getVehicleDto.PickupDate + " " + getVehicleDto.PickupTime);
                 vehicleList.ReturnDate = DateTime.Parse(getVehicleDto.ReturnDate + " " + getVehicleDto.ReturnTime);
@@ -712,25 +910,28 @@ namespace KolayCAR.Broker.API.Controllers
             List<MobileVehicleListFilter> filters,
             List<MobileVehicleSortingOption> sortingOptions,
             List<MobileVehicleBadge> badges,
-            List<Vendorcontactinformation> locationVendorContacts)
+            List<Vendorcontactinformation> locationVendorContacts,
+            int pickupLocationId,
+            IMemoryCacheService memoryCacheService = null)
         {
+            var cache = memoryCacheService ?? _memoryCacheService;
             var podomain = _parameterService.GetParameterValue("PODOMAIN");
-            var currencies = await _memoryCacheService.GetCurrencies();
+            var currencies = await cache.GetCurrencies();
             var currencySymbol = await GetCurrencySymbol(getVehicleDto.CurrencyCode);
-            var alllabels = await _memoryCacheService.GetLabels(languageId);
+            var alllabels = await cache.GetLabels(languageId);
             var labels = alllabels.Where(l => l.Dilid == languageId).ToList();
             var labelDict = labels
                 .Where(l => !string.IsNullOrEmpty(l.LabelKodu))
                 .GroupBy(l => l.LabelKodu)
                 .ToDictionary(g => g.Key, g => g.First().Labeladi);
             var totalKmLabel = labelDict.TryGetValue("VehicleMobile.VehicleList.TotalKmLimit", out var tkl) ? tkl : "[totalkm]";
-            var vehicleDetails = await _memoryCacheService.GetVehicleDetails();
-            var vehicleFutures = await _memoryCacheService.GetVehicleFutures();
-            var settings = await _memoryCacheService.GetMobileSettings();
+            var vehicleDetails = await cache.GetVehicleDetails();
+            var vehicleFutures = await cache.GetVehicleFutures();
+            var settings = await cache.GetMobileSettings();
             var vendorLocationIconPath = podomain + settings?.FirstOrDefault(s => s.Parameter == "VendorDetails")?.IconPath;
 
             var vehicleDtos = new List<VehicleDto>();
-            var vendorOffice = await _memoryCacheService.GetVendorOffices(getVehicleDto.PickupLocationId);
+            var vendorOffice = await cache.GetVendorOffices(pickupLocationId);
             var vendorOfficeDict = vendorOffice?.GroupBy(x => x.VendorId).ToDictionary(g => g.Key, g => g.First());
 
             foreach (var rv in resultVehicles)
