@@ -2133,6 +2133,8 @@ namespace KolayCAR.Broker.API.Controllers
             }
             catch (Exception e)
             {
+                Serilog.Log.Error("{@GetDetailsError}", $"{e.Message}-{e.StackTrace}-{e.InnerException?.Message}");
+
                 return Ok(new
                 {
                     data = "",
