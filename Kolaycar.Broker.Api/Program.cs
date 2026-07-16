@@ -42,7 +42,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.SustainedLowLatency;
+// SustainedLowLatency kaldırıldı - sunucu uygulamasında Gen2 GC ertelenmesi bellek baskısı ve bağlantı kopmalarına neden oluyordu
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 
 var builder = WebApplication.CreateBuilder(args);
@@ -85,7 +85,7 @@ builder.Services.AddDbContextPool<BrokerContext>(options =>
 {
     options.UseSqlServer(connectionString, sqlOptions =>
     {
-        sqlOptions.EnableRetryOnFailure(1000, TimeSpan.FromSeconds(5), null);
+        sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
     });
     options.UseLazyLoadingProxies(false);
     options.UseModel(BrokerContextModel.Instance);
@@ -95,7 +95,7 @@ builder.Services.AddDbContext<LoggingDbContext>(options =>
 {
     options.UseSqlServer(connectionString, sqlOptions =>
     {
-        sqlOptions.EnableRetryOnFailure(1000, TimeSpan.FromSeconds(1), null);
+        sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(1), null);
     });
     options.UseLazyLoadingProxies(false);
 });

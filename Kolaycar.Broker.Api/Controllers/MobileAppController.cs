@@ -422,50 +422,6 @@ namespace KolayCAR.Broker.API.Controllers
             return File(jsonBytes, "application/json");
         }
 
-
-        private async Task<VehicleListDto> ProcessLocationAsync(GetVehicleDto getVehicleDto, int pickupLocationId, int returnLocationId, int languageId)
-        {
-            try
-            {
-                using var scope = _serviceScopeFactory.CreateScope();
-                var memoryCacheService = scope.ServiceProvider.GetRequiredService<IMemoryCacheService>();
-
-                var resultVehicles = await GetVehiclesFromService(getVehicleDto, pickupLocationId, returnLocationId, memoryCacheService);
-
-                if (resultVehicles == null || !resultVehicles.Any())
-                    return null;
-
-                var vehicleList = await MobileVehicles(
-                    languageId,
-                    sessionId: getVehicleDto.SessionCode,
-                    getVehicleDto,
-                    resultVehicles,
-                    pickupLocationId,
-                    memoryCacheService);
-
-                vehicleList.PickupLocationId = pickupLocationId;
-
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await _awsService.PushListingData(resultVehicles, null, await _agencyService.GetCurrentAgencyType());
-                    }
-                    catch (Exception ex)
-                    {
-                        Serilog.Log.Error("{@AWSPushListingData}", ex.Message);
-                    }
-                });
-
-                return vehicleList;
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Error("{@ProcessLocationAsync}", $"Location {pickupLocationId} failed: {ex.Message}");
-                return null;
-            }
-        }
-
         private async Task<List<Vehicle>> GetVehiclesFromService(GetVehicleDto getVehicleDto, int pickupLocationId, int returnLocationId, IMemoryCacheService memoryCacheService)
         {
             var resultList = new List<Vehicle>();
@@ -532,51 +488,6 @@ namespace KolayCAR.Broker.API.Controllers
             }
         }
 
-        private async Task<List<Vehicle>> GetVehiclesByVendorAsync(GetVehiclesRequest getVehiclesRequest, CancellationToken cancellationToken = default)
-        {
-            var jwtToken = _agencyService.GetCurrentBearerToken();
-            var httpManager = new HttpManager(_appSettings.ApiBaseUrl);
-
-            var response = await httpManager.GetAsync<IEnumerable<Vehicle>>(
-                requestPath: "vehicles",
-                parameters: CreateBrokerGetVehiclesRequestParameters(getVehiclesRequest),
-                headers: CreateBrokerAuthRequestHeader(jwtToken),
-                cancellationToken: cancellationToken); // Buraya cancellation token ekliyoruz
-
-            return response is { Data: not null } ? response.Data.ToList() : [];
-        }
-
-
-        public static Dictionary<string, object> CreateBrokerAuthRequestHeader(string bearer)
-        {
-            return new Dictionary<string, object>()
-            {
-                { "Authorization", $"Bearer {bearer}" }
-            };
-        }
-
-        private Dictionary<string, object> CreateBrokerGetVehiclesRequestParameters(GetVehiclesRequest getVehiclesRequest, string referenceCode = null)
-        {
-            return new Dictionary<string, object>()
-            {
-                { "vendorType", (int)getVehiclesRequest.VendorType},
-                { "apiKey",  getVehiclesRequest.ApiKey},
-                { "apiPassword",  getVehiclesRequest.ApiPassword},
-                { "apiClientId",  getVehiclesRequest.ApiClientId},
-                { "languageCode",  getVehiclesRequest.LanguageCode},
-                { "currencyCode",  getVehiclesRequest.CurrencyCode},
-                { "pickupLocationId",  getVehiclesRequest.PickupLocationId},
-                { "returnLocationId",  getVehiclesRequest.ReturnLocationId},
-                { "pickupDate",  getVehiclesRequest.PickupDate},
-                { "returnDate",  getVehiclesRequest.ReturnDate},
-                { "pickupTime",  getVehiclesRequest.PickupTime},
-                { "returnTime",  getVehiclesRequest.ReturnTime},
-                { "userToken",  getVehiclesRequest.UserToken},
-                { "referanceCode", referenceCode },
-                { "sessionCode", getVehiclesRequest.SessionCode }
-            };
-        }
-
         private async Task<VehicleListDto> MobileVehicles(int languageId, string sessionId, GetVehicleDto getVehicleDto, List<Vehicle> resultVehicles, int pickupLocationId, IMemoryCacheService memoryCacheService)
         {
             try
@@ -635,27 +546,6 @@ namespace KolayCAR.Broker.API.Controllers
                 Country = country?.Countryname,
                 Name = location?.Locationname
             };
-        }
-
-        private async Task<VehicleListPopup> CreateVehicleListPopup(string podomain, int languageId)
-        {
-            var contents = await _memoryCacheService.GetContentLanguageBySettings(_contentService.GetPopupViewSettings(), languageId);
-            var popup = contents?.FirstOrDefault();
-
-            if (popup != null)
-            {
-                if ((popup.BaslangicTarihi == null || popup.BaslangicTarihi <= DateTime.Now) &&
-                    (popup.BitisTarihi == null || popup.BitisTarihi >= DateTime.Now))
-                {
-                    return new VehicleListPopup
-                    {
-                        ImageUrl = podomain + "/" + popup?.Resim,
-                        Text = popup?.Ozet
-                    };
-                }
-            }
-
-            return null;
         }
 
         private async Task<List<VehicleListPopularFilter>> CreatePopularFilters(int languageId, List<VehicleListFilter> vehicleListFilter)
@@ -1527,44 +1417,6 @@ namespace KolayCAR.Broker.API.Controllers
             return label;
         }
 
-        private VehiclePromotion CreateVehiclePromotions(Vehicle rv, List<Coupon> allVendorCoupons, List<Label> labels, int pickupLocationId, string currencySymbol)
-        {
-            var vendorCoupon = new Coupon();
-            var vendorCoupons = allVendorCoupons?.Where(c => c.VendorId == rv.VendorId
-                                                    && (c.ShowInVehicleList ?? false) == true
-                                                    && (c.MaximumDay ?? int.MaxValue) >= rv.RentalDuration
-                                                    && (c.MinimumDay ?? int.MinValue) <= rv.RentalDuration
-                                                    && (c.MaximumAmount ?? decimal.MaxValue) >= (decimal)rv.TotalPrice.Round()
-                                                    && (c.MinimumAmount ?? decimal.MinValue) <= (decimal)rv.TotalPrice.Round()
-                                                    && (c.PickupLocation == null ? pickupLocationId : c.PickupLocation) == pickupLocationId
-                                                    && (c.StartDate ?? DateTime.MinValue) <= DateTime.Now
-                                                    && (c.EndDate ?? DateTime.MaxValue) >= DateTime.Now);
-
-            vendorCoupon = vendorCoupons?.LastOrDefault();
-
-            if (vendorCoupon != null && vendorCoupon.Id > 0)
-            {
-                var codeText = labels.FirstOrDefault(l => l.LabelKodu == "MobileController.Vehicles.PromotionCodeText")?.Labeladi ?? "[code]";
-                var percentPromotionText = labels.FirstOrDefault(l => l.LabelKodu == "MobileController.Vehicles.PercentPromotionText")?.Labeladi ?? "[discount]";
-                var promotionText = labels.FirstOrDefault(l => l.LabelKodu == "MobileController.Vehicles.PromotionText")?.Labeladi ?? "[discount][currencySymbol]";
-                var promotion = new VehiclePromotion();
-
-
-                return new VehiclePromotion
-                {
-                    Code = vendorCoupon.Code,
-                    Title = vendorCoupon.DiscountType == 0
-                            ? percentPromotionText.Replace("[discount]", ((int)vendorCoupon.DiscountValue).ToString())
-                            : promotionText.Replace("[discount]", CurrencyExtensions.ToCurrencyIntString(vendorCoupon.DiscountValue)).Replace("[currencySymbol]", currencySymbol),
-                    Subtitle = codeText.Replace("[code]", vendorCoupon.Code),
-                    DiscountType = vendorCoupon.DiscountType,
-                    DiscountValue = vendorCoupon.DiscountValue
-                };
-            }
-
-            return null;
-        }
-
         private VendorOfficeLocation CreateVehicleOfficeLocations(Vehicle rv, List<Vendorcontactinformation> locationVendorContacts, string iconPath)
         {
             var vendorContactInformation = locationVendorContacts.FirstOrDefault(lv =>
@@ -2077,7 +1929,7 @@ namespace KolayCAR.Broker.API.Controllers
                     getDetailsResponseDto.SpecialAdvantages = GetSpecialAdvantages(specialSettings, vehicle, podomain);
                     getDetailsResponseDto.VendorDetails = await CreateVendorDetailsForDetails(vehicle, labels, languageId);
                     getDetailsResponseDto.VendorDetails.ReservationVendorDetail = GetVendorDetails(vendorSettings, vehicle, podomain);
-                    getDetailsResponseDto.PriceDetails = CreatePriceDetailsForDetails(vehicle, labels);
+                    getDetailsResponseDto.PriceDetails = await CreatePriceDetailsForDetails(vehicle, labels);
                     getDetailsResponseDto.AllPriceDetails = await CreatePriceInfoForSuccess(new Reservation
                     {
                         VendorId = vehicle.VendorId,
@@ -2359,10 +2211,10 @@ namespace KolayCAR.Broker.API.Controllers
             };
         }
 
-        private MobilePriceDetails CreatePriceDetailsForDetails(Vehicle vehicle, List<Label> labels)
+        private async Task<MobilePriceDetails> CreatePriceDetailsForDetails(Vehicle vehicle, List<Label> labels)
         {
-            var locationFee = _vendorService.GetVendorLocationFeeByVendorIdAndLocationId(vehicle.VendorId, vehicle.PickupLocationId, vehicle.DailyPrice * vehicle.RentalDuration);
-            var vendorLocationfee = locationFee.Result;
+            var locationFee = await _vendorService.GetVendorLocationFeeByVendorIdAndLocationId(vehicle.VendorId, vehicle.PickupLocationId, vehicle.DailyPrice * vehicle.RentalDuration);
+            var vendorLocationfee = locationFee;
 
             return new MobilePriceDetails
             {
@@ -2896,33 +2748,6 @@ namespace KolayCAR.Broker.API.Controllers
             return reservationSuccessModel;
         }
 
-        #region PopupDocuments
-
-        private async Task<List<PopupDocumentsSuccess>> CreatePopupDocuments(Reservation response, List<Label> labels, int languageId)
-        {
-            var reantalContractTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.RentalContractTitle").Labeladi;
-            var cancellationTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.CancellationContractTitle").Labeladi;
-
-            var rentalContract = await CreateRentalContract(languageId, response.ReservationTokenText);
-            var rentalCondition = await CreateRentalConditionContract(languageId);
-            var documents = new List<PopupDocumentsSuccess>();
-
-            documents.Add(new PopupDocumentsSuccess
-            {
-                Title = reantalContractTitle,
-                Text = rentalContract?.Editor
-            });
-            documents.Add(new PopupDocumentsSuccess
-            {
-                Title = cancellationTitle,
-                Text = rentalCondition?.Editor
-            });
-
-            return documents;
-        }
-
-        #endregion
-
         #region PriceInfoForSuccess
 
         private async Task<PriceInformationSuccess> CreatePriceInfoForSuccess(Reservation response, List<Label> labels)
@@ -3035,247 +2860,6 @@ namespace KolayCAR.Broker.API.Controllers
                 });
             }
             return paymentDetails;
-        }
-
-        #endregion
-
-        #region DriverInfoForSuccess
-
-        private async Task<DriverInformationSuccess> CreateDriverInfoForSuccess(Reservation response, List<Label> labels)
-        {
-            var cardTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.DriverInfoCardTitle").Labeladi;
-
-            return new DriverInformationSuccess
-            {
-                CardTitle = cardTitle,
-                BirthDate = response.CustomerBirthday,
-                DriverName = $"{response.CustomerName.ToFirstLetterCapital()} {response.CustomerSurname.ToUpper()}",
-                DriverSurname = "",
-                Id = response.CustomerIdentityNumber
-            };
-        }
-
-        #endregion
-
-        #region VendorDetailsForSuccess
-
-        private async Task<VendorDetailsSuccess> CreateVendorDetailsForSuccess(Reservation response, List<Label> labels, string iconPath, List<Vendorcontactinformation> locationVendorContacts, int languageId)
-        {
-            var cardTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.VendorDetailsCardTitle").Labeladi;
-            var vehicleDetails = await _memoryCacheService.GetVehicleDetails();
-            var podomain = _parameterService.GetParameterValue("PODOMAIN");
-            var deliveryTypeId = await GetDeliveryTypeId(response.IsOffice, response.IsAirport, languageId);
-            var deliveryType = await _vehicleService.GetDeliveryTypeById(languageId, deliveryTypeId);
-
-            var vehicle = new Vehicle
-            {
-                VendorId = response.VendorId,
-                PickupLocationId = response.PickupLocationId
-            };
-
-
-            return new VendorDetailsSuccess
-            {
-                CardTitle = cardTitle,
-                VendorId = response.VendorId,
-                OfficeLocation = CreateVehicleOfficeLocations(vehicle, locationVendorContacts, iconPath),
-                VendorPhone = response.VendorPhone,
-                VendorEmail = response.VendorEmail,
-                VendorName = response.VendorName,
-                VendorLogo = response.VendorLogo,
-                VendorCommentCount = response.CommentCount,
-                VendorScore = response.VendorScore,
-                DeliveryTypeName = deliveryType.Name,
-                Details = CreateVendorDetailsForSuccess(response, vehicleDetails, labels, deliveryType.Name, podomain)
-            };
-        }
-
-        private List<VendorDetailForSuccess> CreateVendorDetailsForSuccess(Reservation rv, List<MobileVehicleDetail> details, List<Label> labels, string deliveryType, string podomain)
-        {
-            var vehicleDetails = new List<VendorDetailForSuccess>();
-            var currencies = _memoryCacheService.GetCurrencies().Result;
-            var currency = currencies.FirstOrDefault(c => c.Currencyisocode == rv.CurrencyCode);
-            var currencySymbol = currency?.Symbol ?? "";
-
-            foreach (var detail in details)
-            {
-                switch (detail.Type)
-                {
-                    case MobileVehicleDetailTypes.DailyPrice:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = detail.Type.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = (labels
-                                .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.DailyPrice")?.Labeladi ?? "[price]")
-                                .Replace("[price]", rv.DailyPrice.Round().ToString()),
-                        });
-                        break;
-                    case MobileVehicleDetailTypes.TotalPrice:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = detail.Type.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalPrice")?.Labeladi ?? "[price]")
-                                .Replace("[price]", rv.TotalPrice.Round().ToString())
-                        });
-                        break;
-                    case MobileVehicleDetailTypes.Deposit:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = detail.Type.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleDepositPrice")?.Labeladi ?? "[price][currencySymbol]")
-                                .Replace("[price]", rv.DepositPrice.ToString())
-                                .Replace("[currencySymbol]", currencySymbol)
-                        });
-                        break;
-                    case MobileVehicleDetailTypes.TotalKmLimit:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = detail.Type.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.TotalKmLimit")?.Labeladi ?? "[totalkm]")
-                                .Replace("[totalkm]", rv.TotalKMLimit.ToString())
-                        });
-                        break;
-                    case MobileVehicleDetailTypes.MinimumDriverAge:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = detail.Type.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumDriverAge")?.Labeladi ?? "[age]")
-                                .Replace("[age]", rv.VendorMinimumDriverAge.ToString())
-                        });
-                        break;
-                    case MobileVehicleDetailTypes.MinimumDriverLicenseAge:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = detail.Type.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleMinimumLicenseAge")?.Labeladi ?? "[age]")
-                                .Replace("[age]", rv.VendorMinimumDrivingLicenseAge.ToString())
-                        });
-                        break;
-                    case MobileVehicleDetailTypes.DeliveryType:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = MobileVehicleDetailTypes.DailyPrice.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = (labels
-                                    .FirstOrDefault(l => l.LabelKodu == "VehicleMobile.VehicleList.VehicleDeliveryType")?.Labeladi ?? "[DeliveryType]")
-                                .Replace("[DeliveryType]", deliveryType)
-                        });
-                        break;
-                    default:
-                        vehicleDetails.Add(new VendorDetailForSuccess
-                        {
-                            Parameter = detail.Type.ToString(),
-                            IconPath = podomain + detail.IconPath,
-                            Text = detail.Text
-                        });
-                        break;
-                }
-            }
-
-            return vehicleDetails;
-        }
-
-        #endregion
-
-        #region RentalConditionsSuccess
-
-        private async Task<RentalConditionsSuccess> CreateRentalConditionsSuccess(Reservation response, List<Label> labels)
-        {
-            var cardTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.RentalConditionsCardTitle").Labeladi;
-            return new RentalConditionsSuccess
-            {
-                CardTitle = cardTitle,
-            };
-        }
-
-        #endregion
-
-        #region VehicleDetailsSuccess
-
-        private async Task<VehicleDetailSuccess> CreateVehicleDetailsSuccess(Reservation response, List<Label> labels, List<MobileVehicleFeature> vehicleFeatures, string podomain, int languageId)
-        {
-            var cardTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.VehicleDetailsCardTitle").Labeladi;
-            var totalKmLabel = labels.FirstOrDefault(l => l.LabelKodu == "VehicleMobile.ReservationSuccess.TotalKmLimit")?.Labeladi ?? "[totalkm]";
-            var successLabelDict = labels
-                .Where(l => !string.IsNullOrEmpty(l.LabelKodu))
-                .GroupBy(l => l.LabelKodu)
-                .ToDictionary(g => g.Key, g => g.First().Labeladi);
-
-            var vehicle = new Vehicle
-            {
-                FuelType = response.FuelType,
-                FuelTypeName = response.FuelTypeName,
-                TransmissionType = response.TransmissionType,
-                TransmissionTypeName = response.TransmissionTypeName,
-                VehicleCategoryType = response.VehicleCategoryType,
-                VehicleCategoryTypeName = response.VehicleCategoryTypeName,
-                VehicleType = response.VehicleType,
-                VehicleTypeName = response.VehicleTypeName,
-                PassangerQuantityType = response.PassangerQuantityType,
-                PassangerQuantityName = response.PassangerQuantityTypeName,
-                BaggageQuantityType = response.BaggageQuantityType,
-                BaggageQuantityName = response.BaggageQuantityTypeName,
-                TotalKMLimit = response.TotalKMLimit,
-            };
-
-
-            return new VehicleDetailSuccess
-            {
-                CardTitle = cardTitle,
-                VehicleName = response.VehicleName,
-                VehicleTypeName = response.VehicleTypeName,
-                VehicleImage = response.VehicleImageUrl,
-                GearType = response.TransmissionTypeName,
-                FuelType = response.FuelTypeName,
-                RentalDuration = response.RentalDuration,
-                VehicleModelName = response.VehicleModelName,
-                VehicleBrandName = response.VehicleBrandName,
-                VehicleCategoryTypeName = response.VehicleCategoryTypeName,
-                VehicleFeatures = await CreateVehicleFeatures(vehicle, vehicleFeatures, labels, successLabelDict, podomain, languageId, totalKmLabel, MobilePages.Success)
-            };
-        }
-
-        #endregion
-
-        #region PickupInformation
-        private async Task<VehiclePickupInformationSuccess> CreatePickupInformaiton(Reservation response, List<Label> labels)
-        {
-            var cardTitle = labels.FirstOrDefault(l => l.LabelKodu == "Mobile.Success.PickupInformationCardTitle").Labeladi;
-            var locationVendorContacts = await _vendorContactInformationService.GetVendorContactInformationsByVendorId(response.VendorId);
-            var pickupLocation = locationVendorContacts?.FirstOrDefault(l => l.Locationid == response.PickupLocationId);
-            var returnLocation = locationVendorContacts?.FirstOrDefault(l => l.Locationid == response.ReturnLocationId);
-
-            return new VehiclePickupInformationSuccess
-            {
-                CardTitle = cardTitle,
-                PickupInfo = new RezInfo
-                {
-                    Date = response.PickupDate,
-                    Location = response.PickupLocationName,
-                    Address = pickupLocation?.Address,
-                    Phone = pickupLocation?.Phonenumber,
-                    GoogleMapsLink = pickupLocation?.GoogleLink,
-                },
-                ReturnInfo = new RezInfo
-                {
-                    Date = response.ReturnDate,
-                    Location = response.ReturnLocationName,
-                    Address = returnLocation?.Address,
-                    Phone = returnLocation?.Phonenumber,
-                    GoogleMapsLink = returnLocation?.GoogleLink,
-                },
-            };
         }
 
         #endregion

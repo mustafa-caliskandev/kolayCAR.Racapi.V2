@@ -11,7 +11,7 @@
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 		<UserSecretsId>bc447521-73f1-4258-b96c-544c0bb345c7</UserSecretsId>
 		<LangVersion>13.0</LangVersion>
-		<ServerGarbageCollection>false</ServerGarbageCollection>
+		<ServerGarbageCollection>true</ServerGarbageCollection>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="Docs\Europcar\**" />
