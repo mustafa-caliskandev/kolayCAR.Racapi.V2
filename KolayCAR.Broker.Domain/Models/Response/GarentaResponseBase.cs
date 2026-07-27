@@ -116,12 +116,14 @@ namespace KolayCAR.Broker.Domain.Models.Response
             public string PROD_DESC_LARGE { get; set; }
             public string PROD_DESC_SHORT { get; set; }
             public string MANDATORY { get; set; }
-            public double PRICE { get; set; }
-            public double DISC_PRICE { get; set; }
+            public string PRICE { get; set; }
+            public string DISC_PRICE { get; set; }
+            public string DISCOUNT_AMOUNT { get; set; }
+            public string NET_AMOUNT { get; set; }
             public string CURRENCY { get; set; }
             public string SIPP_CODE { get; set; }
-            public int MAX_COUNT { get; set; }
-            public int MAX_DAY { get; set; }
+            public string MAX_COUNT { get; set; }
+            public string MAX_DAY { get; set; }
             public string INFO_TEXT { get; set; }
         }
 

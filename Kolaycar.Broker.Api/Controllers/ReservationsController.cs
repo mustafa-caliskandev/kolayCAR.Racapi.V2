@@ -135,6 +135,41 @@ namespace KolayCAR.Broker.API.Controllers
         }
         #endregion
 
+        #region Get Reservation By External Reference
+        [HttpGet("agencyReservationReference")]
+        public async Task<ActionResult<HttpResult<object>>> GetByExternalReference(
+            string externalReference,
+            LanguageTypes? languageType = null)
+        {
+            if (string.IsNullOrWhiteSpace(externalReference))
+                return BadRequest(HttpResult<object>.Result(
+                    data: null,
+                    httpResultType: HttpStatusCode.BadRequest,
+                    success: false,
+                    message: $"{nameof(externalReference)} is missing"));
+
+            var localReservation = await _reservationService.GetReservationByAgencyReference(
+                externalReference,
+                languageType);
+
+            if (localReservation == null)
+                return HttpResult<object>.Result(
+                    data: null,
+                    httpResultType: HttpStatusCode.OK,
+                    success: false,
+                    message: "No reservation found!");
+
+            localReservation.IsCancelable = true;
+            var resultReservation = _agencyService.ChechAgencyRestricted<RestrictedReservation>(localReservation);
+
+            return HttpResult<object>.Result(
+                data: resultReservation,
+                httpResultType: HttpStatusCode.OK,
+                success: resultReservation != null,
+                message: resultReservation == null ? "No reservation found!" : string.Empty);
+        }
+        #endregion
+
         #region Get Reservation List
         //[BrokerAuthorize(UserRoles.Admin, UserRoles.Agency)]
         [HttpGet("list")]
@@ -350,7 +385,7 @@ namespace KolayCAR.Broker.API.Controllers
                 AdvancedPaymentWithoutPayment = advancedPaymentWithoutPayment,
                 PaidAmountAfterUsingCouponCode = paidAmountAfterUsingCouponCode.ToFloatNullSafe(),
                 HighAmountDiscountActive = highAmountDiscountActive,
-                FullCredit = fullCredit,
+                FullCredit = fullCredit ?? false,
                 CreditType = creditType ?? CreditType.Non,
                 Bank = bank,
                 BankAccountCode = bankAccountCode,
@@ -380,6 +415,7 @@ namespace KolayCAR.Broker.API.Controllers
         [Route("V2")]
         public async Task<ActionResult<HttpResult<object>>> V2([FromBody] PostReservationRequest postReservationRequest)
         {
+            postReservationRequest.FullCredit = postReservationRequest.FullCredit ?? false;
             Serilog.Log.Error("{@PostReservationRequest}", postReservationRequest.ToJson());
             return await PostReservation(ObjectHelper.PostReservationRequestObjectEdit(postReservationRequest, _agencyService.GetCurrentAgencyId(), User.Claims.Where(x => x.Type == ClaimTypes.UserData).FirstOrDefault().Value));
         }
@@ -387,6 +423,9 @@ namespace KolayCAR.Broker.API.Controllers
         [Route("Save")]
         public async Task<ActionResult<HttpResult<object>>> SaveReservation([FromBody] PostReservationRequestV2 request)
         {
+            if (request != null)
+                request.FullCredit = request.FullCredit ?? false;
+
             Serilog.Log.Error("{@PostReservationRequest}", request.ToJson());
 
             var postReservationResponse = new HttpResult<object>();
@@ -468,6 +507,7 @@ namespace KolayCAR.Broker.API.Controllers
                     ? CreditType.LimitedCredit
                     : CreditType.Non;
             request.FullCredit = requestedFullCredit;
+            ReservationHelper.ApplyLimitedCreditPaymentDelivery(request);
 
             if (_userRole == UserRoles.External && request.Payment.PaymentType == PaymentTypes.AdvancePayment && request.Pricing.PaidAmount > 0)
             {
@@ -610,6 +650,7 @@ namespace KolayCAR.Broker.API.Controllers
             var postReservationResponse = new HttpResult<object>();
             var reservationId = await _reservationStepsService.CreateNewResIdIfExist();
             var reservationNumber = ReservationHelper.GenerateReservationNumber(reservationId);
+            postReservationRequest.FullCredit = postReservationRequest.FullCredit ?? false;
             await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, GetReservationRequestObjectForLog(_userRole, postReservationRequest).ToJson(), BrokerLogTypes.ReservationRequest));
 
             var checkPostReservationRequestResult = ReservationHelper.CheckPostReservationRequestRequireProps(postReservationRequest, _userRole);
@@ -680,6 +721,7 @@ namespace KolayCAR.Broker.API.Controllers
                     ? CreditType.LimitedCredit
                     : CreditType.Non;
             postReservationRequest.FullCredit = requestedFullCredit;
+            ReservationHelper.ApplyLimitedCreditPaymentDelivery(postReservationRequest);
 
             var getExtrasRequest = new GetExtrasRequest
             {
@@ -1221,6 +1263,9 @@ namespace KolayCAR.Broker.API.Controllers
             {
                 var requestPrice = requestExtra.RequestPrice;
                 var mappedExtra = requestExtra.MapCyrpt(tokenExtras);
+
+                if (requestPrice.HasValue && requestPrice != 0)
+                    mappedExtra.Price = requestPrice.ToFloatNullSafe();
 
                 //if (requestPrice.HasValue && requestPrice != 0)
                 //{

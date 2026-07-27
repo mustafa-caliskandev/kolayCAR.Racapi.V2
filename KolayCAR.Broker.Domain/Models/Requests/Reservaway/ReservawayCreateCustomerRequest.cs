@@ -44,4 +44,20 @@ public class ReservawayPartnerReserveCustomerRequest
     public string country_of_residence { get; set; }
     public string address { get; set; }
     public string flight_number { get; set; }
+    public string postal_code { get; set; }
+    public string city { get; set; }
+    public string state { get; set; }
+
+}
+
+public class ReservawayPartnerCancelRequest
+{
+    public string reservation_number { get; set; }
+    public string reason { get; set; }
+}
+
+public class ReservawayAddExtraRequestItem
+{
+    public int quantity { get; set; }
+    public int id { get; set; }
 }

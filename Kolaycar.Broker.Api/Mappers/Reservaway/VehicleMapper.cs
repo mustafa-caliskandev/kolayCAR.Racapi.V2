@@ -34,8 +34,7 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
                 var planDefinition = ReservawayMapperHelper.GetBasePlanDefinition(
                     apiVehicle.prices,
                     productTypes,
-                    paymentTypes,
-                    apiVehicle.active_payment_types);
+                    paymentTypes);
 
                 if (planDefinition == null)
                     continue;
@@ -65,7 +64,8 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
                     visitorSessionId,
                     apiDailyPrice,
                     apiTotalPrice,
-                    apiOneWayFee).ToJson();
+                    apiOneWayFee,
+                    apiRatePrice?.booking_token).ToJson();
 
                 vehicles.Add(vehicle);
             }
@@ -260,7 +260,8 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
             string visitorSessionId,
             float apiDailyPrice,
             float apiTotalPrice,
-            float apiOneWayFee)
+            float apiOneWayFee,
+            string bookingToken)
         {
             return new ReservationToken
             {
@@ -297,6 +298,7 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
                     payment_type_name = planReference?.PaymentTypeName
                 }),
                 APIReferenceCode3 = visitorSessionId,
+                APIReferenceCode4 = bookingToken,
                 DepositPrice = vehicle.DepositPrice,
                 VendorMinimumDriverAge = vehicle.VendorMinimumDriverAge ?? 0,
                 VendorMinimumDrivingLicenseAge = vehicle.VendorMinimumDrivingLicenseAge ?? 0,

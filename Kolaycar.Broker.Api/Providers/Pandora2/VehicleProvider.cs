@@ -143,7 +143,8 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
                                 VehicleType = mappedVehicle.VehicleType,
                                 VendorFlightPassRequired = vendor.FlightNumberRequired ?? false,
                                 FullCredit = mappedVehicle.FullCredit,
-                                SippCode = mappedVehicle.SippCode
+                                SippCode = mappedVehicle.SippCode,
+                                VendorNote = vehicle.value.Supplier?.SpecialInstructions
                             };
 
                             mappedVehicle.ReservationToken = reservationToken.ToJson();

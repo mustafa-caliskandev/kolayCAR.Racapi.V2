@@ -35,7 +35,7 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
             var visitorSessionId = System.Guid.NewGuid().ToString("N");
             var result = await _httpManager.GetAsync2<ReservawayLocationResponse>(
                 requestPath: ReservawayRequestHelper.LocationListPath,
-                headers: ReservawayRequestHelper.CreateHeaders(visitorSessionId),
+                headers: ReservawayRequestHelper.CreateHeaders(visitorSessionId, vendor.ApiClientId),
                 isReservationRequest: true);
 
             if (result?.Data?.locations == null)

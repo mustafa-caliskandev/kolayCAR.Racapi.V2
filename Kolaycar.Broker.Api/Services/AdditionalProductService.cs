@@ -52,7 +52,7 @@ public class AdditionalProductService : IAdditionalProductService
 
             if (extra != null)
             {
-                if (!extra.ShowOnlyFullCreditVehicles || token.FullCredit)
+                if (!extra.ShowOnlyFullCreditVehicles || (token.CreditType == CreditType.FullCredit || token.CreditType == CreditType.LimitedCredit))
                 {
                     var rentalType = (ExtraRentalTypes)specialRequest.SpecialRequestTariff.RentalTypeId;
 

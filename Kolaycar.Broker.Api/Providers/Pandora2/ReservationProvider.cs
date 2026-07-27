@@ -9,6 +9,7 @@ using KolayCAR.Broker.Infrastructure.Managers;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace KolayCAR.Broker.API.Providers.Pandora2
@@ -126,6 +127,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
                     localReservation.APIReservationSuccessfully = true;
                     localReservation.APIReservationNumber = result.Data.Id.ToString();
                     localReservation.APIReferenceCode3 = result.Data.Files?.ReservationForm;
+                    ApplyVendorContactInfo(localReservation, result.Data);
 
                     return new ServiceResponseBase(localReservation, true);
                 }
@@ -135,6 +137,32 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
 
             return new ServiceResponseBase(null, false, "Access denied!");
         }
+
+        private static void ApplyVendorContactInfo(Reservation localReservation, Pandora2ResponseBase.BookingCreateResponse bookingResponse)
+        {
+            if (localReservation == null || bookingResponse == null)
+                return;
+
+            var pickupAddress = FirstNonEmpty(bookingResponse.PickupLocation?.Address, bookingResponse.Supplier?.Address);
+            var pickupPhone = FirstNonEmpty(bookingResponse.PickupLocation?.Phone, bookingResponse.Supplier?.Phone);
+            var returnAddress = FirstNonEmpty(bookingResponse.DropOffLocation?.Address, pickupAddress);
+            var returnPhone = FirstNonEmpty(bookingResponse.DropOffLocation?.Phone, pickupPhone);
+
+            if (!string.IsNullOrWhiteSpace(pickupAddress))
+                localReservation.APIVendorPickupAddress = pickupAddress;
+
+            if (!string.IsNullOrWhiteSpace(pickupPhone))
+                localReservation.APIVendorPickupPhone = pickupPhone;
+
+            if (!string.IsNullOrWhiteSpace(returnAddress))
+                localReservation.APIVendorReturnAddress = returnAddress;
+
+            if (!string.IsNullOrWhiteSpace(returnPhone))
+                localReservation.APIVendorReturnPhone = returnPhone;
+        }
+
+        private static string FirstNonEmpty(params string[] values) =>
+            values?.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))?.Trim();
 
         private static ServiceResponseBase ValidateCalculatedPrice(Pandora2ResponseBase.PriceResponse calculateResponse, Reservation localReservation)
         {

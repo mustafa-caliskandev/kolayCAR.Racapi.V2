@@ -1,5 +1,6 @@
 ﻿using KolayCAR.Broker.API.Models;
 using KolayCAR.Broker.Domain.Models;
+using KolayCAR.Broker.API.Helpers.KolayCAR;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace KolayCAR.Broker.API.Mappers.KolayCAR
                 ExtraDescription = extra.EXTRADESCRIPTION,
                 ExtraRentalType = (ExtraRentalTypes)extra.EXTRAPERDAY,
                 ExtraQuantityIncreasable = Convert.ToBoolean(extra.EXTRAQUANTITYINCREASABLE),
-                Price = extra.PRICE
+                Price = MoneyHelper.ToFloat(extra.PRICE)
             }
             : null;
 

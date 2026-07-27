@@ -30,10 +30,10 @@ namespace KolayCAR.Broker.Domain.Mappers.KolayCAR
                 ReturnDateTime = vehicle.RETURNDATETIME,
                 MinimumRentalDurationDays = vehicle.MINIMUMRENTALDURATIONDAYS,
                 RentalDuration = vehicle.RENTALDURATION,
-                DailyPrice = vehicle.DAILYPRICE,
-                OneWayFee = vehicle.ONEWAYFEE,
-                ExtraPrice = vehicle.EXTRAPRICE,
-                TotalPrice = vehicle.TOTALPRICE,
+                DailyPrice = (float)Math.Round(vehicle.DAILYPRICE, 2),
+                OneWayFee = (float)Math.Round(vehicle.ONEWAYFEE, 2),
+                ExtraPrice = (float)Math.Round(vehicle.EXTRAPRICE, 2),
+                TotalPrice = (float)Math.Round(vehicle.TOTALPRICE, 2),
                 IsAvailable = vehicle.ISAVAILABLE == 1,
                 RentalConditions = vehicle.RENTALCONDITIONS.Map(),
                 VehicleImages = vehicle.VEHICLEIMAGES.Map(),
@@ -55,15 +55,15 @@ namespace KolayCAR.Broker.Domain.Mappers.KolayCAR
                 DeliveryPaymentActive = vehicle.DELIVERYPAYMENTACTIVE,
                 CreditCardPaymentActive = vehicle.CREDITCARDPAYMENTTYPE != 0,
                 CreditCardPaymentType = (CreditCardPaymentTypes)vehicle.ADVANCEPAYMENTTYPE,
-                DailyPricePayNow = vehicle.DAILYPRICEPAYNOW,
-                TotalPricePayNow = vehicle.TOTALPRICEPAYNOW,
+                DailyPricePayNow = (float)Math.Round(vehicle.DAILYPRICEPAYNOW, 2),
+                TotalPricePayNow = (float)Math.Round(vehicle.TOTALPRICEPAYNOW, 2),
                 DiscountType = vehicle.DISCOUNTTYPE != null ? (DiscountTypes)Convert.ToInt32(vehicle.DISCOUNTTYPE) : DiscountTypes.None,
                 DiscountPercent = vehicle.DISCOUNTPERCENT,
-                DiscountAmount = vehicle.DISCOUNTPRICE,
-                DiscountTotalPrice = vehicle.DISCOUNTTOTALPRICE,
-                DiscountTotalPricePayNow = vehicle.DISCOUNTTOTALPRICEPAYNOW,
+                DiscountAmount = (float)Math.Round(vehicle.DISCOUNTPRICE, 2),
+                DiscountTotalPrice = (float)Math.Round(vehicle.DISCOUNTTOTALPRICE, 2),
+                DiscountTotalPricePayNow = (float)Math.Round(vehicle.DISCOUNTTOTALPRICEPAYNOW, 2),
                 DiscountPercentPayNow = vehicle.DISCOUNTPERCENTEPAYNOW,
-                DepositPrice = vehicle.DEPOSITPRICE
+                DepositPrice = (float)Math.Round(vehicle.DEPOSITPRICE, 2)
             }
             : null;
 

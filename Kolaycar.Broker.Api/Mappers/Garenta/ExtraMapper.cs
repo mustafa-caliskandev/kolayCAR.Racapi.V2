@@ -13,11 +13,14 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                 ExtraId = 0,
                 ExtraCode = extra.PRODUCT_ID,
                 ApiExtraCode = extra.PRODUCT_ID,
-                ExtraName = extra.PROD_DESC_SHORT,
-                ExtraDescription = extra.INFO_TEXT,
+                ExtraName = !string.IsNullOrWhiteSpace(extra.PROD_DESC_SHORT) ? extra.PROD_DESC_SHORT : extra.PROD_DESC_LARGE,
+                ExtraDescription = !string.IsNullOrWhiteSpace(extra.INFO_TEXT) ? extra.INFO_TEXT : extra.PROD_DESC_LARGE,
                 ExtraRentalType = ExtraRentalTypes.PerRental,
                 ExtraQuantityIncreasable = false,
-                Price = extra.PRICE.ToFloatNullSafe()
+                Price = GetPrice(extra),
+                ApiPrice = GetPrice(extra),
+                CurrencyCode = extra.CURRENCY,
+                IsRequired = extra.MANDATORY == "X"
             } : null;
 
         public static List<Extra> Map(this List<GarentaResponseBase.EXTRA> extras)
@@ -29,6 +32,16 @@ namespace KolayCAR.Broker.API.Mappers.Garenta
                     _extras.Add(extra.Map());
 
             return _extras;
+        }
+
+        private static float GetPrice(GarentaResponseBase.EXTRA extra)
+        {
+            var netAmount = extra.NET_AMOUNT.ToStringNullSafe();
+
+            if (!string.IsNullOrWhiteSpace(netAmount))
+                return netAmount.ToFloatNullSafe();
+
+            return extra.PRICE.ToStringNullSafe().ToFloatNullSafe();
         }
     }
 }

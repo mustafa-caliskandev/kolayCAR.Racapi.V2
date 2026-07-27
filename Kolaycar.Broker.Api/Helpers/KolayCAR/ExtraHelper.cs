@@ -30,7 +30,12 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
 
         public static float GetTotalExtraPrice(string extraListStr, List<Extra> apiExtras, List<FormattedExtra> formattedExtras, int dayCount)
         {
-            float price = 0;
+            return MoneyHelper.ToFloat(GetTotalExtraPriceDecimal(extraListStr, apiExtras, formattedExtras, dayCount));
+        }
+
+        public static decimal GetTotalExtraPriceDecimal(string extraListStr, List<Extra> apiExtras, List<FormattedExtra> formattedExtras, int dayCount)
+        {
+            decimal price = 0m;
             if (!string.IsNullOrEmpty(extraListStr))
             {
                 if (apiExtras != null && apiExtras.Count > 0)
@@ -41,7 +46,7 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
                         string extraItemId = extraList[i].Split('-')[0];
                         int extraItemPiece = extraList[i].Split('-')[1].ToIntNullAvailable() ?? 1;
                         var apiExtra = apiExtras.Where(x => x.ExtraCode == extraItemId && x.ExtraType != AdditionalProductTypes.Compulsory).FirstOrDefault();
-                        float extraItemPrice = (extraList[i].Split('-').Length == 3 ? extraList[i].Split('-')[2].ToFloatNullSafe() : 0) * extraItemPiece;
+                        decimal extraItemPrice = (extraList[i].Split('-').Length == 3 ? extraList[i].Split('-')[2].ToDecimalNullSafe() : 0m) * extraItemPiece;
 
                         if (apiExtra != null)
                         {
@@ -54,7 +59,9 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
                 }
                 else
                 {
-                    price = formattedExtras.Sum(e => ((int)e.RentalType == 0 ? e.Piece * e.ApiPrice : e.Piece * e.ApiPrice * dayCount));
+                    price = formattedExtras.Sum(e => (int)e.RentalType == 0
+                        ? e.Piece * MoneyHelper.ToMoney(e.ApiPrice)
+                        : e.Piece * MoneyHelper.ToMoney(e.ApiPrice) * dayCount);
                 }
             }
             return price;
@@ -73,27 +80,33 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
 
                         for (int i = 0; i < extraList.Length; i++)
                         {
-                            float extraPrice = 0;
+                            decimal extraPrice = 0m;
                             string requestExtraCode = extraList[i].Split('~')[0];
-                            float requestExtraPrice = extraList[i].Split('~')[2].ToFloatNullSafe();
-                            float requestExtraPriceWithoutProfitMarkup = vendor.AdditionalProductWorkingType == VendorWorkingTypes.ProfitMarkup ?
-                                CalculationHelper.RemoveProfitMarkup(profitMarkup, PriceRoundingTypes.DoNotRounding, requestExtraPrice) : requestExtraPrice;
+                            decimal requestExtraPrice = extraList[i].Split('~')[2].ToDecimalNullSafe();
+                            decimal requestExtraPriceWithoutProfitMarkup = vendor.AdditionalProductWorkingType == VendorWorkingTypes.ProfitMarkup ?
+                                MoneyHelper.RemoveProfitMarkup(MoneyHelper.ToMoney(profitMarkup), PriceRoundingTypes.DoNotRounding, requestExtraPrice) : requestExtraPrice;
                             var apiExtra = apiExtras.Where(x => x.ExtraCode == requestExtraCode).FirstOrDefault();
+                            if (apiExtra == null)
+                            {
+                                extraList[i] = $"{extraList[i].Split('~')[0]}-{extraList[i].Split('~')[1]}-{MoneyHelper.Format(requestExtraPrice)}";
+                                continue;
+                            }
+
                             if (paymentType == PaymentTypes.PayOnDelivery ||
                                 postReservationRequest.ExtraPricePayToDelivery ||
                                 (paymentType == PaymentTypes.AdvancePayment && agency.AdvancePaymentAmountByAgencyCommissionActive) ||
-                                (paymentType == PaymentTypes.AdvancePayment && !agency.AdvancePaymentAmountByAgencyCommissionActive && requestExtraPriceWithoutProfitMarkup != apiExtra.Price) ||
+                                (paymentType == PaymentTypes.AdvancePayment && !agency.AdvancePaymentAmountByAgencyCommissionActive && requestExtraPriceWithoutProfitMarkup != MoneyHelper.ToMoney(apiExtra.Price)) ||
                                 (paymentType == PaymentTypes.AdvancePayment && (postReservationRequest.SpecialDailyPrice != -1 || postReservationRequest.SpecialOneWayFee != -1)))
 
                             {
-                                extraPrice = CalculationHelper.CurrencyExchange(exchangeRates, vendor, requestExtraPrice, postReservationRequest.CurrencyCode.ToEnum<CurrencyTypes>(), baseVendorRequestCurrencyType);
+                                extraPrice = MoneyHelper.CurrencyExchange(exchangeRates, vendor, requestExtraPrice, postReservationRequest.CurrencyCode.ToEnum<CurrencyTypes>(), baseVendorRequestCurrencyType);
                             }
                             else
                             {
-                                extraPrice = CalculationHelper.CalculateAPIPrice(requestExtraPrice, apiExtra.Price, freePriceActive, freePriceShowActive, profitMarkup, paymentType, vendor.AdditionalProductWorkingType);
+                                extraPrice = MoneyHelper.CalculateAPIPrice(requestExtraPrice, MoneyHelper.ToMoney(apiExtra.Price), freePriceActive, freePriceShowActive, MoneyHelper.ToMoney(profitMarkup), paymentType, vendor.AdditionalProductWorkingType);
                             }
 
-                            extraList[i] = $"{extraList[i].Split('~')[0]}-{extraList[i].Split('~')[1]}-{extraPrice.ToStringNullSafe().Replace(",", ".")}";
+                            extraList[i] = $"{extraList[i].Split('~')[0]}-{extraList[i].Split('~')[1]}-{MoneyHelper.Format(extraPrice)}";
                         }
 
                         extraListStr = string.Join(",", extraList);
@@ -114,7 +127,7 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
 
                     foreach (var extra in formattedExtras)
                         if (extra.ApiCode != "PRMPKT-1")
-                            extraAdded.Add($"{extra.ApiCode}-{extra.Piece}-{extra.ApiPrice.ToStringNullSafe().Replace(",", ".")}");
+                            extraAdded.Add($"{extra.ApiCode}-{extra.Piece}-{MoneyHelper.Format(MoneyHelper.ToMoney(extra.ApiPrice))}");
 
                     extraListStr = string.Join(",", extraAdded);
                 }

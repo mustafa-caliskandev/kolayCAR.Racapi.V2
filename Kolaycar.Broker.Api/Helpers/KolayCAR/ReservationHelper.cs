@@ -1,7 +1,8 @@
 ﻿using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Requests;
 using System.Collections.Generic;
-using BrokerReservationHelper = KolayCAR.Broker.API.Helpers.ReservationHelper;
+using System.Linq;
+using KolayCAR.Broker.Infrastructure.Extensions;
 
 namespace KolayCAR.Broker.API.Helpers.KolayCAR
 {
@@ -13,6 +14,11 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
         ///SellingBelowCostForCouponCode=>false ise ve kupon kodu kullanıldıysa, ödenen tutar API tutarından küçük olsa dahi API'a tamamı ödenmiş şekilde iletilir. (Net talebi)
         public static float GetKolayCARSpecialDailyPrice(Agency agency, ReservationToken reservationToken, PostReservationRequest postReservationRequest, List<Extra> apiExtras, Vendor vendor, Reservation reservation)
         {
+            return MoneyHelper.ToFloat(GetKolayCARSpecialDailyPriceDecimal(agency, reservationToken, postReservationRequest, apiExtras, vendor, reservation, exchangeRates: null));
+        }
+
+        public static decimal GetKolayCARSpecialDailyPriceDecimal(Agency agency, ReservationToken reservationToken, PostReservationRequest postReservationRequest, List<Extra> apiExtras, Vendor vendor, Reservation reservation, List<ExchangeRates> exchangeRates)
+        {
             switch (postReservationRequest.PaymentType)
             {
                 default:
@@ -20,72 +26,86 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
                 case PaymentTypes.PayToAgency:
                 case PaymentTypes.PayAll:
                     {
-                        if (postReservationRequest.PaidAmount >= reservation.APITotalAmount ||
+                        var paidAmount = MoneyHelper.ToMoney(postReservationRequest.PaidAmount);
+                        var apiTotalAmount = MoneyHelper.ToMoney(reservation.APITotalAmount);
+                        var specialDailyPrice = MoneyHelper.ToMoney(postReservationRequest.SpecialDailyPrice);
+                        var tokenApiDailyPrice = MoneyHelper.ResolveTokenApiDailyPrice(reservationToken);
+
+                        if (paidAmount >= apiTotalAmount ||
                         postReservationRequest.ExtraPricePayToDelivery ||
                         postReservationRequest.OneWayFeePayToDelivery ||
-                        (!vendor.SellingBelowCostForCouponCode && !string.IsNullOrEmpty(postReservationRequest.CouponCode) && postReservationRequest.PaidAmount < reservation.APITotalAmount))
+                        (!vendor.SellingBelowCostForCouponCode && !string.IsNullOrEmpty(postReservationRequest.CouponCode) && paidAmount < apiTotalAmount))
                         {
                             if (agency.FreePriceShowActive)
                             {
-                                if (postReservationRequest.SpecialDailyPrice != -1)
+                                if (specialDailyPrice != MoneyHelper.NotSet)
                                 {
-                                    if (postReservationRequest.SpecialDailyPrice < reservationToken.APIDailyPrice)
+                                    if (specialDailyPrice < tokenApiDailyPrice)
                                     {
-                                        return postReservationRequest.SpecialDailyPrice;
+                                        return specialDailyPrice;
                                     }
                                     else
                                     {
-                                        return -1;
+                                        return MoneyHelper.NotSet;
                                     }
                                 }
                                 else
                                 {
-                                    return -1;
+                                    return MoneyHelper.NotSet;
                                 }
                             }
                             else
                             {
-                                return -1;
+                                return MoneyHelper.NotSet;
                             }
                         }
                         else
                         {
                             //return reservationToken.DailyPrice;
-                            return reservationToken.APIDailyPrice;
+                            return tokenApiDailyPrice;
                         }
                     }
                 case PaymentTypes.PayOnDelivery:
                     {
+                        var specialDailyPrice = MoneyHelper.ToMoney(postReservationRequest.SpecialDailyPrice);
+                        var tokenDailyPrice = MoneyHelper.ResolveTokenDailyPrice(reservationToken, vendor, exchangeRates);
+
                         if (agency.FreePriceShowActive)
                         {
-                            return postReservationRequest.SpecialDailyPrice != -1 ? postReservationRequest.SpecialDailyPrice : reservationToken.DailyPrice;
+                            return specialDailyPrice != MoneyHelper.NotSet ? specialDailyPrice : tokenDailyPrice;
                         }
                         else
                         {
-                            return reservationToken.DailyPrice;
+                            return tokenDailyPrice;
                         }
                     }
                 case PaymentTypes.AdvancePayment:
                     {
-                        var isSpecialExtraPriceUse = BrokerReservationHelper.IsSpecialExtraPriceUse(postReservationRequest.ExtraList, apiExtras, vendor.ProfitMarkupAdditionalProducts, postReservationRequest.PaymentType, postReservationRequest, agency, vendor);
+                        var specialDailyPrice = MoneyHelper.ToMoney(postReservationRequest.SpecialDailyPrice);
+                        var isSpecialExtraPriceUse = IsSpecialExtraPriceUseDecimal(postReservationRequest.ExtraList, apiExtras, MoneyHelper.ToMoney(vendor.ProfitMarkupAdditionalProducts), postReservationRequest.PaymentType, postReservationRequest, agency, vendor);
 
-                        if (agency.FreePriceShowActive && postReservationRequest.SpecialDailyPrice != -1)
+                        if (agency.FreePriceShowActive && specialDailyPrice != MoneyHelper.NotSet)
                         {
-                            return postReservationRequest.SpecialDailyPrice;
+                            return specialDailyPrice;
                         }
                         else if (agency.AdvancePaymentAmountByAgencyCommissionActive || isSpecialExtraPriceUse)
                         {
-                            return reservationToken.DailyPrice;
+                            return MoneyHelper.ResolveTokenDailyPrice(reservationToken, vendor, exchangeRates);
                         }
                         else
                         {
-                            return -1;
+                            return MoneyHelper.NotSet;
                         }
                     }
             }
         }
 
         public static float GetKolayCARSpecialOneWayFee(Agency agency, ReservationToken reservationToken, PostReservationRequest postReservationRequest, List<Extra> apiExtras, Vendor vendor, Reservation reservation)
+        {
+            return MoneyHelper.ToFloat(GetKolayCARSpecialOneWayFeeDecimal(agency, reservationToken, postReservationRequest, apiExtras, vendor, reservation, exchangeRates: null));
+        }
+
+        public static decimal GetKolayCARSpecialOneWayFeeDecimal(Agency agency, ReservationToken reservationToken, PostReservationRequest postReservationRequest, List<Extra> apiExtras, Vendor vendor, Reservation reservation, List<ExchangeRates> exchangeRates)
         {
             switch (postReservationRequest.PaymentType)
             {
@@ -96,56 +116,94 @@ namespace KolayCAR.Broker.API.Helpers.KolayCAR
                     {
                         if (agency.FreePriceShowActive || postReservationRequest.OneWayFeePayToDelivery)
                         {
-                            if (postReservationRequest.SpecialOneWayFee != -1)
+                            var specialOneWayFee = MoneyHelper.ToMoney(postReservationRequest.SpecialOneWayFee);
+                            var tokenApiOneWayFee = MoneyHelper.ResolveTokenApiOneWayFee(reservationToken);
+
+                            if (specialOneWayFee != MoneyHelper.NotSet)
                             {
-                                if (postReservationRequest.SpecialOneWayFee < reservationToken.APIOneWayFee || postReservationRequest.OneWayFeePayToDelivery)
+                                if (specialOneWayFee < tokenApiOneWayFee || postReservationRequest.OneWayFeePayToDelivery)
                                 {
-                                    return postReservationRequest.SpecialOneWayFee;
+                                    return specialOneWayFee;
                                 }
                                 else
                                 {
-                                    return -1;
+                                    return MoneyHelper.NotSet;
                                 }
                             }
                             else
                             {
-                                return -1;
+                                return MoneyHelper.NotSet;
                             }
                         }
                         else
                         {
-                            return -1;
+                            return MoneyHelper.NotSet;
                         }
                     }
                 case PaymentTypes.PayOnDelivery:
                     {
+                        var specialOneWayFee = MoneyHelper.ToMoney(postReservationRequest.SpecialOneWayFee);
+                        var tokenOneWayFee = MoneyHelper.ResolveTokenOneWayFee(reservationToken, vendor, exchangeRates);
+
                         if (agency.FreePriceShowActive)
                         {
-                            return postReservationRequest.SpecialOneWayFee != -1 ? postReservationRequest.SpecialOneWayFee : reservationToken.OneWayFee;
+                            return specialOneWayFee != MoneyHelper.NotSet ? specialOneWayFee : tokenOneWayFee;
                         }
                         else
                         {
-                            return reservationToken.OneWayFee;
+                            return tokenOneWayFee;
                         }
                     }
                 case PaymentTypes.AdvancePayment:
                     {
-                        var isSpecialExtraPriceUse = BrokerReservationHelper.IsSpecialExtraPriceUse(postReservationRequest.ExtraList, apiExtras, vendor.ProfitMarkupAdditionalProducts, postReservationRequest.PaymentType, postReservationRequest, agency, vendor);
+                        var specialOneWayFee = MoneyHelper.ToMoney(postReservationRequest.SpecialOneWayFee);
+                        var isSpecialExtraPriceUse = IsSpecialExtraPriceUseDecimal(postReservationRequest.ExtraList, apiExtras, MoneyHelper.ToMoney(vendor.ProfitMarkupAdditionalProducts), postReservationRequest.PaymentType, postReservationRequest, agency, vendor);
 
-                        if (agency.FreePriceShowActive && postReservationRequest.SpecialOneWayFee != -1)
+                        if (agency.FreePriceShowActive && specialOneWayFee != MoneyHelper.NotSet)
                         {
-                            return postReservationRequest.SpecialOneWayFee;
+                            return specialOneWayFee;
                         }
                         else if (agency.AdvancePaymentAmountByAgencyCommissionActive || isSpecialExtraPriceUse)
                         {
-                            return reservationToken.OneWayFee;
+                            return MoneyHelper.ResolveTokenOneWayFee(reservationToken, vendor, exchangeRates);
                         }
                         else
                         {
-                            return -1;
+                            return MoneyHelper.NotSet;
                         }
                     }
             }
+        }
+
+        private static bool IsSpecialExtraPriceUseDecimal(string extras, List<Extra> apiExtras, decimal profitMarkup, PaymentTypes paymentType, PostReservationRequest postReservationRequest, Agency agency, Vendor vendor)
+        {
+            if (apiExtras == null || apiExtras.Count == 0 || string.IsNullOrEmpty(extras))
+                return false;
+
+            var extraList = extras.Split('|');
+            for (int i = 0; i < extraList.Length; i++)
+            {
+                var extraParts = extraList[i].Split('~');
+                if (extraParts.Length < 3)
+                    continue;
+
+                string requestExtraCode = extraParts[0];
+                decimal requestExtraPrice = extraParts[2].ToDecimalNullSafe();
+                decimal requestExtraPriceWithoutProfitMarkup = vendor.AdditionalProductWorkingType == VendorWorkingTypes.ProfitMarkup ?
+                    MoneyHelper.RemoveProfitMarkup(profitMarkup, PriceRoundingTypes.DoNotRounding, requestExtraPrice) :
+                    requestExtraPrice;
+                var apiExtra = apiExtras.Where(x => x.ExtraCode == requestExtraCode).FirstOrDefault();
+                if (apiExtra == null)
+                    continue;
+
+                if (paymentType == PaymentTypes.PayOnDelivery ||
+                    (paymentType == PaymentTypes.AdvancePayment && agency.AdvancePaymentAmountByAgencyCommissionActive) ||
+                    (paymentType == PaymentTypes.AdvancePayment && !agency.AdvancePaymentAmountByAgencyCommissionActive && requestExtraPriceWithoutProfitMarkup != MoneyHelper.ToMoney(apiExtra.Price)) ||
+                    (paymentType == PaymentTypes.AdvancePayment && (postReservationRequest.SpecialDailyPrice != -1 || postReservationRequest.SpecialOneWayFee != -1)))
+                    return true;
+            }
+
+            return false;
         }
 
         public static string GetSoapRemoteAddress(string remoteAddress) => string.IsNullOrEmpty(remoteAddress) ? "https://resws.kolaycar.com/service.asmx" : remoteAddress;

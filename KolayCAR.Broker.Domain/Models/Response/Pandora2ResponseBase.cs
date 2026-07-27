@@ -46,6 +46,15 @@ namespace KolayCAR.Broker.Domain.Models.Response
             public string SpecialInstructions { get; set; }
         }
 
+        public class BookingLocation
+        {
+            public string SupplierId { get; set; }
+            public string SupplierName { get; set; }
+            public string SupplierLogo { get; set; }
+            public string Phone { get; set; }
+            public string Address { get; set; }
+        }
+
         public class Fee
         {
             public string Id { get; set; }
@@ -167,6 +176,9 @@ namespace KolayCAR.Broker.Domain.Models.Response
         {
             public int Id { get; set; }
             public BookingFiles Files { get; set; }
+            public Supplier Supplier { get; set; }
+            public BookingLocation PickupLocation { get; set; }
+            public BookingLocation DropOffLocation { get; set; }
         }
 
         public class BookingFiles

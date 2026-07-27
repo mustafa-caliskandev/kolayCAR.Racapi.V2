@@ -20,6 +20,8 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
     {
         private readonly HttpManager _httpManager;
         private readonly IConfigurationService _configurationService;
+        private const string TurkeyCountryId = "3ff9984b-8753-4ab3-98b9-41fc80ce01e3";
+
         public ReservationProvider(string apiBaseUrl, IConfigurationService configurationService)
         {
             _httpManager = new HttpManager(apiBaseUrl, DbConnectionHelper.Instance().ConnectionString);
@@ -50,9 +52,9 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 { "Authorization", $"Bearer {vendor.ApiClientId}" }
             };
 
-            Serilog.Log.Error("{@RentGoPostCancelReservationRequestParameters}", new { ReservationId = reservationId, Request = cancelRequest });
+            Serilog.Log.Error("{@RentGoPatchCancelReservationRequestParameters}", new { ReservationId = reservationId, Request = cancelRequest });
 
-            var response = await _httpManager.PostAsyncWithModelResult<RentGoCancelReservationRequest, string>(
+            var response = await _httpManager.PatchAsyncWithModelResult<RentGoCancelReservationRequest, string>(
                 $"/reservation/cancel/{Uri.EscapeDataString(reservationId)}",
                 cancelRequest,
                 headers: headers,
@@ -64,7 +66,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 isReservationRequest: true
             );
 
-            Serilog.Log.Error("{@RentGoPostCancelReservationResponse}", response);
+            Serilog.Log.Error("{@RentGoPatchCancelReservationResponse}", response);
 
             localReservation.APIMessage = response?.ServiceMessage ?? response?.Message;
 
@@ -78,6 +80,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
         }
         public async Task<ServiceResponseBase> PostReservation(PostReservationRequest postReservationRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, string reservationNumber, ReservationToken reservationToken, List<ExchangeRates> exchangeRates, Reservation localReservation, List<Extra> apiExtras)
         {
+
             var bookRequest = GetEntity(postReservationRequest, reservationToken, localReservation);
 
             await _configurationService.WriteLog(new BrokerLogModel
@@ -95,7 +98,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
 
             Serilog.Log.Error("{@RentGoPostReservationRequestParameters}", bookRequest);
 
-            var response = await _httpManager.PostAsyncWithModelResult<RentGoReservationRequest, RentGoReservationResponse>(
+            var response = await _httpManager.PostAsyncWithModelNullValueHandlingResult<RentGoReservationRequest, RentGoReservationResponse>(
                 "/reservation",
                 bookRequest,
                 headers: headers,
@@ -128,12 +131,15 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
         {
             var extras = GetAdditionalProducts(localReservation);
             var packages = GetAdditionalPackages(localReservation);
+            var customerIdentityNumber = NormalizeIdentityNumber(postReservationRequest.CustomerPersonalNumber);
+            var isTurkishCustomer = IsTurkishIdentityNumber(customerIdentityNumber);
 
             return new RentGoReservationRequest
             {
                 ResType = 1,
                 ListId = reservationToken.APIReferenceCode,
                 VersionId = reservationToken.VehicleCode,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 AdditionalProducts = extras,
                 AdditionalPackages = packages,
                 CustomerInfo = new RentGoCustomerInfo
@@ -144,8 +150,24 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                     Email = postReservationRequest.CustomerEmail,
                     MobileNumber = NormalizeMobileNumber(postReservationRequest.CustomerTelephone),
                     DialCode = "+90",
-                    IsTurkish = true,
-                    BirthDate = ToRentGoDate(postReservationRequest.CustomerBirthDay.ToDateTimeNullSafe().ToString("yyyy-MM-dd"))
+                    IsTurkish = isTurkishCustomer,
+                    BirthDate = ToRentGoDate(postReservationRequest.CustomerBirthDay.ToDateTimeNullSafe().ToString("yyyy-MM-dd")),
+                    GovernmentId = isTurkishCustomer ? customerIdentityNumber : null,
+                    PassportNumber = isTurkishCustomer ? null : customerIdentityNumber,
+                    CountryId = TurkeyCountryId,
+                },
+                InvoiceInfo = new RentGoInvoiceInfo
+                {
+                    Title = "Obilet",
+                    Name = "Obilet",
+                    Surname = "Obilet",
+                    GovernmentId = "11111111110",
+                    Company = "Obilet",
+                    TaxNo = "9999999991",
+                    TaxOffice = "Obilet",
+                    AddressLine = "İstanbul",
+                    District = "Kağıthane",
+                    City = "İstanbul"
                 }
             };
         }
@@ -179,6 +201,21 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 digits = digits.Substring(1);
 
             return digits;
+        }
+
+        private static string NormalizeIdentityNumber(string identityNumber)
+        {
+            if (string.IsNullOrWhiteSpace(identityNumber))
+                return null;
+
+            return identityNumber.Trim();
+        }
+
+        private static bool IsTurkishIdentityNumber(string identityNumber)
+        {
+            return !string.IsNullOrWhiteSpace(identityNumber)
+                && identityNumber.Length == 11
+                && identityNumber.All(char.IsDigit);
         }
 
         private static string ToRentGoDate(string value)

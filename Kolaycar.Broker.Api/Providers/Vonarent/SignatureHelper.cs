@@ -36,6 +36,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             var headers = new Dictionary<string, object>
             {
                 { "x-api-key", vendor.ApiKey },
+                { "x-api-secret", vendor.ApiPassword },
                 { "x-timestamp", timestamp },
                 { "x-signature", signature }
             };

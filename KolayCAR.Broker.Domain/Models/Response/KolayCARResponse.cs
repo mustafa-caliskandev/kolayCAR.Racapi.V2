@@ -140,10 +140,10 @@ namespace KolayCAR.Broker.Domain.Models.Response
         public DateTime RETURNDATETIME { get; set; }
         public int MINIMUMRENTALDURATIONDAYS { get; set; }
         public int RENTALDURATION { get; set; }
-        public float DAILYPRICE { get; set; }
-        public float ONEWAYFEE { get; set; }
-        public float EXTRAPRICE { get; set; }
-        public float TOTALPRICE { get; set; }
+        public decimal DAILYPRICE { get; set; }
+        public decimal ONEWAYFEE { get; set; }
+        public decimal EXTRAPRICE { get; set; }
+        public decimal TOTALPRICE { get; set; }
         public int ISAVAILABLE { get; set; }
         public List<RENTALCONDITIONS> RENTALCONDITIONS { get; set; }
         public List<VEHICLEIMAGES> VEHICLEIMAGES { get; set; }
@@ -165,15 +165,15 @@ namespace KolayCAR.Broker.Domain.Models.Response
         public bool DELIVERYPAYMENTACTIVE { get; set; }
         public int CREDITCARDPAYMENTTYPE { get; set; }
         public int ADVANCEPAYMENTTYPE { get; set; }
-        public float DAILYPRICEPAYNOW { get; set; }
-        public float TOTALPRICEPAYNOW { get; set; }
+        public decimal DAILYPRICEPAYNOW { get; set; }
+        public decimal TOTALPRICEPAYNOW { get; set; }
         public string DISCOUNTTYPE { get; set; }
         public float DISCOUNTPERCENT { get; set; }
-        public float DISCOUNTPRICE { get; set; }
-        public float DISCOUNTTOTALPRICE { get; set; }
-        public float DISCOUNTTOTALPRICEPAYNOW { get; set; }
+        public decimal DISCOUNTPRICE { get; set; }
+        public decimal DISCOUNTTOTALPRICE { get; set; }
+        public decimal DISCOUNTTOTALPRICEPAYNOW { get; set; }
         public float DISCOUNTPERCENTEPAYNOW { get; set; }
-        public float DEPOSITPRICE { get; set; }
+        public decimal DEPOSITPRICE { get; set; }
         public string COMMISSIONFREEPAYMENTTYPE { get; set; }
         public bool FREEDAILYPRICE { get; set; }
         public bool FREEEXTRAPRICE { get; set; }
@@ -201,7 +201,7 @@ namespace KolayCAR.Broker.Domain.Models.Response
         public string EXTRATYPE { get; set; }
         public int EXTRAPERDAY { get; set; }
         public string EXTRAQUANTITYINCREASABLE { get; set; }
-        public float PRICE { get; set; }
+        public decimal PRICE { get; set; }
     }
 
     public class AGENCY

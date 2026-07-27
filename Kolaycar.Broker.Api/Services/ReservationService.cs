@@ -39,6 +39,7 @@ namespace KolayCAR.Broker.API.Services
     public interface IReservationService
     {
         Task<Reservation> GetReservation(GetReservationsRequest getReservationsRequest, bool isBrokerReservation = false);
+        Task<Reservation> GetReservationByAgencyReference(string agencyReservationReference, LanguageTypes? languageType = null);
         Task<Rez> GetReservationByRezNo(string rezNo);
         Task<List<Rez>> GetUpdatedReservations(DateTime startDate, DateTime endDate);
         Task<List<Reservation>> GetReservations(GetReservationsRequest getReservationsRequest);
@@ -289,6 +290,38 @@ namespace KolayCAR.Broker.API.Services
                 return mappedReservation;
             }
             return null;
+        }
+
+        public async Task<Reservation> GetReservationByAgencyReference(
+            string agencyReservationReference,
+            LanguageTypes? languageType = null)
+        {
+            if (string.IsNullOrWhiteSpace(agencyReservationReference))
+                return null;
+
+            var normalizedReference = agencyReservationReference.Trim();
+            var reservationQuery = _context.Rez
+                .AsNoTracking()
+                .Where(x => x.Agencyreservationreference == normalizedReference);
+
+            if (_userRole != UserRoles.Admin && _userRole != UserRoles.MobileAPP)
+                reservationQuery = reservationQuery.Where(x => x.Agencyid == _currentAgencyId);
+
+            var reservation = await reservationQuery
+                .OrderByDescending(x => x.Tarih)
+                .FirstOrDefaultAsync();
+
+            if (reservation == null)
+                return null;
+
+            return await GetReservation(
+                new GetReservationsRequest
+                {
+                    ReservationNumber = reservation.Rezno,
+                    CustomerEmail = reservation.Musterieposta,
+                    LanguageType = languageType
+                },
+                isBrokerReservation: false);
         }
 
         public async Task<Rez> GetReservationByRezNo(string rezNo)
@@ -2478,10 +2511,12 @@ namespace KolayCAR.Broker.API.Services
             var totalExtraAmount = extras.Sum(e => e.ExtraRentalType == ExtraRentalTypes.PerRental ? e.Price : e.Price * reservationToken.RentalDuration);
             var premiumPackets = extras.Where(e => e.ExtraType == AdditionalProductTypes.Premium).ToList();
             var premiumPacketsPrice = premiumPackets.Sum(item => item.Price * (item.ExtraRentalType == ExtraRentalTypes.PerRental ? 1 : reservationToken.RentalDuration));
-            var localExtras = await _extraService.GetActiveLocalExtras(postReservationRequestV2.LanguageCode.ToEnum<LanguageTypes>());
+            var localExtras = vendor.ExtraMappingActive
+                ? await _extraService.GetActiveLocalExtras(postReservationRequestV2.LanguageCode.ToEnum<LanguageTypes>())
+                : new List<Extra>();
             postReservationRequestV2.Pricing.ExtraAmount = totalExtraAmount;
 
-            string extraListString = GetExtraListString(extras, agency, localExtras).Replace(",", ".");
+            string extraListString = GetExtraListString(extras, agency, localExtras, vendor.ExtraMappingActive).Replace(",", ".");
 
             if (postReservationRequestV2.Payment.InstallmentCount != 0 && postReservationRequestV2.Payment.PaymentType == PaymentTypes.PayAll)
             {
@@ -2612,11 +2647,21 @@ namespace KolayCAR.Broker.API.Services
             }
         }
 
-        private string GetExtraListString(List<Extra> extras, Domain.Models.Agency agency, List<Extra> localExtras)
+        private string GetExtraListString(List<Extra> extras, Domain.Models.Agency agency, List<Extra> localExtras, bool extraMappingActive)
         {
             return string.Join("|", extras.Select(e =>
-                         $"{e.ExtraId}~{e.Piece}~{e.Price}~{localExtras.FirstOrDefault(l => l.ExtraId == e.ExtraId)?.ExtraName ?? e.ExtraName}~{e.ExtraCode}~{(int)e.ExtraRentalType}~{e.ApiPrice}~{(e.ExtraType == AdditionalProductTypes.Premium ? (e.Price * (100 - agency.AgencyCommissionAmount) / 100f) : e.Price)}~{(int)e.ExtraType}~{(string.IsNullOrEmpty(e.ExtraDescription) ? (localExtras.FirstOrDefault(l => l.ExtraId == e.ExtraId)?.ExtraDescription ?? "") : e.ExtraDescription)}"
-                     ));
+            {
+                var localExtra = extraMappingActive
+                    ? localExtras.FirstOrDefault(l => l.ExtraId == e.ExtraId)
+                    : null;
+
+                var extraName = localExtra?.ExtraName ?? e.ExtraName;
+                var extraDescription = string.IsNullOrEmpty(e.ExtraDescription)
+                    ? localExtra?.ExtraDescription ?? string.Empty
+                    : e.ExtraDescription;
+
+                return $"{e.ExtraId}~{e.Piece}~{e.Price}~{extraName}~{e.ExtraCode}~{(int)e.ExtraRentalType}~{e.ApiPrice}~{(e.ExtraType == AdditionalProductTypes.Premium ? (e.Price * (100 - agency.AgencyCommissionAmount) / 100f) : e.Price)}~{(int)e.ExtraType}~{extraDescription}";
+            }));
         }
 
         public async Task<ServiceResponseBase> PostReservationToVendorAPI(Domain.Models.Requests.PostReservationRequestV2 postReservationRequest, ReservationToken reservationToken, Domain.Models.Agency agency, Domain.Models.Vendor vendor, long reservationId, List<Extra> apiExtras)

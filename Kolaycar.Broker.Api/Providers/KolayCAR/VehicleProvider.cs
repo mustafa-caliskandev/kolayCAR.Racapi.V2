@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using KolayCARHelper = KolayCAR.Broker.API.Helpers.KolayCAR;
 namespace KolayCAR.Broker.API.Providers.KolayCAR
 {
     public class VehicleProvider : IVehicleProvider
@@ -123,7 +124,10 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
 
             if (getVehiclesResponseObject?.RETURNCODE == 0)
             {
-                var apiVehicleList = VehicleHelper.SelectCheapestByGroup(getVehiclesResponseObject.VEHICLES, v => $"{v.VEHICLEID}-{v.VENDORID}", v => v.DAILYPRICE.ToFloatNullSafe());
+                var apiVehicleList = getVehiclesResponseObject.VEHICLES
+                    .GroupBy(v => $"{v.VEHICLEID}-{v.VENDORID}")
+                    .Select(g => g.OrderBy(v => v.DAILYPRICE).First())
+                    .ToList();
                 //var mappedVehicleList = getVehiclesResponseObject.VEHICLES.Map(additionalInformation);
                 var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor);
                 var kolayCarCreditType = ResolveKolayCarCreditType(getSettingsResponse, vendor, additionalInformation.Agency);
@@ -135,8 +139,24 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     apiVehicleList.RemoveAll(p => !localVehicles.Any(e => e.VehicleCode == $"{p.VEHICLEID}-{p.VENDORID}"));
                 }
 
-                CalculationHelper.SetVehiclesPrices(mappedVehicleList, vendor, exchangeRates, requestCurrencyType, baseVendorRequestCurrencyType);
-                VehicleHelper.SetVehiclesProperties(mappedVehicleList, vendor, additionalInformation.Agency, exchangeRates, baseVendorRequestCurrencyType, requestCurrencyType, profitMarkups);
+                var vehiclePriceSnapshots = new Dictionary<string, KolayCARHelper.VehiclePriceSnapshot>();
+                foreach (var mappedVehicle in mappedVehicleList)
+                {
+                    var apiVehicle = apiVehicleList.FirstOrDefault(x => $"{x.VEHICLEID}-{x.VENDORID}" == mappedVehicle.VehicleCode);
+                    if (apiVehicle == null)
+                        continue;
+
+                    vehiclePriceSnapshots[mappedVehicle.VehicleCode] = KolayCARHelper.MoneyHelper.ApplyVehiclePrices(
+                        mappedVehicle,
+                        apiVehicle,
+                        vendor,
+                        additionalInformation.Agency,
+                        exchangeRates,
+                        baseVendorRequestCurrencyType,
+                        requestCurrencyType,
+                        profitMarkups);
+                }
+
                 if (mappedVehicleList.Any(vehicle => Math.Abs(vehicle.RentalDuration - additionalInformation.RentalDuration) > 1))
                     return new ServiceResponseBase(null, false, "Yanlış gün sayısı");
 
@@ -153,6 +173,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                         var mappedVehicle = tempMappedVehicleList[i];
                         mappedVehicle.CreditType = kolayCarCreditType;
                         mappedVehicle.FullCredit = kolayCarCreditType == CreditType.FullCredit;
+                        vehiclePriceSnapshots.TryGetValue(mappedVehicle.VehicleCode, out var priceSnapshot);
 
                         var reservationToken = new ReservationToken
                         {
@@ -174,9 +195,19 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                             DailyPrice = mappedVehicle.DailyPrice,
                             OneWayFee = mappedVehicle.OneWayFee,
                             DailyPricePayNow = mappedVehicle.DailyPricePayNow,
-                            APIDailyPrice = vehicle.value.DAILYPRICE,
-                            APIDailyPricePayNow = vehicle.value.DAILYPRICEPAYNOW,
-                            APIOneWayFee = vehicle.value.ONEWAYFEE,
+                            APIDailyPrice = KolayCARHelper.MoneyHelper.ToFloat(vehicle.value.DAILYPRICE),
+                            APIDailyPricePayNow = KolayCARHelper.MoneyHelper.ToFloat(vehicle.value.DAILYPRICEPAYNOW),
+                            APIOneWayFee = KolayCARHelper.MoneyHelper.ToFloat(vehicle.value.ONEWAYFEE),
+                            APITotalPrice = KolayCARHelper.MoneyHelper.ToFloat(vehicle.value.TOTALPRICE),
+                            KolayCarDailyPrice = priceSnapshot?.DailyPrice,
+                            KolayCarOneWayFee = priceSnapshot?.OneWayFee,
+                            KolayCarDailyPricePayNow = priceSnapshot?.DailyPricePayNow,
+                            KolayCarAPIDailyPrice = priceSnapshot?.ApiDailyPrice,
+                            KolayCarAPIDailyPricePayNow = priceSnapshot?.ApiDailyPricePayNow,
+                            KolayCarAPIOneWayFee = priceSnapshot?.ApiOneWayFee,
+                            KolayCarAPITotalPrice = priceSnapshot?.ApiTotalPrice,
+                            KolayCarDepositPrice = priceSnapshot?.DepositPrice,
+                            KolayCarServiceCharge = priceSnapshot?.ServiceCharge,
                             DepositPrice = mappedVehicle.DepositPrice,
                             VendorMinimumDriverAge = vehicle.value.VENDORMINDRIVERAGE,
                             VendorMinimumDrivingLicenseAge = vehicle.value.VENDORMINDRIVINGLICENSEAGE,

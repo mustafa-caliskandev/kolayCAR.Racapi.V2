@@ -245,7 +245,7 @@ namespace KolayCAR.Broker.API.Services
                              (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations)))
                         {
                             var apiExtrasData = extrasResult.Data as GetExtrasResponse;
-                            var listAll = apiExtrasData.Extras != null && apiExtrasData.Extras.Count > 0 ? apiExtrasData.Extras : new List<Extra>();
+                            var providerExtras = apiExtrasData.Extras?.ToList() ?? new List<Extra>();
 
                             var localExtrasResult = await GetMappedExtras(
                                 vendor.VendorId,
@@ -260,15 +260,13 @@ namespace KolayCAR.Broker.API.Services
 
                                 if (apiExtrasData.Extras?.Any() == true)
                                 {
-                                    var apiExtras = apiExtrasData.Extras;
-
-                                    localExtras = localExtras.Where(x => apiExtras.Any(a => a.ExtraCode == x.ExtraCode)).ToList();
+                                    localExtras = localExtras.Where(x => providerExtras.Any(a => a.ExtraCode == x.ExtraCode)).ToList();
 
                                     var localExtrasByCode = localExtras
                                         .GroupBy(x => x.ExtraCode)
                                         .ToDictionary(g => g.Key, g => g.OrderByDescending(e => e.Price).First());
 
-                                    foreach (var apiExtra in apiExtras
+                                    foreach (var apiExtra in providerExtras
                                         .GroupBy(x => x.ExtraCode)
                                         .Select(g => g.OrderByDescending(e => e.Price).First()))
                                     {
@@ -300,12 +298,21 @@ namespace KolayCAR.Broker.API.Services
                                 }
 
                                 apiExtrasData.Extras = ReservationHelper.RemoveZeroPriceExtras(localExtras);
+
+                                if (apiExtrasData.Extras?.Any() != true && vendor.VendorType == VendorTypes.RentGo)
+                                {
+                                    apiExtrasData.Extras = ReservationHelper.RemoveZeroPriceExtras(providerExtras);
+                                    PrepareDynamicProviderExtras(apiExtrasData, reservationToken, getExtrasRequest.CurrencyCode);
+                                }
                             }
                         }
                         else
                         {
                             PrepareDynamicProviderExtras(extrasData, reservationToken, getExtrasRequest.CurrencyCode);
                         }
+
+                        if (extrasData.Vehicle != null && extrasData.Extras != null)
+                            extrasData.Vehicle.Extras = extrasData.Extras;
 
                         if (!vendor.UseBrokerConfigurations)
                         {

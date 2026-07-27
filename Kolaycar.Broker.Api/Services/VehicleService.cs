@@ -329,7 +329,7 @@ namespace KolayCAR.Broker.API.Services
                         vehicle.RentalConditions = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? rentalConditionsData : vehicle.RentalConditions;
                         vehicle.IsOffice = (vendor.VendorType == VendorTypes.Yolcu360 || vendor.VendorType == VendorTypes.Yolcu360v2) ? vehicle.IsOffice : vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? vendorLocation.Isoffice ?? false : vehicle.IsOffice;
                         vehicle.IsAirport = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? pickupLocation.Airport ?? false : vehicle.IsAirport;
-                        vehicle.VendorLogo = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? (vendor.VendorType != VendorTypes.Yolcu360 && vendor.VendorType != VendorTypes.EnUygun) ? $"{configurations.PortalOwnerDomain}{vehicle.VendorLogo}" : vehicle.VendorLogo : vehicle.VendorLogo;
+                        vehicle.VendorLogo = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? (vendor.VendorType != VendorTypes.Yolcu360 && vendor.VendorType != VendorTypes.EnUygun) ? GetAbsoluteUrl(vehicle.VendorLogo, configurations.PortalOwnerDomain) : vehicle.VendorLogo : vehicle.VendorLogo;
                         vehicle.CurrencyCode = getVehicleRequest.CurrencyCode;
                         VehicleHelper.SetVehiclePropertyBySIPPCode(vehicle);
                         _agencyService.SetVehiclePaymentOptions(vehicle, agency);
@@ -364,6 +364,14 @@ namespace KolayCAR.Broker.API.Services
                                 x,
                                 languageType)).ToList();
                     }
+
+                    apiVehiclesData.ForEach(vehicle =>
+                    {
+                        vehicle.VehicleImages?.ForEach(image =>
+                        {
+                            image.Url = GetAbsoluteUrl(image.Url, configurations.PortalOwnerDomain);
+                        });
+                    });
 
                     if (!vendor.UseBrokerConfigurations)
                     {
@@ -449,6 +457,16 @@ namespace KolayCAR.Broker.API.Services
                 return new(null, false, await _configurationService.GetLabel(1880, languageType));
             }
         }
+
+        private static string GetAbsoluteUrl(string url, string domain)
+        {
+            if (string.IsNullOrWhiteSpace(url) ||
+                Uri.TryCreate(url, UriKind.Absolute, out _))
+                return url;
+
+            return $"{domain.TrimEnd('/')}/{url.TrimStart('/')}";
+        }
+
         public async Task<ServiceResponseBase> GetVehiclesWihtBulkRequest(GetVehiclesRequest getVehicleRequest, int agencyId, string sessionId, bool disableTimeOut = false)
         {
             var vehicles = new List<Vehicle>();

@@ -13,6 +13,10 @@ namespace KolayCAR.Broker.Domain.Models.Requests.RentGo
 
         [JsonProperty("versionId")]
         public string VersionId { get; set; }
+
+        [JsonProperty("createdAt")]
+        public long CreatedAt { get; set; }
+
         [JsonProperty("additionalProducts")]
         public List<string> AdditionalProducts { get; set; }
         [JsonProperty("additionalPackages")]

@@ -14,6 +14,7 @@ public class VonarentVehicleItem
     public string image { get; set; }
     public float price { get; set; }
     public float priceDaily { get; set; }
+    public float dropPrice { get; set; }
     public string currency { get; set; }
     public int capacity { get; set; }
     public int luggageVolume { get; set; }

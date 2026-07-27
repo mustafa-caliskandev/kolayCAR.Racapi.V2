@@ -661,6 +661,13 @@ namespace KolayCAR.Broker.API.Helpers
                                 },
                                 new SqlParameter
                                 {
+                                    ParameterName = "@VENDORNOTE",
+                                    SqlDbType = SqlDbType.NVarChar,
+                                    Size = -1,
+                                    Value = reservationToken.VendorNote ?? (object)DBNull.Value
+                                },
+                                new SqlParameter
+                                {
                                     ParameterName = "@VEHICLETYPE",
                                     SqlDbType = SqlDbType.Int,
                                     Value = vehicle != null ? ((int)vehicle.VehicleType + 1).ToString() : ((int)reservationToken.VehicleType + 1).ToString()
@@ -1411,6 +1418,13 @@ namespace KolayCAR.Broker.API.Helpers
                                     ParameterName = "@RESERVATIONTOKEN",
                                     SqlDbType = SqlDbType.NVarChar,
                                     Value = JsonConvert.SerializeObject(reservationToken)
+                                },
+                                new SqlParameter
+                                {
+                                    ParameterName = "@VENDORNOTE",
+                                    SqlDbType = SqlDbType.NVarChar,
+                                    Size = -1,
+                                    Value = reservationToken.VendorNote ?? (object)DBNull.Value
                                 },
                                 new SqlParameter
                                 {

@@ -15,7 +15,7 @@ namespace KolayCAR.Broker.Domain.Mappers.KolayCAR
                 ExtraDescription = extra.EXTRADESCRIPTION,
                 ExtraRentalType = (ExtraRentalTypes)extra.EXTRAPERDAY,
                 ExtraQuantityIncreasable = Convert.ToBoolean(extra.EXTRAQUANTITYINCREASABLE),
-                Price = extra.PRICE
+                Price = (float)Math.Round(extra.PRICE, 2)
             }
             : null;
 

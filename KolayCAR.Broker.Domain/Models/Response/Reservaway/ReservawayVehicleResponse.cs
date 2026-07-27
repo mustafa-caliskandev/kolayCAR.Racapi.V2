@@ -25,6 +25,11 @@ public class ReservawayVehicleResponse : ReservawayResponseBase
     public int expiresInMinutes { get; set; }
 }
 
+public class ReservawayAddExtrasResponse : ReservawayResponseBase
+{
+    public List<ReservawayVehicleExtra> extras { get; set; }
+}
+
 public class ReservawayTypeResponse : ReservawayResponseBase
 {
     public List<ReservawayTypeItem> types { get; set; }
@@ -228,6 +233,7 @@ public class ReservawayRatePrice
     public float pay_on_arrival { get; set; }
     public float discount_amount { get; set; }
     public string reservation_token { get; set; }
+    public string booking_token { get; set; }
     public float discount_percentage { get; set; }
     public string rate_code_payment_type { get; set; }
     public bool is_cheapest { get; set; }
@@ -248,16 +254,32 @@ public class ReservawayVehicleImage
 
 public class ReservawayVehicleExtra
 {
+    public string code { get; set; }
+    public float rate { get; set; }
     public int extra_id { get; set; }
+    public int quantity { get; set; }
+    public bool selected { get; set; }
     public string extra_code { get; set; }
     public string extra_name { get; set; }
     public string extra_description { get; set; }
     public int extra_rental_type { get; set; }
     public int extra_type { get; set; }
     public bool extra_quantity_increasable { get; set; }
+    public int? extra_quantity_max { get; set; }
     public float price { get; set; }
+    public string currency { get; set; }
+    public string base_currency { get; set; }
     public string currency_code { get; set; }
+    public string api_extra_code { get; set; }
     public string label { get; set; }
+    public bool is_visible { get; set; }
+    public bool is_selectable { get; set; }
+    public float payable_today { get; set; }
+    public string rental_type { get; set; }
+    public string extra_category { get; set; }
+    public float original_price { get; set; }
+    public float original_payable_today { get; set; }
+    public string rate_code_extras_name { get; set; }
     public string damage_insurance_category { get; set; }
 }
 

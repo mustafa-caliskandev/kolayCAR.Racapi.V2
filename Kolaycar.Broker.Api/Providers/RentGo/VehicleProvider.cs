@@ -72,6 +72,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                 if (vendor.VehicleMappingActive)
                 {
                     mappedVehicleList = VehicleHelper.MapLocalVehicleList(mappedVehicleList, localVehicles, exchangeRates, vendor.CurrencyType, requestCurrencyType, useLocalDeposit: (bool)vendor.UseLocalDeposit, vendor: vendor);
+
                     apiVehicleList.RemoveAll(p => !localVehicles.Any(e => e.VehicleCode == p.Version.Id));
                 }
 
@@ -109,8 +110,8 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
                         DailyPrice = mappedVehicle.DailyPrice,
                         OneWayFee = mappedVehicle.OneWayFee,
                         DailyPricePayNow = mappedVehicle.DailyPricePayNow,
-                        APIDailyPrice = apiVehicle.PayNow.ToFloatNullSafe(),
-                        APIDailyPricePayNow = apiVehicle.PayNow.ToFloatNullSafe(),
+                        APIDailyPrice = (float)((apiVehicle.PayNow) / (additionalInformation.RentalDuration > 0 ? additionalInformation.RentalDuration : 1)),
+                        APIDailyPricePayNow = (float)((apiVehicle.PayNow) / (additionalInformation.RentalDuration > 0 ? additionalInformation.RentalDuration : 1)),
                         APIOneWayFee = result.OneWay,
                         APIReferenceCode = result.ListId,
                         DepositPrice = mappedVehicle.DepositPrice,

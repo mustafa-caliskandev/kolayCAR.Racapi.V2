@@ -2,6 +2,7 @@
 using KolayCAR.Broker.API.Services.Abstract;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Response;
+using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Managers;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,14 +29,23 @@ namespace KolayCAR.Broker.API.Providers.Sixt2
 
         public async Task<ServiceResponseBase> GetLocations(Vendor vendor, int languageId, string locationName = "")
         {
-            var token = await _authProvider.GetBearerToken(vendor);
-            if (token == null) return new(null, false, "Sixt token bilgisi alınamadı!");
+            try
+            {
+                var token = await _authProvider.GetBearerToken(vendor);
+                if (token == null) return new(null, false, "Sixt token bilgisi alınamadı!");
 
-            var locations = await _httpManager.GetAsyncWithModelSixt<SixtResponseBase<List<SixtLocationItem>>>("/api/v1/stations", headers: token);
+                var locations = await _httpManager.GetAsyncWithModelSixt<SixtResponseBase<List<SixtLocationItem>>>("/api/v1/stations", headers: token);
 
-            return locations?.result.Any() == true
-                ? new(locations.result.Map(), true)
-                : new(null, false, "Sixt lokasyon listesi alınamadı!");
+                return locations?.result.Any() == true
+                    ? new(locations.result.Map(), true)
+                    : new(null, false, "Sixt lokasyon listesi alınamadı!");
+            }
+            catch (System.Exception ex)
+            {
+                Serilog.Log.Error("{@SixtLocationError}", ex.ToJson());
+                return new(null, false, "Sixt lokasyon listesi alınamadı!");
+            }
+
         }
     }
 }

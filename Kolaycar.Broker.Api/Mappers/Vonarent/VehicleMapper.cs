@@ -35,7 +35,7 @@ namespace KolayCAR.Broker.API.Mappers.Vonarent
                     DailyPricePayNow = apiVehicle.priceDaily,
                     TotalPrice = apiVehicle.price,
                     TotalPricePayNow = apiVehicle.price,
-                    OneWayFee = 0,
+                    OneWayFee = apiVehicle.dropPrice.ToFloatNullSafe(),
                     ExtraPrice = 0,
                     RentalDuration = additionalInformation.RentalDuration,
                     IsAvailable = true,

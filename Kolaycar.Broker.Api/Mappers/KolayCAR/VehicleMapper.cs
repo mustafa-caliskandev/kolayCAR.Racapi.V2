@@ -3,6 +3,7 @@ using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using System;
 using System.Collections.Generic;
+using KolayCAR.Broker.API.Helpers.KolayCAR;
 using KolayCARResponse = KolayCAR.Broker.Domain.Models.Response;
 
 namespace KolayCAR.Broker.API.Mappers.KolayCAR
@@ -31,11 +32,11 @@ namespace KolayCAR.Broker.API.Mappers.KolayCAR
                 PickupDateTime = additionalInformation.PickupDateTime,
                 ReturnDateTime = additionalInformation.ReturnDateTime,
                 RentalDuration = vehicle.RENTALDURATION,
-                DailyPrice = vehicle.DAILYPRICE,
+                DailyPrice = MoneyHelper.ToFloat(vehicle.DAILYPRICE),
 
-                OneWayFee = vehicle.ONEWAYFEE,
-                ExtraPrice = vehicle.EXTRAPRICE,
-                TotalPrice = vehicle.TOTALPRICE,
+                OneWayFee = MoneyHelper.ToFloat(vehicle.ONEWAYFEE),
+                ExtraPrice = MoneyHelper.ToFloat(vehicle.EXTRAPRICE),
+                TotalPrice = MoneyHelper.ToFloat(vehicle.TOTALPRICE),
                 IsAvailable = vehicle.ISAVAILABLE == 1,
                 RentalConditions = null,
                 VehicleImages = vehicle.VEHICLEIMAGES.Map(),
@@ -54,9 +55,9 @@ namespace KolayCAR.Broker.API.Mappers.KolayCAR
                 IsThereAirCondition = vehicle.ISAIRCONDITION,
                 VendorMinimumDriverAge = vehicle.VENDORMINDRIVERAGE,
                 VendorMinimumDrivingLicenseAge = vehicle.VENDORMINDRIVINGLICENSEAGE,
-                DailyPricePayNow = vehicle.DAILYPRICEPAYNOW,
-                TotalPricePayNow = vehicle.TOTALPRICEPAYNOW,
-                DepositPrice = vehicle.DEPOSITPRICE,
+                DailyPricePayNow = MoneyHelper.ToFloat(vehicle.DAILYPRICEPAYNOW),
+                TotalPricePayNow = MoneyHelper.ToFloat(vehicle.TOTALPRICEPAYNOW),
+                DepositPrice = MoneyHelper.ToFloat(vehicle.DEPOSITPRICE),
                 TotalKMLimit = !string.IsNullOrEmpty(vehicle.TOTALKMLIMIT) ? vehicle.TOTALKMLIMIT.ToIntNullSafe() : (int?)null,
                 RentalWorkingTypes = vendor.RentalWorkingType,
                 ProfitMarkupDailyPrice = vendor.ProfitMarkupDailyPrice
@@ -77,10 +78,10 @@ namespace KolayCAR.Broker.API.Mappers.KolayCAR
                 VehicleDescription = vehicle.VEHICLEDESCRIPTION,
                 SippCode = vehicle.SIPPCODE,
                 RentalDuration = vehicle.RENTALDURATION,
-                DailyPrice = vehicle.DAILYPRICE,
-                OneWayFee = vehicle.ONEWAYFEE,
-                ExtraPrice = vehicle.EXTRAPRICE,
-                TotalPrice = vehicle.TOTALPRICE,
+                DailyPrice = MoneyHelper.ToFloat(vehicle.DAILYPRICE),
+                OneWayFee = MoneyHelper.ToFloat(vehicle.ONEWAYFEE),
+                ExtraPrice = MoneyHelper.ToFloat(vehicle.EXTRAPRICE),
+                TotalPrice = MoneyHelper.ToFloat(vehicle.TOTALPRICE),
                 IsAvailable = vehicle.ISAVAILABLE == 1,
                 RentalConditions = null,
                 VehicleImages = vehicle.VEHICLEIMAGES.Map(),
@@ -99,9 +100,9 @@ namespace KolayCAR.Broker.API.Mappers.KolayCAR
                 IsThereAirCondition = vehicle.ISAIRCONDITION,
                 VendorMinimumDriverAge = vehicle.VENDORMINDRIVERAGE,
                 VendorMinimumDrivingLicenseAge = vehicle.VENDORMINDRIVINGLICENSEAGE,
-                DailyPricePayNow = vehicle.DAILYPRICEPAYNOW,
-                TotalPricePayNow = vehicle.TOTALPRICEPAYNOW,
-                DepositPrice = vehicle.DEPOSITPRICE,
+                DailyPricePayNow = MoneyHelper.ToFloat(vehicle.DAILYPRICEPAYNOW),
+                TotalPricePayNow = MoneyHelper.ToFloat(vehicle.TOTALPRICEPAYNOW),
+                DepositPrice = MoneyHelper.ToFloat(vehicle.DEPOSITPRICE),
                 TotalKMLimit = !string.IsNullOrEmpty(vehicle.TOTALKMLIMIT) ? vehicle.TOTALKMLIMIT.ToIntNullSafe() : (int?)null
             }
             : null;

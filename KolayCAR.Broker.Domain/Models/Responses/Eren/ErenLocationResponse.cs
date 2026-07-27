@@ -57,7 +57,7 @@ namespace KolayCAR.Broker.Domain.Models.Responses.Eren
     public class ErenOffice
     {
         [JsonProperty("office_id")]
-        public int OfficeId { get; set; }
+        public int? OfficeId { get; set; }
 
         [JsonProperty("office_name")]
         public string OfficeName { get; set; }

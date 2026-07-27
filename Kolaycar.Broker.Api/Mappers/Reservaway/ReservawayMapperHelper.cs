@@ -10,7 +10,10 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
     public static class ReservawayMapperHelper
     {
         private const string PlanSeparator = "|";
-        private const string BasicProductTypeName = "BSC";
+        private static readonly HashSet<string> SellableProductTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "BSC"
+        };
         private static readonly HashSet<string> SellablePaymentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "PPFC",
@@ -46,72 +49,49 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
         public static ReservawayPlanDefinition GetBasePlanDefinition(
             ReservawayPrices prices,
             List<ReservawayTypeItem> productTypes = null,
-            List<ReservawayTypeItem> paymentTypes = null,
-            List<ReservawayPaymentType> activePaymentTypes = null)
+            List<ReservawayTypeItem> paymentTypes = null)
         {
-            var sellableDefinition = GetSellableBasicPlanDefinition(prices, productTypes, paymentTypes, activePaymentTypes);
-            if (sellableDefinition != null)
-                return sellableDefinition;
+            if (prices?.rate_codes == null)
+                return null;
 
-            var oldDefinition = prices?.price_definition?.cheapest_base_plan
-                ?? prices?.price_definition?.cheapest_inclusive_plan;
+            ReservawayPlanDefinition selectedPlan = null;
+            var selectedPrice = float.MaxValue;
 
-            if (IsSellablePlan(oldDefinition))
-                return oldDefinition;
-
-            var cheapestDefinition = new ReservawayPlanDefinition
+            foreach (var productRateCode in prices.rate_codes)
             {
-                product_type_name = prices?.price_definition?.cheapest?.rate_code.ToStringNullSafe(),
-                payment_type_name = prices?.price_definition?.cheapest?.payment_type.ToStringNullSafe(),
-                product_type_id = FindTypeId(productTypes, prices?.price_definition?.cheapest?.rate_code),
-                payment_type_id = FindTypeId(paymentTypes, prices?.price_definition?.cheapest?.payment_type, activePaymentTypes)
-            };
+                if (!SellableProductTypes.Contains(productRateCode.Key.ToStringNullSafe()) || productRateCode.Value == null)
+                    continue;
 
-            if (IsSellablePlan(cheapestDefinition))
-                return cheapestDefinition;
+                foreach (var paymentRateCode in productRateCode.Value)
+                {
+                    if (!SellablePaymentTypes.Contains(paymentRateCode.Key.ToStringNullSafe()))
+                        continue;
 
-            return null;
+                    var comparablePrice = GetComparablePrice(paymentRateCode.Value);
+                    if (selectedPlan != null && comparablePrice >= selectedPrice)
+                        continue;
+
+                    selectedPrice = comparablePrice;
+                    selectedPlan = new ReservawayPlanDefinition
+                    {
+                        product_type_name = productRateCode.Key.ToStringNullSafe(),
+                        payment_type_name = paymentRateCode.Key.ToStringNullSafe(),
+                        product_type_id = FindTypeId(productTypes, productRateCode.Key),
+                        payment_type_id = FindTypeId(paymentTypes, paymentRateCode.Key)
+                    };
+                }
+            }
+
+            return selectedPlan;
         }
 
         public static bool IsSellablePlan(ReservawayPlanReference planReference)
             => planReference != null
-               && IsBasicProductType(planReference.ProductTypeName)
-               && IsSellablePaymentType(planReference.PaymentTypeName);
+               && SellableProductTypes.Contains(planReference.ProductTypeName.ToStringNullSafe())
+               && SellablePaymentTypes.Contains(planReference.PaymentTypeName.ToStringNullSafe());
 
-        public static bool HasSellableBasicPlan(ReservawayPrices prices)
-            => TryGetRateCodePrices(prices, BasicProductTypeName, out var paymentTypes)
-               && paymentTypes?.Keys.Any(IsSellablePaymentType) == true;
-
-        private static bool IsSellablePlan(ReservawayPlanDefinition planDefinition)
-            => planDefinition != null
-               && IsBasicProductType(planDefinition.product_type_name)
-               && IsSellablePaymentType(planDefinition.payment_type_name);
-
-        private static ReservawayPlanDefinition GetSellableBasicPlanDefinition(
-            ReservawayPrices prices,
-            List<ReservawayTypeItem> productTypes,
-            List<ReservawayTypeItem> paymentTypes,
-            List<ReservawayPaymentType> activePaymentTypes)
-        {
-            if (!TryGetRateCodePrices(prices, BasicProductTypeName, out var basicPaymentTypes) || basicPaymentTypes == null)
-                return null;
-
-            var selectedPayment = basicPaymentTypes
-                .Where(x => IsSellablePaymentType(x.Key))
-                .OrderBy(x => GetComparablePrice(x.Value))
-                .FirstOrDefault();
-
-            if (string.IsNullOrWhiteSpace(selectedPayment.Key))
-                return null;
-
-            return new ReservawayPlanDefinition
-            {
-                product_type_name = BasicProductTypeName,
-                payment_type_name = selectedPayment.Key.ToStringNullSafe(),
-                product_type_id = FindTypeId(productTypes, BasicProductTypeName),
-                payment_type_id = FindTypeId(paymentTypes, selectedPayment.Key, activePaymentTypes)
-            };
-        }
+        public static bool HasSellablePlan(ReservawayPrices prices)
+            => GetBasePlanDefinition(prices) != null;
 
         private static float GetComparablePrice(ReservawayRatePrice ratePrice)
         {
@@ -126,12 +106,6 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
 
             return float.MaxValue;
         }
-
-        private static bool IsBasicProductType(string productTypeName)
-            => productTypeName.ToStringNullSafe().Equals(BasicProductTypeName, StringComparison.OrdinalIgnoreCase);
-
-        private static bool IsSellablePaymentType(string paymentTypeName)
-            => SellablePaymentTypes.Contains(paymentTypeName.ToStringNullSafe());
 
         public static ReservawayRatePrice GetRatePrice(ReservawayPrices prices, string productTypeName, string paymentTypeName)
         {
@@ -176,7 +150,7 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
             return !string.IsNullOrWhiteSpace(matchingKey) && paymentTypes.TryGetValue(matchingKey, out ratePrice);
         }
 
-        private static int FindTypeId(List<ReservawayTypeItem> types, string key, List<ReservawayPaymentType> activePaymentTypes = null)
+        private static int FindTypeId(List<ReservawayTypeItem> types, string key)
         {
             if (string.IsNullOrWhiteSpace(key))
                 return 0;
@@ -187,9 +161,7 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
             if (item?.id > 0)
                 return item.id;
 
-            return activePaymentTypes?
-                .FirstOrDefault(x => x.key.ToStringNullSafe().Equals(key, StringComparison.OrdinalIgnoreCase))
-                ?.id ?? 0;
+            return 0;
         }
 
         public static CurrencyTypes GetCurrencyType(string currencyCode, CurrencyTypes fallbackCurrencyType)

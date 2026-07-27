@@ -118,7 +118,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
                         APIDailyPrice = apiVehicle.priceDaily,
                         APITotalPrice = apiVehicle.price,
                         APIDailyPricePayNow = apiVehicle.priceDaily,
-                        APIOneWayFee = mappedVehicle.OneWayFee,
+                        APIOneWayFee = apiVehicle.dropPrice,
                         APIReferenceCode = bearerToken,
                         APIReferenceCode2 = apiVehicle.currency,
                         DepositPrice = mappedVehicle.DepositPrice,

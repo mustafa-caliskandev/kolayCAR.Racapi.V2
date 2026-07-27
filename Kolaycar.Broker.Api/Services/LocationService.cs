@@ -11,7 +11,6 @@ using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Managers;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -137,11 +136,12 @@ namespace KolayCAR.Broker.API.Services
 
         public async Task<ServiceResponseBase> GetLocationsByVendorId(int languageId, int vendorId, string locationName = "")
         {
-            var vendor = await _context.Vendor.Where(x => x.Vendorid == vendorId).FirstOrDefaultAsync();
-            if (vendor == null) return null;
-            var mappedVendor = vendor.Map(encrypt: false);
             try
             {
+                var vendor = await _context.Vendor.Where(x => x.Vendorid == vendorId).FirstOrDefaultAsync();
+                if (vendor == null) return null;
+                var mappedVendor = vendor.Map(encrypt: false);
+
                 var locationProvider = _locationProviderFactory.CreateLocationProvider(mappedVendor, vendor, _memoryCache, _cacheService);
 
                 if (locationProvider == null)

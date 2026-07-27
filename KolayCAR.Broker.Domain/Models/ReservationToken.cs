@@ -30,9 +30,19 @@ namespace KolayCAR.Broker.Domain.Models
         public float? APITotalPricePayNow { get; set; }
         public float APIDailyPricePayNow { get; set; }
         public float APIOneWayFee { get; set; }
+        public decimal? KolayCarDailyPrice { get; set; }
+        public decimal? KolayCarOneWayFee { get; set; }
+        public decimal? KolayCarDailyPricePayNow { get; set; }
+        public decimal? KolayCarAPIDailyPrice { get; set; }
+        public decimal? KolayCarAPIDailyPricePayNow { get; set; }
+        public decimal? KolayCarAPIOneWayFee { get; set; }
+        public decimal? KolayCarAPITotalPrice { get; set; }
+        public decimal? KolayCarDepositPrice { get; set; }
+        public decimal? KolayCarServiceCharge { get; set; }
         public string APIReferenceCode { get; set; }
         public string APIReferenceCode2 { get; set; }
         public string APIReferenceCode3 { get; set; }
+        public string APIReferenceCode4 { get; set; }
         public float? DepositPrice { get; set; }
         public int VendorMinimumDriverAge { get; set; }
         public int VendorMinimumDrivingLicenseAge { get; set; }
@@ -71,6 +81,7 @@ namespace KolayCAR.Broker.Domain.Models
         public bool FullCredit { get; set; }
         public List<CyrptExtra> CyrptExtras { get; set; } = new List<CyrptExtra>();
         public int? APIDeliveryTypeId { get; set; }
+        public string VendorNote { get; set; }
         public override string ToString() => JsonConvert.SerializeObject(this);
     }
 }

@@ -332,14 +332,15 @@ namespace KolayCAR.Broker.API.Services
                                 {
                                     vehicle = vehicles.Where(e => e.VehicleName == reservationToken.VehicleName && e.ApiVendorName == reservationToken.APIVendorName && e.TransmissionType == reservationToken.TransmissionType && e.FuelType == reservationToken.FuelType).FirstOrDefault();
                                 }
-                    if (vendor.VendorType == VendorTypes.Reservaway)
-                    {
-                        vehicle = vehicles.Where(e => e.VehicleName == reservationToken.VehicleName && e.ApiVendorName == reservationToken.APIVendorName && e.TransmissionType == reservationToken.TransmissionType && e.FuelType == reservationToken.FuelType).FirstOrDefault();
-                    }
-                    else
-                    {
-                        vehicle = vehicles.Where(x => x.VehicleCode == reservationToken.VehicleCode && x.VendorId == reservationToken.VendorId).FirstOrDefault();
-                    }
+                                else
+                                    if (vendor.VendorType == VendorTypes.Reservaway)
+                                    {
+                                        vehicle = vehicles.Where(e => e.VehicleName == reservationToken.VehicleName && e.ApiVendorName == reservationToken.APIVendorName && e.TransmissionType == reservationToken.TransmissionType && e.FuelType == reservationToken.FuelType).FirstOrDefault();
+                                    }
+                                    else
+                                    {
+                                        vehicle = vehicles.Where(x => x.VehicleCode == reservationToken.VehicleCode && x.VendorId == reservationToken.VendorId).FirstOrDefault();
+                                    }
 
                 }
                 else

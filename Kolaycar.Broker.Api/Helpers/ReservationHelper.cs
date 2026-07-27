@@ -340,6 +340,7 @@ namespace KolayCAR.Broker.API.Helpers
                 postReservationRequest.PaymentType == PaymentTypes.PayAll ||
                 postReservationRequest.PaymentType == PaymentTypes.AdvancePayment
                 ? !postReservationRequest.OneWayFeePayToDelivery ? agency.OneWayAmountDeliveryPayment : postReservationRequest.OneWayFeePayToDelivery : false;
+            ApplyLimitedCreditPaymentDelivery(postReservationRequest);
 
             return postReservationRequest;
         }
@@ -379,8 +380,27 @@ namespace KolayCAR.Broker.API.Helpers
                         //    : 
                         postReservationRequest.Payment.OneWayFeePayToDelivery
                 : false;
+            ApplyLimitedCreditPaymentDelivery(postReservationRequest);
 
             return postReservationRequest;
+        }
+
+        public static void ApplyLimitedCreditPaymentDelivery(PostReservationRequest postReservationRequest)
+        {
+            if (postReservationRequest?.CreditType != CreditType.LimitedCredit)
+                return;
+
+            postReservationRequest.ExtraPricePayToDelivery = true;
+            postReservationRequest.OneWayFeePayToDelivery = false;
+        }
+
+        public static void ApplyLimitedCreditPaymentDelivery(Domain.Models.Requests.PostReservationRequestV2 postReservationRequest)
+        {
+            if (postReservationRequest?.CreditType != CreditType.LimitedCredit || postReservationRequest.Payment == null)
+                return;
+
+            postReservationRequest.Payment.ExtraPricePayToDelivery = true;
+            postReservationRequest.Payment.OneWayFeePayToDelivery = false;
         }
 
         public static string CheckGetVehiclesRequestRequireProps(GetVehiclesRequest getVehiclesRequest, Parametre maxAllowedAdvanceReservationDays, Label label)
@@ -432,8 +452,6 @@ namespace KolayCAR.Broker.API.Helpers
         {
             if (string.IsNullOrEmpty(postReservationRequest.ReservationToken.TrimNullSafe()))
                 return "Invalid parameters!(empty reservationToken)";
-            else if (!postReservationRequest.FullCredit.HasValue)
-                return "FullCredit field is required!";
             else if (string.IsNullOrEmpty(postReservationRequest.CustomerName.TrimNullSafe()))
                 return "CustomerName field is required!";
             else if (string.IsNullOrEmpty(postReservationRequest.CustomerSurname.TrimNullSafe()))
@@ -468,9 +486,6 @@ namespace KolayCAR.Broker.API.Helpers
 
             else if (string.IsNullOrEmpty(postReservationRequest.ReservationToken.TrimNullSafe()))
                 return "ReservationToken is required.";
-
-            else if (!postReservationRequest.FullCredit.HasValue)
-                return "FullCredit is required.";
 
             else if (string.IsNullOrEmpty(postReservationRequest.Customer.Name.TrimNullSafe()))
                 return "Customer.Name is required.";

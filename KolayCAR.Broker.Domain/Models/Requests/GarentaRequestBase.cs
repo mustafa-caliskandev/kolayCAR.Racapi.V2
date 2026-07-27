@@ -40,6 +40,11 @@ namespace KolayCAR.Broker.Domain.Models.Requests
             public SEARCH SEARCH { get; set; }
         }
 
+        public class ISINPUT_SEARCH_EXTRAS : ISINPUT_BASE
+        {
+            public SEARCH_EXTRAS SEARCH { get; set; }
+        }
+
         public class ISINPUT_RESERVATION : ISINPUT_BASE
         {
             public RESERVATION RESERVATION { get; set; }
@@ -60,6 +65,11 @@ namespace KolayCAR.Broker.Domain.Models.Requests
             public string DROPOFF_TIME { get; set; }
             public string PICKUP_OFFICE { get; set; }
             public string RETURN_OFFICE { get; set; }
+        }
+
+        public class SEARCH_EXTRAS : SEARCH
+        {
+            public List<EXTRA> EXTRAS { get; set; }
         }
 
         public class RESERVATION : SEARCH

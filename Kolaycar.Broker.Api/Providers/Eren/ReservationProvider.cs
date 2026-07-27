@@ -6,6 +6,7 @@ using KolayCAR.Broker.Domain.Models.Requests;
 using KolayCAR.Broker.Domain.Models.Requests.Eren;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Domain.Models.Responses.Eren;
+using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Managers;
 using Newtonsoft.Json;
 using System;
@@ -63,6 +64,7 @@ namespace Kolaycar.Broker.Api.Providers.Eren
             {
                 localReservation.APIReservationSuccessfully = true;
                 localReservation.APIReservationNumber = response.Data.BookingNumber;
+                await SetReservationOfficePhones(localReservation, reservationToken, accessToken);
 
                 return new ServiceResponseBase(localReservation, true, response.Data.Message ?? "Rezervasyon başarılı.");
             }
@@ -109,6 +111,44 @@ namespace Kolaycar.Broker.Api.Providers.Eren
             }
 
             return VendorReservationResponseHelper.CreateErrorResponse(localReservation, vendor, response, "iptal işlemi başarısız.");
+        }
+
+        private async Task SetReservationOfficePhones(Reservation localReservation, ReservationToken reservationToken, IDictionary<string, object> accessToken)
+        {
+            try
+            {
+                var locationResponse = await _httpManager.GetAsyncWithModel<ErenLocationListResponse>(
+                    "/v1/locations",
+                    headers: accessToken,
+                    isReservationRequest: true
+                );
+
+                Serilog.Log.Error("{@ErenReservationGetLocationsResponse}", locationResponse);
+
+                if (locationResponse?.Locations?.Any() != true)
+                    return;
+
+                var pickupLocation = FindLocation(locationResponse.Locations, reservationToken.APIPickupLocationCode);
+                var returnLocation = FindLocation(locationResponse.Locations, reservationToken.APIReturnLocationCode);
+
+                if (!string.IsNullOrWhiteSpace(pickupLocation?.Office?.OfficePhone))
+                    localReservation.APIVendorPickupPhone = pickupLocation.Office.OfficePhone;
+
+                if (!string.IsNullOrWhiteSpace(returnLocation?.Office?.OfficePhone))
+                    localReservation.APIVendorReturnPhone = returnLocation.Office.OfficePhone;
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@ErenReservationLocationPhoneError}", ex.ToJson());
+            }
+        }
+
+        private static ErenLocationResponse FindLocation(List<ErenLocationResponse> locations, string locationCode)
+        {
+            if (string.IsNullOrWhiteSpace(locationCode))
+                return null;
+
+            return locations.FirstOrDefault(x => x.LocationId.ToString() == locationCode);
         }
 
         private ErenBookRequest GetEntity(PostReservationRequest postReservationRequest, ReservationToken reservationToken, Reservation localReservation)

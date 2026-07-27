@@ -1,4 +1,3 @@
-using KolayCAR.Broker.API.Helpers;
 using KolayCAR.Broker.API.Mappers.Reservaway;
 using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Requests;
@@ -33,7 +32,7 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
 
             var visitorSessionId = ReservawayRequestHelper.CreateVisitorSessionId(getVehiclesRequest);
             var searchParameters = ReservawayRequestHelper.CreateVehicleSearchParameters(getVehiclesRequest, vendor, additionalInformation, visitorSessionId);
-            var headers = ReservawayRequestHelper.CreateHeaders(visitorSessionId);
+            var headers = ReservawayRequestHelper.CreateHeaders(visitorSessionId, vendor.ApiClientId);
 
             var searchResult = await _httpManager.GetAsync2<ReservawayVehicleSearchResponse>(
                 requestPath: ReservawayRequestHelper.VehiclesPath,
@@ -45,7 +44,7 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
                 return CreateErrorResponse(searchResult, vendor, "arac listesi alinamadi.");
 
             var sellableApiVehicles = searchResult.Data.vehicles
-                .Where(x => ReservawayMapperHelper.HasSellableBasicPlan(x?.prices))
+                .Where(x => ReservawayMapperHelper.HasSellablePlan(x?.prices))
                 .ToList();
 
             if (sellableApiVehicles.Count == 0)
@@ -87,7 +86,7 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
                 {
                     ["vehicle_id"] = reservationToken.VehicleCode
                 },
-                headers: ReservawayRequestHelper.CreateHeaders(visitorSessionId, reservationToken.APIReferenceCode),
+                headers: ReservawayRequestHelper.CreateHeaders(visitorSessionId, vendor.ApiClientId, reservationToken.APIReferenceCode),
                 isReservationRequest: true);
 
             if (result?.Data?.vehicle == null || result.Data.vehicle.Count == 0)

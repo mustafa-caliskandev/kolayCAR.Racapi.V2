@@ -47,7 +47,6 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
         public static ReservawayPartnerReserveRequest MapToPartnerReserveRequest(
             this PostReservationRequest postReservationRequest,
             ReservationToken resToken,
-            ReservawayVehicleDetail vehicleDetail,
             string bookingToken,
             string visitorSessionId)
         {
@@ -60,7 +59,7 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
                 vehicle_id = resToken.VehicleCode.ToLongNullSafe(),
                 booking_token = bookingToken,
                 visitor_session_id = visitorSessionId,
-                currency = ResolveCurrency(postReservationRequest, vehicleDetail),
+                currency = ResolveCurrency(postReservationRequest, resToken),
                 customer = new ReservawayPartnerReserveCustomerRequest
                 {
                     gender = "mr",
@@ -69,10 +68,13 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
                     date_of_birth = FormatDate(GetFirstNonEmpty(customer?.BirthDay, postReservationRequest?.CustomerBirthDay)),
                     email = GetFirstNonEmpty(customer?.Email, postReservationRequest?.CustomerEmail),
                     phone = NormalizePhone(GetFirstNonEmpty(customer?.PhoneNumber, postReservationRequest?.CustomerTelephone)),
-                    address = GetFirstNonEmpty(customer?.Address, postReservationRequest?.CustomerAddress),
+                    address = "Germany",
                     flight_number = GetFirstNonEmpty(postReservationRequest?.PostReservationRequestV2?.FlightNumberArrival, postReservationRequest?.FlightNumberArrival),
                     locale = locale,
-                    country_of_residence = ResolveCountryOfResidence(postReservationRequest, vehicleDetail)
+                    country_of_residence = ResolveCountryOfResidence(postReservationRequest),
+                    city = "Germany",
+                    state = "Germany",
+                    postal_code = "Germany100"
                 }
             };
         }
@@ -118,23 +120,21 @@ namespace KolayCAR.Broker.API.Mappers.Reservaway
         private static string GetFirstNonEmpty(params string[] values)
             => values?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))?.Trim() ?? string.Empty;
 
-        private static string ResolveCurrency(PostReservationRequest postReservationRequest, ReservawayVehicleDetail vehicleDetail)
+        private static string ResolveCurrency(PostReservationRequest postReservationRequest, ReservationToken resToken)
             => GetFirstNonEmpty(
                     postReservationRequest?.PostReservationRequestV2?.CurrencyCode,
                     postReservationRequest?.CurrencyCode,
-                    vehicleDetail?.base_currency,
-                    vehicleDetail?.prices?.price_definition?.currency)
+                    resToken?.CurrencyType.ToString())
                 .ToUpperInvariant();
 
-        private static string ResolveCountryOfResidence(PostReservationRequest postReservationRequest, ReservawayVehicleDetail vehicleDetail)
+        private static string ResolveCountryOfResidence(PostReservationRequest postReservationRequest)
         {
             var candidates = new[]
             {
                 postReservationRequest?.PostReservationRequestV2?.CountryCode,
                 postReservationRequest?.CountryCode,
                 postReservationRequest?.PostReservationRequestV2?.Country,
-                postReservationRequest?.Country,
-                vehicleDetail?.country_of_residence?.code
+                postReservationRequest?.Country
             };
 
             var countryCode = candidates.FirstOrDefault(x => x.ToStringNullSafe().Trim().Length == 2);

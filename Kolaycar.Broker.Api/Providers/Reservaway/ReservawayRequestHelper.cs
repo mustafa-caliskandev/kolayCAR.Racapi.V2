@@ -15,21 +15,27 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
         internal const string VehiclesPath = "/vehicles";
         internal const string VehiclePath = "/vehicle";
         internal const string VehicleExtrasPath = "/vehicle/extras";
+        internal const string VehicleAddExtrasPath = "/vehicle/add-extras";
         internal const string ProductTypesPath = "/vehicle/product-types";
         internal const string PaymentTypesPath = "/vehicle/payment-types";
         internal const string LocationListPath = "/location/list";
         internal const string CreateCustomerPath = "/customer";
         internal const string PartnerReservePath = "/external/partner/reserve";
-        internal const string CancelPath = "/customer/cancel";
+        internal const string PartnerCancelPath = "/external/partner/cancel";
         private const string UserAgent = "KolayCAR-Broker/1.0";
+        private const string UtmSource = "Airtuerk";
+        private const string UtmMedium = "Affiliate";
 
-        internal static Dictionary<string, object> CreateHeaders(string visitorSessionId, string searchHash = null)
+        internal static Dictionary<string, object> CreateHeaders(string visitorSessionId, string partnerKey, string searchHash = null)
         {
             var headers = new Dictionary<string, object>
             {
                 ["visitor-session-id"] = visitorSessionId,
                 ["User-Agent"] = UserAgent
             };
+
+            if (!string.IsNullOrWhiteSpace(partnerKey))
+                headers["X-Partner-Key"] = partnerKey;
 
             if (!string.IsNullOrWhiteSpace(searchHash))
                 headers["search-hash"] = searchHash;
@@ -38,14 +44,7 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
         }
 
         internal static Dictionary<string, object> CreatePartnerHeaders(string visitorSessionId, string partnerKey)
-        {
-            var headers = CreateHeaders(visitorSessionId);
-
-            if (!string.IsNullOrWhiteSpace(partnerKey))
-                headers["X-Partner-Key"] = partnerKey;
-
-            return headers;
-        }
+            => CreateHeaders(visitorSessionId, partnerKey);
 
         internal static Dictionary<string, object> CreateDeeplinkParameters(
             ReservationStepsBase request,
@@ -82,7 +81,9 @@ namespace KolayCAR.Broker.API.Providers.Reservaway
                 ["visitor-session-id"] = visitorSessionId,
                 ["currency"] = request.CurrencyCode.ToStringNullSafe(),
                 ["locale"] = ReservawayMapperHelper.GetLocale(request.LanguageCode),
-                ["country-of-residence"] = ResolveCountryOfResidence(vendor)
+                ["country-of-residence"] = ResolveCountryOfResidence(vendor),
+                ["utm_source"] = UtmSource,
+                ["utm_medium"] = UtmMedium
             };
 
             AddLocationParameter(

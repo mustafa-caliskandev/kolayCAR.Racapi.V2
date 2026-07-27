@@ -26,7 +26,7 @@ namespace Kolaycar.Broker.Api.Mappers.RentGo
                 ReturnLocationName = additionalInformation.ReturnLocationName,
                 PickupDateTime = additionalInformation.PickupDateTime,
                 ReturnDateTime = additionalInformation.ReturnDateTime,
-                DailyPrice = (float)((vehicle.PayNow + vehicle.PayOffice) / (additionalInformation.RentalDuration > 0 ? additionalInformation.RentalDuration : 1)),
+                DailyPrice = (float)((vehicle.PayNow) / (additionalInformation.RentalDuration > 0 ? additionalInformation.RentalDuration : 1)),
                 OneWayFee = onewayFee,
                 TotalPrice = (float)(vehicle.PayNow + vehicle.PayOffice),
                 DailyPricePayNow = (float)(vehicle.PayNow / (additionalInformation.RentalDuration > 0 ? additionalInformation.RentalDuration : 1)),

@@ -606,6 +606,32 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                 return HttpResult<TRes>.Catch(ex.Message);
             }
         }
+        public async Task<HttpResult<TRes>> PatchAsyncWithModelResult<TReq, TRes>(string requestPath, TReq entity = null, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false)
+            where TReq : class
+            where TRes : class
+        {
+            try
+            {
+                client.SetHeaders(headers);
+                requestPath += parameters.ToQueryString();
+                var request = new HttpRequestMessage(HttpMethod.Patch, requestPath)
+                {
+                    Content = entity == null
+                        ? new StringContent(string.Empty, Encoding.UTF8, "application/json")
+                        : new StringContent(JsonConvert.SerializeObject(entity), Encoding.UTF8, "application/json")
+                };
+                var response = await client.SendAsync(request);
+
+                return await CreateHttpResult<TRes>(response, brokerLogModel, isReservationRequest);
+            }
+            catch (Exception ex)
+            {
+                if (isReservationRequest)
+                    Serilog.Log.Error("{@HttpManagerPatchAsyncWithModelResultError}", ex.ToJson());
+
+                return HttpResult<TRes>.Catch(ex.Message);
+            }
+        }
         public async Task<HttpResult<TRes>> PostAsyncWithModelResult<TRes>(string requestPath, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, BrokerLogModel brokerLogModel = null, bool isReservationRequest = false)
             where TRes : class
         {
