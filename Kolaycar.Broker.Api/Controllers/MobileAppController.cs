@@ -2936,7 +2936,10 @@ namespace KolayCAR.Broker.API.Controllers
 
             postReservationRequest.LanguageCode = !string.IsNullOrEmpty(postReservationRequest.LanguageCode) ? postReservationRequest.LanguageCode.TrimNullSafe().ToUpper() : reservationTokenObj.LanguageType.ToString();
 
-            postReservationRequest.SpecialDailyPrice = reservationTokenObj.DailyPrice.Round();
+            if (postReservationRequest.SpecialDailyPrice < 0)
+            {
+                postReservationRequest.SpecialDailyPrice = reservationTokenObj.DailyPrice.Round();
+            }
 
             var vendor = await _vendorService.GetVendorById(reservationTokenObj.VendorId);
 
@@ -3266,7 +3269,8 @@ namespace KolayCAR.Broker.API.Controllers
                 CouponDiscountValue = postReservationRequestDto.CouponDiscountValue,
                 UserAgent = postReservationRequestDto.UserAgent,
                 CustomerIPAddress = postReservationRequestDto.IpAddress,
-                InstallmentCommissionAmount = postReservationRequestDto.InstallmentCommissionAmount ?? 0
+                InstallmentCommissionAmount = postReservationRequestDto.InstallmentCommissionAmount ?? 0,
+                MarkupAmount = postReservationRequestDto.MarkupAmount
             };
         }
 

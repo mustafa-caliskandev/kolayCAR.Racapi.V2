@@ -28,6 +28,8 @@ namespace KolayCAR.Broker.API.Models.MobileAppDtos.RequestDtos
         public bool? ThreeDPaymentActive { get; set; } = false;
         public float SpecialDailyPrice { get; set; } = -1;
         public float SpecialOneWayFee { get; set; } = -1;
+        public float DailyPrice { get; set; } = 0f;
+        public float MarkupAmount { get; set; } = 0f;
         public bool? IsCommissionFreePrice { get; set; } = false;
         public float ExtraAmount { get; set; }
         public bool SendReservationMail { get; set; }

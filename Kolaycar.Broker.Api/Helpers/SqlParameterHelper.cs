@@ -869,6 +869,11 @@ namespace KolayCAR.Broker.API.Helpers
                                     ParameterName = "@COUPONDISCOUNTTYPE",
                                     SqlDbType = SqlDbType.Int,
                                     Value = postReservationRequest.CouponDiscountType.ToIntNullSafe()
+                                }, new SqlParameter
+                                {
+                                    ParameterName = "@MARKUPAMOUNT",
+                                    SqlDbType = SqlDbType.Decimal,
+                                    Value = postReservationRequest.MarkupAmount
                                 }
                             };
         }

@@ -88,6 +88,7 @@
         public decimal CouponDiscountValue { get; set; }
         public decimal CouponDiscountAmount { get; set; }
         public string UserAgent { get; set; }
+        public float MarkupAmount { get; set; } = 0f;
         public PostReservationRequestV2 PostReservationRequestV2 { get; set; } = null;
     }
 }
