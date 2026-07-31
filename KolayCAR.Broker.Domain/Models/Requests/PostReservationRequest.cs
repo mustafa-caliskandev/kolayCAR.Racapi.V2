@@ -89,6 +89,8 @@
         public decimal CouponDiscountAmount { get; set; }
         public string UserAgent { get; set; }
         public float MarkupAmount { get; set; } = 0f;
+        public bool HasRefundableCoupon { get; set; } = false;
+        public decimal? CouponBonusAmount { get; set; }
         public PostReservationRequestV2 PostReservationRequestV2 { get; set; } = null;
     }
 }

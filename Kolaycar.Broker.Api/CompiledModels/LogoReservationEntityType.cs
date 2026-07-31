@@ -276,6 +276,14 @@ namespace KolayCAR.Broker.API.CompiledModels
                 fieldInfo: typeof(LogoReservation).GetField("<InstallmentFee>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             installmentFee.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            
+            var couponBonusAmount = runtimeEntityType.AddProperty(
+                "CouponBonusAmount",
+                typeof(decimal?),
+                propertyInfo: typeof(LogoReservation).GetProperty("CouponBonusAmount", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(LogoReservation).GetField("<CouponBonusAmount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            couponBonusAmount.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var oneWayFeePayOnDelivery = runtimeEntityType.AddProperty(
                 "OneWayFeePayOnDelivery",
@@ -284,6 +292,14 @@ namespace KolayCAR.Broker.API.CompiledModels
                 fieldInfo: typeof(LogoReservation).GetField("<OneWayFeePayOnDelivery>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             oneWayFeePayOnDelivery.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            
+            var hasRefundableCoupon = runtimeEntityType.AddProperty(
+                "HasRefundableCoupon",
+                typeof(bool?),
+                propertyInfo: typeof(LogoReservation).GetProperty("HasRefundableCoupon", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(LogoReservation).GetField("<HasRefundableCoupon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            hasRefundableCoupon.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var oneWayWorkingType = runtimeEntityType.AddProperty(
                 "OneWayWorkingType",

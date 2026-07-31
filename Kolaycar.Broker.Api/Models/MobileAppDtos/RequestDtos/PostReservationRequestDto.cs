@@ -1,4 +1,5 @@
 ﻿using KolayCAR.Broker.Domain.Models;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -62,6 +63,8 @@ namespace KolayCAR.Broker.API.Models.MobileAppDtos.RequestDtos
         public decimal CouponDiscountAmount { get; set; }
         public string UserAgent { get; set; }
         public string IpAddress { get; set; }
+        public bool HasRefundableCoupon { get; set; } = false;
+        public decimal? CouponBonusAmount { get; set; }
     }
 
     public class InvoiceData

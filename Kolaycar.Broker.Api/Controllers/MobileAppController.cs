@@ -3270,7 +3270,9 @@ namespace KolayCAR.Broker.API.Controllers
                 UserAgent = postReservationRequestDto.UserAgent,
                 CustomerIPAddress = postReservationRequestDto.IpAddress,
                 InstallmentCommissionAmount = postReservationRequestDto.InstallmentCommissionAmount ?? 0,
-                MarkupAmount = postReservationRequestDto.MarkupAmount
+                MarkupAmount = postReservationRequestDto.MarkupAmount,
+                HasRefundableCoupon = postReservationRequestDto.HasRefundableCoupon,
+                CouponBonusAmount = postReservationRequestDto.CouponBonusAmount
             };
         }
 

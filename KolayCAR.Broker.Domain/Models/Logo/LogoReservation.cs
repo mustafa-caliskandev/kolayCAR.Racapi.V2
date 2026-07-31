@@ -66,5 +66,7 @@ namespace KolayCAR.Broker.Domain.Models.Logo
         public bool? OneWayFeePayOnDelivery { get; set; }
         public bool? VendorCommissionInvoice { get; set; }
         public decimal? InstallmentFee { get; set; }
+        public bool? HasRefundableCoupon { get; set; }
+        public decimal? CouponBonusAmount { get; set; }
     }
 }

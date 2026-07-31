@@ -874,6 +874,16 @@ namespace KolayCAR.Broker.API.Helpers
                                     ParameterName = "@MARKUPAMOUNT",
                                     SqlDbType = SqlDbType.Decimal,
                                     Value = postReservationRequest.MarkupAmount
+                                }, new SqlParameter
+                                {
+                                    ParameterName = "@HASREFUNDABLECOUPON",
+                                    SqlDbType = SqlDbType.Bit,
+                                    Value = postReservationRequest.HasRefundableCoupon
+                                }, new SqlParameter
+                                {
+                                    ParameterName = "@COUPONBONUSAMOUNT",
+                                    SqlDbType = SqlDbType.Decimal,
+                                    Value = postReservationRequest.CouponBonusAmount ?? (object)DBNull.Value
                                 }
                             };
         }

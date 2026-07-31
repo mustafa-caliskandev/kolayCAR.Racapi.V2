@@ -116,16 +116,24 @@ namespace KolayCAR.Broker.API.Services
             var lines = new List<Invoice>();
             var rowId = 1;
 
+            if (logoReservation.HasRefundableCoupon ?? false)
+            {
+                logoReservation.TotalPaymentPrice += (logoReservation.CouponDiscountAmount.ToDecimalNullSafe() - logoReservation.CouponBonusAmount.ToDecimalNullSafe());
+                logoReservation.TotalPrice += (logoReservation.CouponDiscountAmount.ToDecimalNullSafe() - logoReservation.CouponBonusAmount.ToDecimalNullSafe());
+            }
+
             var taxRate = await GetTaxRate(logoReservation.ReturnDate, countryId);
             var rentalAmount = logoReservation.DailyPrice.ToDecimalNullSafe() * logoReservation.RentalDuration.ToIntNullSafe();
             var rentalAmountWithoutTax = rentalAmount / (1 + taxRate / 100);
             var invoiceTotalAmount = logoReservation.TotalPaymentPrice;
             var invoiceAmount = invoiceTotalAmount / (1 + taxRate / 100);
             var invoiceTaxAmount = invoiceTotalAmount - invoiceAmount;
-            var couponDiscountAmount = logoReservation.CouponDiscountAmount.ToDecimalNullSafe();
+            var couponDiscountAmount = logoReservation.HasRefundableCoupon ?? false ?
+                                       logoReservation.CouponBonusAmount.ToDecimalNullSafe() :
+                                       logoReservation.CouponDiscountAmount.ToDecimalNullSafe();
 
             decimal bankCommissionAmount, brokerAllowance, brokerAllowanceWithoutTax,
-                    vendorAllowance, vendorAllowanceWithoutTax, couponDiscountPercent;
+                    vendorAllowance, vendorAllowanceWithoutTax, couponDiscountPercent;            
 
             if (logoReservation.InstallmentCount == 0)
             {
