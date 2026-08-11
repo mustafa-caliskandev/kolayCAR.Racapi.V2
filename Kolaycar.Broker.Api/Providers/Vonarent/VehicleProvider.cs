@@ -45,9 +45,11 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             if (!selectStationResult.Success)
                 return selectStationResult;
 
-            var headers = _authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, VehiclesPath);
+            var query = CreateAvailabilityQuery(baseVendorRequestCurrencyType);
+            var headers = _authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, VehiclesPath, query);
             var result = await _httpManager.GetAsync2<VonarentVehicleResponse>(
                 requestPath: VehiclesPath,
+                parameters: query,
                 headers: headers,
                 isReservationRequest: true);
 
@@ -67,7 +69,20 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
 
             var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor);
             var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
-            var apiCurrencyType = VehicleMapper.GetCurrencyType(apiVehicleList.FirstOrDefault()?.currency, baseVendorRequestCurrencyType);
+            var apiCurrencyCodes = apiVehicleList
+                .Select(x => x.currency.TrimNullSafe().ToUpperInvariant())
+                .Distinct()
+                .ToList();
+
+            if (apiCurrencyCodes.Count != 1 ||
+                !System.Enum.TryParse(apiCurrencyCodes[0], true, out CurrencyTypes apiCurrencyType))
+            {
+                return new ServiceResponseBase(
+                    data: result.Data,
+                    success: false,
+                    message: $"{vendor.VendorName} arac servisinden desteklenmeyen veya birbiriyle uyumsuz para birimleri geldi.");
+            }
+
             var localVehicleList = localVehicles ?? new List<Vehicle>();
 
             if (vendor.VehicleMappingActive)
@@ -166,9 +181,11 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             if (string.IsNullOrWhiteSpace(bearerToken))
                 return new ServiceResponseBase(null, false, $"{vendor.VendorName} yetkilendirme tokeni alinamadi.");
 
-            var headers = _authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, VehiclesPath);
+            var query = CreateAvailabilityQuery(baseVendorRequestCurrencyType);
+            var headers = _authProvider.CreateAuthorizedHeaders(vendor, bearerToken, HttpMethod.Get.Method, VehiclesPath, query);
             var result = await _httpManager.GetAsync2<VonarentVehicleResponse>(
                 requestPath: VehiclesPath,
+                parameters: query,
                 headers: headers,
                 isReservationRequest: true);
 
@@ -188,7 +205,20 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
 
             var mappedVehicleList = apiVehicleList.Map(additionalInformation, vendor);
             var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
-            var apiCurrencyType = VehicleMapper.GetCurrencyType(apiVehicleList.FirstOrDefault()?.currency, baseVendorRequestCurrencyType);
+            var apiCurrencyCodes = apiVehicleList
+                .Select(x => x.currency.TrimNullSafe().ToUpperInvariant())
+                .Distinct()
+                .ToList();
+
+            if (apiCurrencyCodes.Count != 1 ||
+                !System.Enum.TryParse(apiCurrencyCodes[0], true, out CurrencyTypes apiCurrencyType))
+            {
+                return new ServiceResponseBase(
+                    data: result.Data,
+                    success: false,
+                    message: $"{vendor.VendorName} arac servisinden desteklenmeyen veya birbiriyle uyumsuz para birimleri geldi.");
+            }
+
             var localVehicleList = localVehicles ?? new List<Vehicle>();
 
             if (vendor.VehicleMappingActive)
@@ -312,5 +342,11 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
 
             return new ServiceResponseBase(result.Data, true);
         }
+
+        private static IDictionary<string, object> CreateAvailabilityQuery(CurrencyTypes currencyType)
+            => new Dictionary<string, object>
+            {
+                { "currency", currencyType.ToString() }
+            };
     }
 }

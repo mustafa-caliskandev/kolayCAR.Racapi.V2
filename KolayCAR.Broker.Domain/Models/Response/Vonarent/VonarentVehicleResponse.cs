@@ -21,4 +21,6 @@ public class VonarentVehicleItem
     public List<string> properties { get; set; }
     public string vehicleType { get; set; }
     public string fuel { get; set; }
+    public string driverAge { get; set; }
+    public string drivingLicenceAge { get; set; }
 }

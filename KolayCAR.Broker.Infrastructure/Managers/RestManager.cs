@@ -28,7 +28,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             HttpClientHandler clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-            client = new HttpClient(clientHandler);
+            client = new HttpClient(new VendorLogHttpMessageHandler(clientHandler));
             ApiBaseUri = new Uri(apiBaseUrl);
 
             if (!string.IsNullOrEmpty(connectionString))
@@ -622,6 +622,14 @@ namespace KolayCAR.Broker.Infrastructure.Managers
 
                 var xmldoc = new XmlDocument();
                 string content = response.Content.ToStringNullSafe();
+                VendorLogCapture.Add(new VendorHttpLogEntry
+                {
+                    Success = response.IsSuccessful,
+                    HttpStatusCode = response.StatusCode == 0 ? null : (int)response.StatusCode,
+                    HttpMethod = "POST",
+                    ResponseContent = content,
+                    ExceptionMessage = response.ErrorException?.GetBaseException().Message ?? response.ErrorMessage
+                });
 
                 responseContent = content;
 
@@ -645,6 +653,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             }
             catch (Exception ex)
             {
+                VendorLogCapture.Add(new VendorHttpLogEntry { Success = false, HttpMethod = "POST", ResponseContent = responseContent, ExceptionMessage = ex.GetBaseException().Message });
                 if (isReservationRequest)
                     Serilog.Log.Error("{@PostAsyncXMLRestClientError}", ex.ToJson());
 
@@ -675,6 +684,15 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                     _dbHelper.WriteLog(brokerLogModel);
                 }
 
+                VendorLogCapture.Add(new VendorHttpLogEntry
+                {
+                    Success = response.IsSuccessful,
+                    HttpStatusCode = response.StatusCode == 0 ? null : (int)response.StatusCode,
+                    HttpMethod = "POST",
+                    ResponseContent = response.Content,
+                    ExceptionMessage = response.ErrorException?.GetBaseException().Message ?? response.ErrorMessage
+                });
+
                 var values = JsonConvert.DeserializeObject<TRes>(response.Content);
 
 
@@ -684,6 +702,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             {
                 if (isReservationRequest)
                     Serilog.Log.Error("{@RestManagerPostAsyncRestClientError}", ex.ToJson());
+                VendorLogCapture.Add(new VendorHttpLogEntry { Success = false, HttpMethod = "POST", ExceptionMessage = ex.GetBaseException().Message });
                 return default(TRes);
             }
         }

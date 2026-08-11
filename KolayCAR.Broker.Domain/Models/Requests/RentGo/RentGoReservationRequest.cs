@@ -133,8 +133,8 @@ namespace KolayCAR.Broker.Domain.Models.Requests.RentGo
 
     public class RentGoCancelReservationRequest
     {
-        [JsonProperty("reason")]
-        public string Reason { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
     }
     public class RentGoReservationItem
     {

@@ -79,7 +79,8 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
                 PickupStation = additionalInformation.APIPickupLocationCode,
                 PickupDate = additionalInformation.PickupDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
                 ReturnStation = additionalInformation.APIReturnLocationCode,
-                ReturnDate = additionalInformation.ReturnDateTime.ToString("yyyy-MM-dd HH:mm:ss")
+                ReturnDate = additionalInformation.ReturnDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                Currency = "EUR"
             };
 
             bearerToken ??= await _authProvider.GetTokenAsync(vendor);

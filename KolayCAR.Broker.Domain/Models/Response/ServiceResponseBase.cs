@@ -22,5 +22,7 @@
         public object Data { get; set; }
         public object Data2 { get; set; }
         public bool IsTimeOut { get; set; }
+        [Newtonsoft.Json.JsonIgnore]
+        public System.Collections.Generic.List<KolayCAR.Broker.Domain.Models.VendorAvailabilityLog> VendorLogs { get; set; } = new System.Collections.Generic.List<KolayCAR.Broker.Domain.Models.VendorAvailabilityLog>();
     }
 }

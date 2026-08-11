@@ -48,7 +48,10 @@ namespace Kolaycar.Broker.Api.Mappers.RentGo
                 RentalWorkingTypes = vendor.RentalWorkingType,
                 ProfitMarkupDailyPrice = vendor.ProfitMarkupDailyPrice,
                 VehicleImages = new List<VehicleImage> { new VehicleImage { Url = vehicle.Photo } },
-                DailyKMLimit = vehicle?.VehicleGroup?.MaxDailyKm ?? 0
+                DailyKMLimit = additionalInformation.RentalDuration > 0
+                    ? (vehicle?.VehicleGroup?.KmLimit ?? 0) / additionalInformation.RentalDuration
+                    : vehicle?.VehicleGroup?.KmLimit ?? 0,
+                TotalKMLimit = vehicle?.VehicleGroup?.KmLimit ?? 0
             }
             : null;
 

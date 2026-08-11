@@ -30,8 +30,8 @@ namespace KolayCAR.Broker.Domain.Models.Responses.RentGo
         [JsonProperty("total")]
         public decimal? Total { get; set; }
 
-        [JsonProperty("id")]
-        public string Id { get; set; }
+        [JsonProperty("resId")]
+        public string ReservationId { get; set; }
 
         [JsonProperty("pnr")]
         public string Pnr { get; set; }

@@ -47,6 +47,7 @@ namespace KolayCAR.Broker.API.Controllers
         }
 
         [HttpGet]
+        [HttpGet("BulkSearch")]
         public async Task<ActionResult<HttpResult<object>>> Get(
             int vendorType,
             string apiKey,
@@ -65,7 +66,8 @@ namespace KolayCAR.Broker.API.Controllers
             string couponCode = null,
             string sessionCode = null,
             bool disableTimeout = false,
-            string Guid = ""
+            string Guid = "",
+            string verbose = null
             )
         {
             var getVehiclesRequest = new GetVehiclesRequest
@@ -85,7 +87,8 @@ namespace KolayCAR.Broker.API.Controllers
                 UserToken = userToken,
                 CouponCode = couponCode,
                 DisableTimeout = disableTimeout.ToBoolNullSafe(),
-                Guid = Guid
+                Guid = Guid,
+                Verbose = verbose
             };
 
             if (_configuration["AppSettings:AvailibityRequestLogging"].ToBoolNullSafe())
@@ -109,13 +112,18 @@ namespace KolayCAR.Broker.API.Controllers
                                     ? _httpContextAccessor?.HttpContext?.Session.GetString("user-code") ?? ""
                                     : sessionCode;
 
-            var serviceResponse = string.IsNullOrEmpty(getVehiclesRequest.ApiKey)
+            var isBulkSearch = Request.Path.Value?.TrimEnd('/').EndsWith("/BulkSearch", System.StringComparison.OrdinalIgnoreCase) == true;
+            var serviceResponse = isBulkSearch || string.IsNullOrEmpty(getVehiclesRequest.ApiKey)
                                 ? await _vehicleService.GetVehiclesWihtBulkRequest(getVehiclesRequest, _agencyService.GetCurrentAgencyId(), sessionId, disableTimeOut: disableTimeout)
                                 : await _vehicleService.GetVehicles(getVehiclesRequest, _agencyService.GetCurrentAgencyId(), sessionId, disableTimeOut: disableTimeout);
 
+            object CreateResponseData(object vehicles) => string.IsNullOrWhiteSpace(verbose)
+                ? vehicles
+                : new VerboseVehiclesData { Vehicles = vehicles, VendorLogs = serviceResponse.VendorLogs };
+
             if (serviceResponse.ServiceCode == ResultCodes.Timeout.ToString())
                 return HttpResult<object>.Result(
-                    data: null,
+                    data: CreateResponseData(null),
                     httpResultType: HttpStatusCode.OK,
                     success: false,
                     message: serviceResponse.Message,
@@ -123,7 +131,7 @@ namespace KolayCAR.Broker.API.Controllers
 
             if (serviceResponse.Success == false)
                 return HttpResult<object>.Result(
-                    data: null,
+                    data: CreateResponseData(null),
                     httpResultType: HttpStatusCode.OK,
                     success: false,
                     message: serviceResponse.Message,
@@ -132,7 +140,7 @@ namespace KolayCAR.Broker.API.Controllers
             var resultVehicles = _agencyService.ChechAgencyRestrictedList<Vehicle, RestrictedVehicle>(serviceResponse.Data as List<Vehicle>);
 
             return HttpResult<object>.Result(
-                 data: resultVehicles,
+                 data: CreateResponseData(resultVehicles),
                  httpResultType: HttpStatusCode.OK,
                  success: serviceResponse.Success,
                  message: serviceResponse.ServiceMessage ?? serviceResponse.Message);

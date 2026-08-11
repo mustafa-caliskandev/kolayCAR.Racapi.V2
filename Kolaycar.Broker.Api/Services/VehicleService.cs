@@ -8,6 +8,7 @@ using KolayCAR.Broker.Domain.Models.Requests;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Helpers;
+using KolayCAR.Broker.Infrastructure.Managers;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -273,18 +274,48 @@ namespace KolayCAR.Broker.API.Services
 
                 try
                 {
-                    var apiVehicles = await vehicleProvider.GetVehicles(getVehicleRequest, vendor, additionalInformation, mappedExchangeRates, localVehicles, subVendors, baseVendorRequestCurrencyType, profitMarkupFilter);
+                    ServiceResponseBase apiVehicles;
+                    VendorLogCaptureScope vendorLogScope = null;
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(getVehicleRequest.Verbose))
+                            vendorLogScope = VendorLogCapture.Begin(vendor.VendorId, vendor.VendorName, vendor.VendorType.ToString());
+
+                        apiVehicles = await vehicleProvider.GetVehicles(getVehicleRequest, vendor, additionalInformation, mappedExchangeRates, localVehicles, subVendors, baseVendorRequestCurrencyType, profitMarkupFilter);
+                    }
+                    catch (Exception ex)
+                    {
+                        vendorLogScope?.AddException(ex);
+                        Serilog.Log.Error("{@VehicleProvider}", ex.ToJson());
+                        return new ServiceResponseBase(null, false, await _configurationService.GetLabel(1880, languageType))
+                        {
+                            VendorLogs = vendorLogScope == null ? new List<VendorAvailabilityLog>() : new List<VendorAvailabilityLog> { vendorLogScope.Log }
+                        };
+                    }
+                    finally
+                    {
+                        vendorLogScope?.Dispose();
+                    }
+
+                    if (apiVehicles != null && vendorLogScope != null)
+                        apiVehicles.VendorLogs.Add(vendorLogScope.Log);
 
 
                     if (apiVehicles == null)
                     {
                         if (configurations.TimeoutLog)
                             Serilog.Log.Fatal("{@Timeout}", vendor.VendorName);
-                        return new(null, false, await _configurationService.GetLabel(2271, languageType), serviceCode: ResultCodes.Timeout.ToString());
+                        return new ServiceResponseBase(null, false, await _configurationService.GetLabel(2271, languageType), serviceCode: ResultCodes.Timeout.ToString())
+                        {
+                            VendorLogs = vendorLogScope == null ? new List<VendorAvailabilityLog>() : new List<VendorAvailabilityLog> { vendorLogScope.Log }
+                        };
                     }
 
                     if (!apiVehicles.Success || apiVehicles.Data == null)
-                        return new(null, false, await _configurationService.GetLabel(847, languageType));
+                        return new ServiceResponseBase(null, false, await _configurationService.GetLabel(847, languageType))
+                        {
+                            VendorLogs = apiVehicles?.VendorLogs ?? new List<VendorAvailabilityLog>()
+                        };
 
 
                     List<RentalCondition> rentalConditionsData = new List<RentalCondition>();
@@ -498,14 +529,22 @@ namespace KolayCAR.Broker.API.Services
                         PickupTime = getVehicleRequest.PickupTime,
                         ReturnTime = getVehicleRequest.ReturnTime,
                         CouponCode = getVehicleRequest.CouponCode,
-                        SessionCode = getVehicleRequest.SessionCode
+                        SessionCode = getVehicleRequest.SessionCode,
+                        Verbose = getVehicleRequest.Verbose
                     };
-                    return ExecuteWithTimeout(request);
+                    return ExecuteWithTimeout(request, vendor.VendorId, vendor.VendorName);
                 });
 
                 var results = await Task.WhenAll(vehicleTasks);
-                var allVehicles = results.Where(r => r != null).SelectMany(r => r).ToList();
+                var allVehicles = results
+                    .Where(r => r?.Data is List<Vehicle>)
+                    .SelectMany(r => r.Data as List<Vehicle>)
+                    .ToList();
                 vehicles.AddRange(allVehicles);
+                var vendorLogs = results
+                    .Where(r => r?.VendorLogs != null)
+                    .SelectMany(r => r.VendorLogs)
+                    .ToList();
 
                 if (agency.IsActiveSendCheapestCar.ToBoolNullSafe())
                 {
@@ -520,7 +559,7 @@ namespace KolayCAR.Broker.API.Services
                     vehicles.AddRange(cheapestDuplicates);
                 }
                     ;
-                return new(vehicles, true);
+                return new ServiceResponseBase(vehicles, true) { VendorLogs = vendorLogs };
                 //}
                 //else
                 //{
@@ -533,19 +572,37 @@ namespace KolayCAR.Broker.API.Services
                 return new(null, false, await _configurationService.GetLabel(1880, languageType));
             }
         }
-        private async Task<List<Vehicle>> ExecuteWithTimeout(GetVehiclesRequest request)
+        private async Task<ServiceResponseBase> ExecuteWithTimeout(GetVehiclesRequest request, int vendorId, string vendorName)
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
                 var _vehicleService = scope.ServiceProvider.GetRequiredService<IVehicleService>();
                 var data = await _vehicleService.GetVehicles(request, _agencyService.GetCurrentAgencyId(), request.SessionCode);
-                return data.Data as List<Vehicle>;
+                return data;
             }
             catch (Exception ex)
             {
                 Serilog.Log.Error("{@ExecuteWithTimeout}", $"Vendor fetch failed: {ex.Message}");
-                return null;
+                return new ServiceResponseBase(null, false, ex.GetBaseException().Message)
+                {
+                    VendorLogs = string.IsNullOrWhiteSpace(request.Verbose)
+                        ? new List<VendorAvailabilityLog>()
+                        : new List<VendorAvailabilityLog>
+                        {
+                            new VendorAvailabilityLog
+                            {
+                                VendorId = vendorId,
+                                VendorName = vendorName,
+                                VendorType = request.VendorType.ToString(),
+                                Success = false,
+                                Entries = new List<VendorHttpLogEntry>
+                                {
+                                    new VendorHttpLogEntry { Success = false, ExceptionMessage = ex.GetBaseException().Message }
+                                }
+                            }
+                        }
+                };
             }
         }
 

@@ -425,6 +425,13 @@ namespace KolayCAR.Broker.API.Helpers
                     },
                     new TemplateField
                     {
+                        Field = "{frm_cancel_banner_show}",
+                        Value = reservationMailTemplate.Reservation.ReservationStatusType == ReservationStatusTypes.Cancelled ?
+                            string.Empty :
+                            "hide"
+                    },
+                    new TemplateField
+                    {
                         Field = "{frm_mail_arac_yakit}",
                         Value = reservationMailTemplate.FuelName
                     },

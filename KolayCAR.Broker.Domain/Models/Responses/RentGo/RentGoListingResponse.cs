@@ -116,8 +116,8 @@ namespace KolayCAR.Broker.Domain.Models.Responses.RentGo
         [JsonProperty("minExp")]
         public int MinExp { get; set; }
 
-        [JsonProperty("maxDailyKm")]
-        public int MaxDailyKm { get; set; }
+        [JsonProperty("kmLimit")]
+        public int KmLimit { get; set; }
 
         [JsonProperty("deposit")]
         public decimal Deposit { get; set; }

@@ -1,0 +1,241 @@
+{
+  "info": {
+    "_postman_id": "8df9a312-37f8-4f25-9d99-7b2df451f29d",
+    "name": "Reservaway Integration - Manual Values",
+    "description": "Environment kullanilmadan hazirlandi. Base URL, visitor-session-id, search-hash, booking_token ve X-Partner-Key degerlerini request uzerinden elle degistirin. Varsayilan base URL: https://api.reservaway.com. Broker tarafinda X-Partner-Key Vendor.ApiClientId alanindan okunur. Rezervasyon icin booking_token, arac detay response icindeki secili BSC/PPFC veya BSC/PPNC rate reservation_token alanidir; Broker'in disariya dondugu GUID reservationToken degeri degildir.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Locations",
+      "description": "Lokasyon listesini almak icin kullanilir.",
+      "item": [
+        {
+          "name": "GET Location List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              }
+            ],
+            "url": "https://api.reservaway.com/location/list",
+            "description": "Base URL'i gerekirse request URL'inden elle degistirin. visitor-session-id icin UUID/N formatinda tekil bir deger kullanabilirsiniz."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Vehicles",
+      "description": "Arac arama ve detay akisi. Ayni visitor-session-id degerini search, detail ve reserve adimlarinda kullanin.",
+      "item": [
+        {
+          "name": "GET Vehicles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              }
+            ],
+            "url": "https://api.reservaway.com/vehicles?start_date=2026-07-07%2010%3A00&end_date=2026-07-12%2010%3A00&driver_age=35&visitor-session-id=PASTE_VISITOR_SESSION_ID_HERE&currency=TRY&locale=tr-TR&country-of-residence=TR&pickup_location_id=52&drop_off_location_id=52",
+            "description": "Arac arama endpointi. pickup_location_id/drop_off_location_id yerine dokumandaki lokasyon code parametrelerini kullanacaksaniz URL query'sini elle duzenleyin. Response icinde vehicle id, search_hash ve prices.rate_codes altindaki reservation_token alanlari sonraki adimlarda kullanilir."
+          }
+        },
+        {
+          "name": "GET Vehicle Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              },
+              {
+                "key": "search-hash",
+                "value": "PASTE_SEARCH_HASH_FROM_VEHICLES_RESPONSE_HERE"
+              }
+            ],
+            "url": "https://api.reservaway.com/vehicle?vehicle_id=PASTE_VEHICLE_ID_HERE",
+            "description": "Broker bu istekte vehicle_id olarak ReservationToken.VehicleCode, search-hash olarak arac arama response'undaki search_hash degerini kullanir. Rezervasyon icin booking_token bu detay response'undaki secili rate reservation_token degeridir."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Reference Types",
+      "description": "Broker araclari filtrelerken BSC product type ve PPFC/PPNC payment type planlarini kullanir.",
+      "item": [
+        {
+          "name": "GET Product Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              }
+            ],
+            "url": "https://api.reservaway.com/vehicle/product-types",
+            "description": "Product type referans listesidir. Broker BSC planini satar."
+          }
+        },
+        {
+          "name": "GET Payment Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              }
+            ],
+            "url": "https://api.reservaway.com/vehicle/payment-types",
+            "description": "Payment type referans listesidir. Broker PPFC veya PPNC odeme tiplerini kabul eder."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Reservation",
+      "description": "Guncel Reservaway partner rezervasyon endpointi. X-Partner-Key degeri Broker'da Vendor.ApiClientId alanindan okunur.",
+      "item": [
+        {
+          "name": "POST External Partner Reserve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              },
+              {
+                "key": "X-Partner-Key",
+                "value": "PASTE_X_PARTNER_KEY_HERE"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicle_id\": 12345,\n  \"booking_token\": \"PASTE_RATE_RESERVATION_TOKEN_HERE\",\n  \"visitor_session_id\": \"PASTE_VISITOR_SESSION_ID_HERE\",\n  \"currency\": \"TRY\",\n  \"customer\": {\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"+905551112233\",\n    \"date_of_birth\": \"1990-01-15\",\n    \"locale\": \"tr-TR\",\n    \"gender\": \"mr\",\n    \"country_of_residence\": \"TR\",\n    \"address\": \"Istanbul\",\n    \"flight_number\": \"TK1234\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "https://api.reservaway.com/external/partner/reserve",
+            "description": "booking_token alanina arac detay response'unda secili BSC/PPFC veya BSC/PPNC rate altindaki reservation_token yazilmali. X-Partner-Key alanina Reservaway'in verdigi partner key yazilir; Broker'da bu deger Vendor.ApiClientId alanindan okunur. Basarili response ornegi: customerId, reservationNumber, status."
+          }
+        },
+        {
+          "name": "GET Cancel Reservation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              },
+              {
+                "key": "search-hash",
+                "value": "PASTE_SEARCH_HASH_FROM_VEHICLES_RESPONSE_HERE"
+              }
+            ],
+            "url": "https://api.reservaway.com/customer/cancel?reference_id=PASTE_RESERVATION_NUMBER_HERE&email=customer@example.com&reason=Customer%20request",
+            "description": "Broker iptal isteginde reference_id olarak APIReservationNumber/reservationNumber degerini kullanir. email ve reason opsiyoneldir; gerekiyorsa URL query'sinden elle duzenleyin."
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Optional Deeplink",
+      "description": "Kodda helper olarak bulunur; ana rezervasyon akisi icin zorunlu degildir.",
+      "item": [
+        {
+          "name": "GET Deeplink",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "KolayCAR-Broker/1.0"
+              },
+              {
+                "key": "visitor-session-id",
+                "value": "PASTE_VISITOR_SESSION_ID_HERE"
+              }
+            ],
+            "url": "https://api.reservaway.com/deeplink?send-response-in-timestamps=1&visitor-session-id=PASTE_VISITOR_SESSION_ID_HERE&pickup_location_id=52&drop_off_location_id=52&start_date=2026-07-07%2010%3A00&end_date=2026-07-12%2010%3A00&currency=TRY&country_of_residence=TR&driver_age=35&locale=tr-TR",
+            "description": "Opsiyonel deeplink istegi. Ana Broker rezervasyon akisi /vehicles, /vehicle ve /external/partner/reserve endpointleri uzerinden ilerler."
+          }
+        }
+      ]
+    }
+  ]
+}

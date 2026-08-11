@@ -4,5 +4,6 @@
     {
         public bool DisableTimeout { get; set; } = false;
         public string Guid { get; set; }
+        public string Verbose { get; set; }
     }
 }

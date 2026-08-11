@@ -54,6 +54,7 @@ namespace KolayCAR.Broker.Domain.Models
         public string ReturnLocationAddress { get; set; }
         public bool PassportRequired { get; set; }
         public int Excess { get; set; }
+        public int CancelHour { get; set; }
     }
 
     public class RestrictedVehicle : VehicleListItem
