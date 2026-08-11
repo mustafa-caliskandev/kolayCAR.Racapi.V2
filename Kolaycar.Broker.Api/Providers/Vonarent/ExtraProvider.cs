@@ -84,12 +84,34 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             if (selectedVehicle == null)
                 return new ServiceResponseBase(null, false, $"{vendor.VendorName} secili arac bilgisi alinamadi.");
 
+            var invalidCurrencyExtra = result.Data.items.FirstOrDefault(x =>
+                !System.Enum.TryParse(x.currency, true, out CurrencyTypes _));
+
+            if (invalidCurrencyExtra != null)
+            {
+                return new ServiceResponseBase(
+                    data: result.Data,
+                    success: false,
+                    message: $"{vendor.VendorName} ekstra servisinden desteklenmeyen para birimi geldi: {invalidCurrencyExtra.currency}");
+            }
+
             var extras = result.Data.items.Map();
             selectedVehicle.Extras = extras;
 
             var requestCurrencyType = getExtrasRequest.CurrencyCode.ToEnum<CurrencyTypes>();
             CalculationHelper.SetVehiclePrices(selectedVehicle, vendor, exchangeRates, requestCurrencyType, reservationToken, additionalInformation.RentalDuration);
-            CalculationHelper.SetExtraPrices(extras, vendor, exchangeRates, requestCurrencyType, addProfitMarkup, getAPIPrices, reservationToken.BaseVendorRequestCurrencyType);
+
+            foreach (var extraCurrencyGroup in extras.GroupBy(x => x.CurrencyType ?? reservationToken.BaseVendorRequestCurrencyType))
+            {
+                CalculationHelper.SetExtraPrices(
+                    extraCurrencyGroup.ToList(),
+                    vendor,
+                    exchangeRates,
+                    requestCurrencyType,
+                    addProfitMarkup,
+                    getAPIPrices,
+                    extraCurrencyGroup.Key);
+            }
 
             extras = ReservationHelper.RemoveZeroPriceExtras(extras);
             var getExtrasResponse = new GetExtrasResponse(extras, selectedVehicle);

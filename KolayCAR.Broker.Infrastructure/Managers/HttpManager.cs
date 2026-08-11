@@ -28,11 +28,11 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             if (httpClientHandler != null)
             {
-                client = new HttpClient(httpClientHandler);
+                client = new HttpClient(new VendorLogHttpMessageHandler(httpClientHandler));
             }
             else
             {
-                client = new HttpClient();
+                client = new HttpClient(new VendorLogHttpMessageHandler(new HttpClientHandler()));
             }
             ApiBaseUri = new Uri(apiBaseUrl);
 

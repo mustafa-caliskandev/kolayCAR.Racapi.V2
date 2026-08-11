@@ -76,7 +76,8 @@ namespace KolayCAR.Broker.API.Mappers.Pandora2
                 ApiVendorName = vehicle.Supplier?.Name,
                 PickupLocationAddress = vehicle.Supplier?.Address,
                 CurrencyCode = vehicle.Currency,
-                Excess = (int)Pandora2MapperHelper.ToMoney(vehicle.CdwExcess)
+                Excess = (int)Pandora2MapperHelper.ToMoney(vehicle.CdwExcess),
+                CancelHour = 48
             };
         }
 

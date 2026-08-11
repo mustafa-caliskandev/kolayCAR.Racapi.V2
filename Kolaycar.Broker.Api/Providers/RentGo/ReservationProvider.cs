@@ -29,14 +29,14 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
         }
         public async Task<ServiceResponseBase> PostCancelReservation(PostCancelReservationRequest postCancelReservationRequest, Vendor vendor, Reservation localReservation)
         {
-            var reservationId = localReservation.APIReservationNumber;
+            var reservationId = localReservation.APIReferenceCode;
 
             if (string.IsNullOrWhiteSpace(reservationId))
                 return new ServiceResponseBase(localReservation, false, "RentGo rezervasyon id bulunamadi!");
 
             var cancelRequest = new RentGoCancelReservationRequest
             {
-                Reason = postCancelReservationRequest.CancelNote
+                Description = postCancelReservationRequest.CancelNote
             };
 
             await _configurationService.WriteLog(new BrokerLogModel
@@ -54,7 +54,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
 
             Serilog.Log.Error("{@RentGoPatchCancelReservationRequestParameters}", new { ReservationId = reservationId, Request = cancelRequest });
 
-            var response = await _httpManager.PatchAsyncWithModelResult<RentGoCancelReservationRequest, string>(
+            var response = await _httpManager.PatchAsyncWithModelResult<RentGoCancelReservationRequest, RentGoReservationResponse>(
                 $"/reservation/cancel/{Uri.EscapeDataString(reservationId)}",
                 cancelRequest,
                 headers: headers,
@@ -120,6 +120,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
             {
                 localReservation.APIReservationSuccessfully = true;
                 localReservation.APIReservationNumber = response.Data.Pnr;
+                localReservation.APIReferenceCode = response.Data.ReservationId;
 
                 return new ServiceResponseBase(localReservation, true, "Rezervasyon basarili." + (!string.IsNullOrWhiteSpace(response.Data.Pnr) ? " PNR: " + response.Data.Pnr : string.Empty));
             }

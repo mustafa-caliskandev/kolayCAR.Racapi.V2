@@ -88,32 +88,44 @@ namespace KolayCAR.Broker.API.Controllers
         #region Get Reservation
         [HttpGet]
         public async Task<ActionResult<HttpResult<object>>> Get(
-            string reservationNumber,
-            string customerEmail,
+            string reservationNumber = null,
+            string customerEmail = null,
+            string agencyReservationReference = null,
+            string customerSurname = null,
             LanguageTypes? languageType = null)
         {
-            if (string.IsNullOrWhiteSpace(reservationNumber))
-                return BadRequest(HttpResult<object>.Result(
-               data: null,
-               httpResultType: HttpStatusCode.BadRequest,
-               success: false,
-               message: $"{nameof(reservationNumber)} is missing"));
+            var reservationNumberIsEmpty = string.IsNullOrWhiteSpace(reservationNumber);
+            var customerEmailIsEmpty = string.IsNullOrWhiteSpace(customerEmail);
+            Reservation localReservation;
 
-            if (string.IsNullOrWhiteSpace(customerEmail))
-                return BadRequest(HttpResult<object>.Result(
-                data: null,
-                httpResultType: HttpStatusCode.BadRequest,
-                success: false,
-                message: $"{nameof(customerEmail)} is missing"));
-
-            var getReservationsRequest = new GetReservationsRequest
+            if (reservationNumberIsEmpty && customerEmailIsEmpty)
             {
-                ReservationNumber = reservationNumber,
-                CustomerEmail = customerEmail.TrimNullSafe().ToLower(),
-                LanguageType = languageType
-            };
+                if (string.IsNullOrWhiteSpace(agencyReservationReference))
+                    return MissingParameters(nameof(reservationNumber), nameof(customerEmail));
 
-            var localReservation = await _reservationService.GetReservation(getReservationsRequest);
+                if (string.IsNullOrWhiteSpace(customerSurname))
+                    return MissingParameter(nameof(customerSurname));
+
+                localReservation = await _reservationService.GetReservationByAgencyReference(
+                    agencyReservationReference,
+                    customerSurname,
+                    languageType);
+            }
+            else
+            {
+                if (reservationNumberIsEmpty)
+                    return MissingParameter(nameof(reservationNumber));
+
+                if (customerEmailIsEmpty)
+                    return MissingParameter(nameof(customerEmail));
+
+                localReservation = await _reservationService.GetReservation(new GetReservationsRequest
+                {
+                    ReservationNumber = reservationNumber,
+                    CustomerEmail = customerEmail.TrimNullSafe().ToLower(),
+                    LanguageType = languageType
+                });
+            }
 
             if (localReservation == null)
             {
@@ -133,41 +145,20 @@ namespace KolayCAR.Broker.API.Controllers
                     success: resultReservation != null,
                     message: resultReservation == null ? "No reservation found!" : string.Empty);
         }
-        #endregion
 
-        #region Get Reservation By External Reference
-        [HttpGet("agencyReservationReference")]
-        public async Task<ActionResult<HttpResult<object>>> GetByExternalReference(
-            string externalReference,
-            LanguageTypes? languageType = null)
-        {
-            if (string.IsNullOrWhiteSpace(externalReference))
-                return BadRequest(HttpResult<object>.Result(
-                    data: null,
-                    httpResultType: HttpStatusCode.BadRequest,
-                    success: false,
-                    message: $"{nameof(externalReference)} is missing"));
+        private BadRequestObjectResult MissingParameter(string parameterName)
+            => BadRequest(HttpResult<object>.Result(
+                data: null,
+                httpResultType: HttpStatusCode.BadRequest,
+                success: false,
+                message: $"{parameterName} is missing"));
 
-            var localReservation = await _reservationService.GetReservationByAgencyReference(
-                externalReference,
-                languageType);
-
-            if (localReservation == null)
-                return HttpResult<object>.Result(
-                    data: null,
-                    httpResultType: HttpStatusCode.OK,
-                    success: false,
-                    message: "No reservation found!");
-
-            localReservation.IsCancelable = true;
-            var resultReservation = _agencyService.ChechAgencyRestricted<RestrictedReservation>(localReservation);
-
-            return HttpResult<object>.Result(
-                data: resultReservation,
-                httpResultType: HttpStatusCode.OK,
-                success: resultReservation != null,
-                message: resultReservation == null ? "No reservation found!" : string.Empty);
-        }
+        private BadRequestObjectResult MissingParameters(string firstParameterName, string secondParameterName)
+            => BadRequest(HttpResult<object>.Result(
+                data: null,
+                httpResultType: HttpStatusCode.BadRequest,
+                success: false,
+                message: $"{firstParameterName} and {secondParameterName} are missing"));
         #endregion
 
         #region Get Reservation List
@@ -1120,6 +1111,76 @@ namespace KolayCAR.Broker.API.Controllers
             {
                 return BadRequest($"Mail could not send. Exception: {ex.Message}");
             }
+        }
+        #endregion
+
+        #region Send Reservation Mail
+        [HttpPost("send-reservation-mail")]
+        public async Task<ActionResult<HttpResult<object>>> SendReservationMail([FromBody] SendReservationMailRequest request)
+        {
+            if (request == null)
+                return BadRequest(HttpResult<object>.Result(
+                    data: null,
+                    httpResultType: HttpStatusCode.BadRequest,
+                    success: false,
+                    message: "Request body is missing"));
+
+            if (string.IsNullOrWhiteSpace(request.ReservationNumber))
+                return MissingParameter(nameof(request.ReservationNumber));
+
+            if (string.IsNullOrWhiteSpace(request.CustomerEmail))
+                return MissingParameter(nameof(request.CustomerEmail));
+
+            if (string.IsNullOrWhiteSpace(request.ToMailAddress))
+                return MissingParameter(nameof(request.ToMailAddress));
+
+            try
+            {
+                var reservation = await _reservationService.GetReservation(new GetReservationsRequest
+                {
+                    ReservationNumber = request.ReservationNumber,
+                    CustomerEmail = request.CustomerEmail.TrimNullSafe().ToLower(),
+                    LanguageType = request.LanguageType
+                });
+
+                if (reservation == null)
+                {
+                    return HttpResult<object>.Result(
+                        data: null,
+                        httpResultType: HttpStatusCode.OK,
+                        success: false,
+                        message: "No reservation found!");
+                }
+
+                await _reservationService.PostReservationMail(
+                    reservation,
+                    request.Resend,
+                    request.ToMailAddress.TrimNullSafe().ToLower());
+
+                return HttpResult<object>.Result(
+                    data: new { request.ReservationNumber, request.ToMailAddress },
+                    httpResultType: HttpStatusCode.OK,
+                    success: true,
+                    message: "Mail send successfully!");
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@SendReservationMail}", ex.Message);
+                return BadRequest(HttpResult<object>.Result(
+                    data: null,
+                    httpResultType: HttpStatusCode.BadRequest,
+                    success: false,
+                    message: $"Mail could not send. Exception: {ex.Message}"));
+            }
+        }
+
+        public class SendReservationMailRequest
+        {
+            public string ReservationNumber { get; set; }
+            public string CustomerEmail { get; set; }
+            public string ToMailAddress { get; set; }
+            public LanguageTypes? LanguageType { get; set; }
+            public bool Resend { get; set; } = true;
         }
         #endregion
 

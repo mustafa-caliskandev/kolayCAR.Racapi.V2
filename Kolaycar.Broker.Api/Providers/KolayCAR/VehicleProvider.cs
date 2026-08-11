@@ -6,6 +6,7 @@ using KolayCAR.Broker.Domain.Models.Requests;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Helpers;
+using KolayCAR.Broker.Infrastructure.Managers;
 using KolayCAR.Resws;
 using Newtonsoft.Json;
 using System;
@@ -88,7 +89,10 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                     );
 
                 if (getSettingsResult != null)
+                {
+                    VendorLogCapture.RecordResponse(getSettingsResult.Body?.GET_SETTINGSResult);
                     getSettingsResponse = JsonConvert.DeserializeObject<KOLAYCARSETTINGS>(getSettingsResult.Body.GET_SETTINGSResult);
+                }
 
             }
             #endregion
@@ -113,9 +117,12 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                                  string.Empty,
                                  string.Empty,
                                  string.Empty);
+
+                VendorLogCapture.RecordResponse(getVehiclesResult?.GET_VEHICLES_V2Result);
             }
             catch (Exception ex)
             {
+                VendorLogCapture.RecordException(ex, getVehiclesResult?.GET_VEHICLES_V2Result);
                 // Serilog.Log.Error("{@KolaycarAvailabilityError}", $"{ex.Message} - {getVehiclesRequest.ToJson()}");
                 return new ServiceResponseBase(null, false, "KolayCAR service could not be reached!");
             }

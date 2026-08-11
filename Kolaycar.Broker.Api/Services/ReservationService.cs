@@ -39,7 +39,7 @@ namespace KolayCAR.Broker.API.Services
     public interface IReservationService
     {
         Task<Reservation> GetReservation(GetReservationsRequest getReservationsRequest, bool isBrokerReservation = false);
-        Task<Reservation> GetReservationByAgencyReference(string agencyReservationReference, LanguageTypes? languageType = null);
+        Task<Reservation> GetReservationByAgencyReference(string agencyReservationReference, string customerSurname, LanguageTypes? languageType = null);
         Task<Rez> GetReservationByRezNo(string rezNo);
         Task<List<Rez>> GetUpdatedReservations(DateTime startDate, DateTime endDate);
         Task<List<Reservation>> GetReservations(GetReservationsRequest getReservationsRequest);
@@ -58,7 +58,7 @@ namespace KolayCAR.Broker.API.Services
         Reservation UpdateReservationWhenPostReservationToServiceSuccessfully(Reservation reservation);
         Reservation UpdateReservationWhenCancelReservationToServiceSuccessfully(Reservation reservation);
         Reservation UpdateReservationWhenPaymentRefundSuccessfully(Reservation reservation);
-        Task PostReservationMail(Reservation reservation, bool resend = false);
+        Task PostReservationMail(Reservation reservation, bool resend = false, string toMailAddress = null);
         Task SetVendorLocalContactInformations(Reservation reservation);
         bool CheckReservationRefundStatus(Reservation reservation);
         float GetDailyPriceOfInstallmentByAgencySettings(CommonModels.Agency agency, PostReservationRequest postReservationRequest, ReservationToken reservationToken);
@@ -294,15 +294,18 @@ namespace KolayCAR.Broker.API.Services
 
         public async Task<Reservation> GetReservationByAgencyReference(
             string agencyReservationReference,
+            string customerSurname,
             LanguageTypes? languageType = null)
         {
-            if (string.IsNullOrWhiteSpace(agencyReservationReference))
+            if (string.IsNullOrWhiteSpace(agencyReservationReference) || string.IsNullOrWhiteSpace(customerSurname))
                 return null;
 
             var normalizedReference = agencyReservationReference.Trim();
+            var normalizedCustomerSurname = customerSurname.Trim();
             var reservationQuery = _context.Rez
                 .AsNoTracking()
-                .Where(x => x.Agencyreservationreference == normalizedReference);
+                .Where(x => x.Agencyreservationreference == normalizedReference &&
+                            x.Musterisoyad == normalizedCustomerSurname);
 
             if (_userRole != UserRoles.Admin && _userRole != UserRoles.MobileAPP)
                 reservationQuery = reservationQuery.Where(x => x.Agencyid == _currentAgencyId);
@@ -1393,7 +1396,7 @@ namespace KolayCAR.Broker.API.Services
             return reservation;
         }
 
-        public async Task PostReservationMail(Reservation reservation, bool resend = false)
+        public async Task PostReservationMail(Reservation reservation, bool resend = false, string toMailAddress = null)
         {
             if (reservation != null)
             {
@@ -1495,6 +1498,9 @@ namespace KolayCAR.Broker.API.Services
                 var authProvider = new KolayCARBrokerProvider.AuthProvider(_appSettings.ApiBaseUrl);
                 var auth = await authProvider.GetJWT(baseAgencies.Admin.AgencyApiKey, baseAgencies.Admin.AgencyApiPassword, EncryptionHelper.Encrypt(baseAgencies.Admin.AgencyApiPassword));
                 var smsList = await _contentService.GetSmsContent(reservation.LanguageType);
+                var customerMailAddress = string.IsNullOrWhiteSpace(toMailAddress)
+                    ? reservation.CustomerMail
+                    : toMailAddress.TrimNullSafe().ToLower();
 
                 var agencyMails = agency.Email
                     .Split(';', StringSplitOptions.RemoveEmptyEntries)
@@ -1508,7 +1514,7 @@ namespace KolayCAR.Broker.API.Services
 
                     #region Mail Gönderme
                     //Müşteri mail gönderimi
-                    if (!string.IsNullOrWhiteSpace(reservation.CustomerMail) && reservation.SendReservationMail &&
+                    if (!string.IsNullOrWhiteSpace(customerMailAddress) && reservation.SendReservationMail &&
                         agency is { SendReservationMailToCustomerActive: true } && !reservation.IsSpecialWebSiteAgency)
                     {
                         reservationTemplateFields.ReservationMailSendToType = ReservationMailSendToTypes.ToCustomer;
@@ -1529,7 +1535,7 @@ namespace KolayCAR.Broker.API.Services
                         var postEmailRequest = CreateBrokerPostEmailRequestParameters(
                             typeName: $"CustomerMail{(reservation.ReservationStatusType == ReservationStatusTypes.Cancelled ? " - CANCEL" : "")}",
                             fromTitle: configurations.PortalOwnerTitle,
-                            toMailAddress: reservation.CustomerMail,
+                            toMailAddress: customerMailAddress,
                             subject:
                             $"{(resend ? "YENİDEN YÖNLENDİRME " : "")}{reservationTemplateFields.ReservationStatusName} - {reservation.ReservationNumber}",
                             body: EmailHelper.PrepareReservationEmailHtml(

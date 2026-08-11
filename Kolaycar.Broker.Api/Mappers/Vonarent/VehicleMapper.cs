@@ -50,6 +50,8 @@ namespace KolayCAR.Broker.API.Mappers.Vonarent
                     TransmissionTypeName = GetTransmissionName(apiVehicle.properties),
                     VehicleCategoryType = MapVehicleCategory(apiVehicle.vehicleType),
                     VehicleCategoryTypeName = apiVehicle.vehicleType.ToStringNullSafe(),
+                    VendorMinimumDriverAge = apiVehicle.driverAge.ToIntNullSafe(),
+                    VendorMinimumDrivingLicenseAge = apiVehicle.drivingLicenceAge.ToIntNullSafe(),
                     VehicleType = MapVehicleType(apiVehicle.vehicleType, apiVehicle.properties),
                     VehicleTypeName = apiVehicle.vehicleType.ToStringNullSafe(),
                     IsThereAirCondition = HasAirCondition(apiVehicle.properties),
