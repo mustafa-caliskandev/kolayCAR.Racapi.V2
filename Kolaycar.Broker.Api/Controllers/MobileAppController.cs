@@ -2936,7 +2936,7 @@ namespace KolayCAR.Broker.API.Controllers
 
             postReservationRequest.LanguageCode = !string.IsNullOrEmpty(postReservationRequest.LanguageCode) ? postReservationRequest.LanguageCode.TrimNullSafe().ToUpper() : reservationTokenObj.LanguageType.ToString();
 
-            if (postReservationRequest.SpecialDailyPrice < 0)
+            if (postReservationRequest.SpecialDailyPrice <= 0)
             {
                 postReservationRequest.SpecialDailyPrice = reservationTokenObj.DailyPrice.Round();
             }
