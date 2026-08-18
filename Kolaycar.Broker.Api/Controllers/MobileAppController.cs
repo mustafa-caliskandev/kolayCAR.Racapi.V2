@@ -2968,7 +2968,7 @@ namespace KolayCAR.Broker.API.Controllers
             bool checkPickUpDate = ReservationHelper.CheckPickUpDate(reservationTokenObj);
             if (checkPickUpDate)
             {
-                var message = await _configurationService.GetLabel(812, getVehiclesRequest.LanguageCode.ToEnum<LanguageTypes>());
+                var message = await _configurationService.GetLabel(2277, getVehiclesRequest.LanguageCode.ToEnum<LanguageTypes>());
                 postReservationResponse = HttpResult<object>.Result(
                     data: null,
                     httpResultType: HttpStatusCode.BadRequest,
