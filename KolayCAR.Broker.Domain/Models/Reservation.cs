@@ -127,6 +127,7 @@ namespace KolayCAR.Broker.Domain.Models
         public string PickupOfficeWorkingHours { get; set; }
         public string ReturnOfficeWorkingHours { get; set; }
         public int? ApiDeliveryTypeId { get; set; }
+        public decimal MarkupAmount { get; set; } = decimal.Zero;
     }
 
     public class RestrictedReservation

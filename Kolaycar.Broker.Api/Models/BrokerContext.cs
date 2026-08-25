@@ -3081,6 +3081,11 @@ namespace KolayCAR.Broker.API.Models
                     .HasColumnType("decimal(18,2)")
                     .HasDefaultValueSql("((0))");
 
+                entity.Property(e => e.MarkupAmount)
+                    .HasColumnName("MARKUPAMOUNT")
+                    .HasColumnType("decimal(18,2)")
+                    .HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.FriendlyReservationNumber).HasColumnName("FRIENDLYRESERVATIONNUMBER");
                 entity.Property(e => e.VendorDiscountValue).HasColumnName("VENDORDISCOUNTVALUE").HasColumnType("decimal(18,2)");
 

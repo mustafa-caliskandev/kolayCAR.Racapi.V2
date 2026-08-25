@@ -189,6 +189,7 @@ namespace KolayCAR.Broker.API.Models
         public string PickupOfficeWorkingHours { get; set; }
         public string ReturnOfficeWorkingHours { get; set; }
         public int? ApiDeliveryTypeId { get; set; }
+        public decimal? MarkupAmount { get; set; }
         public virtual ICollection<Resstatushistory> RezStatusHistories { get; set; }
     }
 }

@@ -1173,6 +1173,16 @@ namespace KolayCAR.Broker.API.CompiledModels
             paymentamount.AddAnnotation("Relational:ColumnName", "PAYMENTAMOUNT");
             paymentamount.AddAnnotation("Relational:ColumnType", "decimal(18, 2)");
             paymentamount.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            
+            var markupAmount = runtimeEntityType.AddProperty(
+                "MarkupAmount",
+                typeof(decimal?),
+                propertyInfo: typeof(Rez).GetProperty("MarkupAmount", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(Rez).GetField("<MarkupAmount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            markupAmount.AddAnnotation("Relational:ColumnName", "MARKUPAMOUNT");
+            markupAmount.AddAnnotation("Relational:ColumnType", "decimal(18, 2)");
+            markupAmount.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var paymentrefundsuccess = runtimeEntityType.AddProperty(
                 "Paymentrefundsuccess",

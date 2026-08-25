@@ -180,7 +180,8 @@ namespace KolayCAR.Broker.API.Mappers
                 ExternalCreditCardInfo = reservation.ExternalCreditCardInfo,
                 PickupOfficeWorkingHours = reservation.PickupOfficeWorkingHours,
                 ReturnOfficeWorkingHours = reservation.ReturnOfficeWorkingHours,
-                ApiDeliveryTypeId = reservation.ApiDeliveryTypeId
+                ApiDeliveryTypeId = reservation.ApiDeliveryTypeId,
+                MarkupAmount = reservation.MarkupAmount ?? decimal.Zero
             }
             : null;
         public static Reservation Map(this Rez reservation, List<ReservationExtra> reservationExtras)
