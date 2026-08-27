@@ -1869,6 +1869,14 @@ namespace KolayCAR.Broker.API.Controllers
                     getDetailsDto.ReservationToken = newToken;
             }
 
+            var tokenExists = await _resTokenService.GetReservationTokenByUniqueId(getDetailsDto.ReservationToken);
+            if (tokenExists == null && getDetailsDto.SearchContext != null)
+            {
+                var resolvedToken = await ResolveTokenFromSearchContext(getDetailsDto.SearchContext);
+                if (!string.IsNullOrEmpty(resolvedToken))
+                    getDetailsDto.ReservationToken = resolvedToken;
+            }
+
             if (string.IsNullOrWhiteSpace(getDetailsDto.ReservationToken))
                 return BadRequest(new
                 {
@@ -1954,13 +1962,13 @@ namespace KolayCAR.Broker.API.Controllers
 
                     if (oldToken != getDetailsDto.ReservationToken)
                     {
+                        getDetailsResponseDto.IsReservationTokenChange = true;
                         var oldTokenDetail = await _resTokenService.GetReservationTokenByUniqueId(oldToken);
 
                         if (oldTokenDetail != null)
                         {
                             var oldPrice = (oldTokenDetail.DailyPrice * oldTokenDetail.RentalDuration + oldTokenDetail.OneWayFee).Round();
-
-                            getDetailsResponseDto.IsReservationTokenChange = true;
+                                                        
                             getDetailsResponseDto.IsPriceChanged = oldTokenDetail.DailyPrice != vehicle.DailyPrice;
                             getDetailsResponseDto.OldTotalPrice = oldPrice;
                         }
@@ -2083,6 +2091,51 @@ namespace KolayCAR.Broker.API.Controllers
             }
 
             return string.Empty;
+        }
+
+        private async Task<string> ResolveTokenFromSearchContext(TokenSearchContext searchContext)
+        {
+            try
+            {
+                var vendors = await _memoryCacheService.GetLocationVendors(searchContext.PickupLocationId);
+                var vendor = vendors?.FirstOrDefault(v => v.VendorId == searchContext.VendorId);
+
+                if (vendor == null)
+                    return string.Empty;
+
+                var sessionCode = _httpContextAccessor?.HttpContext?.Session.GetString("user-code") ?? "";
+
+                var request = new GetVehiclesRequest
+                {
+                    VendorType = (VendorTypes)vendor.VendorType,
+                    ApiKey = vendor.ApiKey,
+                    ApiPassword = vendor.ApiPassword,
+                    ApiClientId = vendor.ApiClientId,
+                    ApiLocationCode = vendor.VendorLocationCode,
+                    LanguageCode = "TR",
+                    CurrencyCode = searchContext.CurrencyCode,
+                    PickupLocationId = searchContext.PickupLocationId,
+                    ReturnLocationId = searchContext.ReturnLocationId,
+                    PickupDate = searchContext.PickupDate,
+                    ReturnDate = searchContext.ReturnDate,
+                    PickupTime = searchContext.PickupTime,
+                    ReturnTime = searchContext.ReturnTime,
+                    SessionCode = sessionCode,
+                    SecretKey = vendor.SecretKey
+                };
+
+                var data = await _vehicleService.GetVehicles(request, _agencyService.GetCurrentAgencyId(), sessionCode);
+                var vehicles = data.Data as List<Vehicle>;
+
+                var vehicle = vehicles?.FirstOrDefault(v => v.VehicleId == searchContext.VehicleId && v.VendorId == searchContext.VendorId);
+
+                return vehicle?.ReservationToken ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@ResolveTokenFromSearchContext}", $"{ex.Message}-{ex.StackTrace}");
+                return string.Empty;
+            }
         }
 
         private async Task<List<Extra>> CreateAndEditExtras(List<Extra> extras, int rentalDuration)
