@@ -1,7 +1,6 @@
 ﻿using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
-using KolayCAR.Broker.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,13 +36,13 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
 
             var vehicleDailyPrice = Math.Round(reservationBreakdown.totalPrice / apiVehicle.days, 2).ToFloatNullSafe();
 
-            float depositPrice = 0;
+            float depositPrice = apiVehicle.provisionPrice.price.ToFloatNullSafe();
 
-            if (apiVehicle.provisionPrice != null && !string.IsNullOrWhiteSpace(apiVehicle.provisionPrice.currency) &&
-                Enum.TryParse(apiVehicle.provisionPrice.currency, true, out CurrencyTypes depositCurrency))
-            {
-                depositPrice = CalculationHelper.CurrencyExchange(exchangeRates, vendor, apiVehicle.provisionPrice.price.ToLongNullSafe(), depositCurrency, currency);
-            }
+            //if (apiVehicle.provisionPrice != null && !string.IsNullOrWhiteSpace(apiVehicle.provisionPrice.currency) &&
+            //    Enum.TryParse(apiVehicle.provisionPrice.currency, true, out CurrencyTypes depositCurrency))
+            //{
+            //    depositPrice = CalculationHelper.CurrencyExchange(exchangeRates, vendor, apiVehicle.provisionPrice.price.ToLongNullSafe(), depositCurrency, currency);
+            //}
 
             var onewayFee = dropPrice?.totalPrice ?? 0;
 

@@ -193,7 +193,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360v2
 
             extras = ReservationHelper.RemoveZeroPriceExtras(extras);
 
-            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle);
+            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle, vehicles);
             return new ServiceResponseBase(getExtrasResponse, true);
         }
     }

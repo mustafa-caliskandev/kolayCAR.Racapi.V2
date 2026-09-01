@@ -47,7 +47,10 @@ namespace KolayCAR.Broker.API.Services
 
                 else if (string.IsNullOrEmpty(secretKey))
                 {
-                    agency.UserRole = agency.UserRole != UserRoles.Accountancy ? UserRoles.External : UserRoles.Accountancy;
+                    if (agency.UserRole != UserRoles.Admin)
+                    {
+                        agency.UserRole = agency.UserRole != UserRoles.Accountancy ? UserRoles.External : UserRoles.Accountancy;
+                    }
                 }
 
                 User user = new User

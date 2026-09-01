@@ -40,6 +40,8 @@ namespace KolayCAR.Broker.API.Services
     {
         Task<Reservation> GetReservation(GetReservationsRequest getReservationsRequest, bool isBrokerReservation = false);
         Task<Reservation> GetReservationByAgencyReference(string agencyReservationReference, string customerSurname, LanguageTypes? languageType = null);
+        Task<Reservation> GetReservationByReservationNumberAndAgencyReference(string reservationNumber, string agencyReservationReference, LanguageTypes? languageType = null);
+        Task<Reservation> GetReservationByReservationNumberAndSurname(string reservationNumber, string customerSurname, LanguageTypes? languageType = null);
         Task<Rez> GetReservationByRezNo(string rezNo);
         Task<List<Rez>> GetUpdatedReservations(DateTime startDate, DateTime endDate);
         Task<List<Reservation>> GetReservations(GetReservationsRequest getReservationsRequest);
@@ -232,6 +234,9 @@ namespace KolayCAR.Broker.API.Services
 
         public async Task<Reservation> GetReservation(GetReservationsRequest getReservationsRequest, bool isBrokerReservation = false)
         {
+            if (!string.IsNullOrWhiteSpace(getReservationsRequest.CustomerEmail))
+                getReservationsRequest.CustomerEmail = getReservationsRequest.CustomerEmail.Trim().ToLowerInvariant();
+
             var sqlParameters = SqlParameterHelper.GetReservationSqlParameters(getReservationsRequest, _userRole, _currentAgencyId, isBrokerReservation);
 
             var reservation = await _context.Rez.FromSqlRaw("EXECUTE SP_AGENCY_OPERATIONS " +
@@ -304,8 +309,8 @@ namespace KolayCAR.Broker.API.Services
             var normalizedCustomerSurname = customerSurname.Trim();
             var reservationQuery = _context.Rez
                 .AsNoTracking()
-                .Where(x => x.Agencyreservationreference == normalizedReference &&
-                            x.Musterisoyad == normalizedCustomerSurname);
+                .Where(x => EF.Functions.Collate(x.Agencyreservationreference, "Latin1_General_100_CI_AS") == normalizedReference &&
+                            EF.Functions.Collate(x.Musterisoyad, "Latin1_General_100_CI_AS") == normalizedCustomerSurname);
 
             if (_userRole != UserRoles.Admin && _userRole != UserRoles.MobileAPP)
                 reservationQuery = reservationQuery.Where(x => x.Agencyid == _currentAgencyId);
@@ -314,6 +319,70 @@ namespace KolayCAR.Broker.API.Services
                 .OrderByDescending(x => x.Tarih)
                 .FirstOrDefaultAsync();
 
+            if (reservation == null)
+                return null;
+
+            return await GetReservation(
+                new GetReservationsRequest
+                {
+                    ReservationNumber = reservation.Rezno,
+                    CustomerEmail = reservation.Musterieposta,
+                    LanguageType = languageType
+                },
+                isBrokerReservation: false);
+        }
+
+        public async Task<Reservation> GetReservationByReservationNumberAndSurname(
+            string reservationNumber,
+            string customerSurname,
+            LanguageTypes? languageType = null)
+        {
+            if (string.IsNullOrWhiteSpace(reservationNumber) || string.IsNullOrWhiteSpace(customerSurname))
+                return null;
+
+            var normalizedReservationNumber = reservationNumber.Trim();
+            var normalizedCustomerSurname = customerSurname.Trim();
+            var reservationQuery = _context.Rez
+                .AsNoTracking()
+                .Where(x => EF.Functions.Collate(x.Rezno, "Latin1_General_100_CI_AS") == normalizedReservationNumber &&
+                            EF.Functions.Collate(x.Musterisoyad, "Latin1_General_100_CI_AS") == normalizedCustomerSurname);
+
+            if (_userRole != UserRoles.Admin && _userRole != UserRoles.MobileAPP)
+                reservationQuery = reservationQuery.Where(x => x.Agencyid == _currentAgencyId);
+
+            var reservation = await reservationQuery.FirstOrDefaultAsync();
+
+            if (reservation == null)
+                return null;
+
+            return await GetReservation(
+                new GetReservationsRequest
+                {
+                    ReservationNumber = reservation.Rezno,
+                    CustomerEmail = reservation.Musterieposta,
+                    LanguageType = languageType
+                },
+                isBrokerReservation: false);
+        }
+
+        public async Task<Reservation> GetReservationByReservationNumberAndAgencyReference(
+            string reservationNumber,
+            string agencyReservationReference,
+            LanguageTypes? languageType = null)
+        {
+            if (string.IsNullOrWhiteSpace(reservationNumber) || string.IsNullOrWhiteSpace(agencyReservationReference))
+                return null;
+
+            var normalizedReservationNumber = reservationNumber.Trim();
+            var normalizedAgencyReference = agencyReservationReference.Trim();
+            var reservationQuery = _context.Rez
+                .AsNoTracking()
+                .Where(x => EF.Functions.Collate(x.Rezno, "Latin1_General_100_CI_AS") == normalizedReservationNumber &&
+                            EF.Functions.Collate(x.Agencyreservationreference, "Latin1_General_100_CI_AS") == normalizedAgencyReference);
+
+            reservationQuery = reservationQuery.Where(x => x.Agencyid == _currentAgencyId);
+
+            var reservation = await reservationQuery.FirstOrDefaultAsync();
             if (reservation == null)
                 return null;
 
@@ -1234,11 +1303,8 @@ namespace KolayCAR.Broker.API.Services
 
                             try
                             {
-                                Serilog.Log.Error("{@PostReservationErrorStep1}", "Response kaybolma log adımı 1");
                                 var retryPostReservation = _parameterService.GetParameterValue("RetryPostReservationToVendor").ToBoolNullSafe();
-                                Serilog.Log.Error("{@PostReservationErrorStep2}", "Response kaybolma log adımı 2");
                                 var reservation = result.Data as Reservation;
-                                Serilog.Log.Error("{@PostReservationErrorStep3}", "Response kaybolma log adımı 3");
                                 if (reservation == null)
                                 {
                                     Serilog.Log.Error("{@PostReservationError}", "result.Data is null or not a Reservation object");
@@ -1247,68 +1313,52 @@ namespace KolayCAR.Broker.API.Services
 
                                 if (retryPostReservation && vendor.VendorType != VendorTypes.Vonarent)
                                 {
-                                    Serilog.Log.Error("{@PostReservationErrorStep4}", "Response kaybolma log adımı 4");
                                     if (string.IsNullOrEmpty(reservation.APIReservationNumber))
                                     {
-                                        Serilog.Log.Error("{@PostReservationErrorStep5}", "Response kaybolma log adımı 5");
                                         result = await reservationProvider.PostReservation(postReservationRequest, vendor, additionalInformation, reservationNumber, reservationToken, mappedExchangeRates, localReservation, apiExtras);
 
                                         Serilog.Log.Error("{@PostReservationVendorResponseRetry}", JsonConvert.SerializeObject(result));
                                     }
                                 }
-                                Serilog.Log.Error("{@PostReservationErrorStep6}", "Response kaybolma log adımı 6");
                                 if (haveSpecialExtras)//tedarikçi servisine gitmemesi için zorunlu zorunlu ek ürün varsa tekrar ekleme yapar.
                                 {
-                                    Serilog.Log.Error("{@PostReservationErrorStep7}", "Response kaybolma log adımı 7");
                                     localReservation.ReservationExtras.AddRange(specialExtrasList);
                                     postReservationRequest.ExtraList = extraList;
                                 }
-                                Serilog.Log.Error("{@PostReservationErrorStep8}", "Response kaybolma log adımı 8");
                                 var officeLabel = await _configurationService.GetLabel(2075, postReservationRequest.LanguageCode.ToEnum<LanguageTypes>());
 
                                 if (string.IsNullOrEmpty(reservation.PickupOfficeWorkingHours))
                                 {
-                                    Serilog.Log.Error("{@PostReservationErrorStep9}", "Response kaybolma log adımı 9");
                                     var pickupOffice = await _vendorOfficeService.GetVendorOffice(reservation.VendorId, reservation.PickupLocationId);
                                     reservation.PickupOfficeWorkingHours = pickupOffice != null
                                         ? $"{pickupOffice.OpeningTime.ToDateTimeNullSafe().ToString("HH:mm")} - {pickupOffice.ClosingTime.ToDateTimeNullSafe().ToString("HH:mm")}"
                                         : officeLabel;
-                                    Serilog.Log.Error("{@PostReservationErrorStep10}", "Response kaybolma log adımı 10");
                                 }
 
                                 if (string.IsNullOrEmpty(reservation.ReturnOfficeWorkingHours))
                                 {
-                                    Serilog.Log.Error("{@PostReservationErrorStep11}", "Response kaybolma log adımı 11");
                                     var returnOffice = await _vendorOfficeService.GetVendorOffice(reservation.VendorId, reservation.ReturnLocationId);
                                     reservation.ReturnOfficeWorkingHours = returnOffice != null
                                         ? $"{returnOffice.OpeningTime.ToDateTimeNullSafe().ToString("HH:mm")} - {returnOffice.ClosingTime.ToDateTimeNullSafe().ToString("HH:mm")}"
                                         : officeLabel;
-                                    Serilog.Log.Error("{@PostReservationErrorStep12}", "Response kaybolma log adımı 12");
                                 }
 
                                 if (string.IsNullOrEmpty(reservation.PickupOfficeWorkingHours) || string.IsNullOrEmpty(reservation.ReturnOfficeWorkingHours))
                                     Serilog.Log.Error("{@OfficeWorkingHours}", $"{officeLabel} - {reservation.PickupOfficeWorkingHours} - {reservation.ReturnOfficeWorkingHours}");
-                                Serilog.Log.Error("{@PostReservationErrorStep13}", "Response kaybolma log adımı 13");
                                 result.Data = reservation;
-                                Serilog.Log.Error("{@PostReservationErrorStep14}", "Response kaybolma log adımı 14");
                                 return result;
 
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
-                                Serilog.Log.Error("{@PostReservationErrorStep15}", ex.ToJson());
                                 try
                                 {
-                                    Serilog.Log.Error("{@PostReservationErrorStep16}", "Response kaybolma log adımı 16");
                                     var reservation = result.Data as Reservation;
-                                    Serilog.Log.Error("{@PostReservationErrorStep17}", "Response kaybolma log adımı 17");
                                     result.Data = reservation;
-                                    Serilog.Log.Error("{@PostReservationErrorStep18}", "Response kaybolma log adımı 18");
                                     return result;
                                 }
-                                catch (Exception ex1)
+                                catch (Exception)
                                 {
-                                    Serilog.Log.Error("{@PostReservationErrorStep19}", ex.ToJson());
                                     return result;
                                 }
                             }

@@ -15,6 +15,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -147,13 +148,91 @@ namespace KolayCAR.Broker.API.Services
                 if (locationProvider == null)
                     return new(null, false, "Location provier not found!");
 
-                return await locationProvider.GetLocations(mappedVendor, languageId, locationName);
+                var traceId = Activity.Current?.TraceId.ToString() ?? Guid.NewGuid().ToString("N");
+                var stopwatch = Stopwatch.StartNew();
+                var vendorLogScope = VendorLogCapture.Begin(
+                    vendorId,
+                    mappedVendor.VendorName,
+                    mappedVendor.VendorType.ToString());
+                ServiceResponseBase response = null;
+
+                try
+                {
+                    Serilog.Log.Error(
+                        "VendorLocation START | TraceId:{TraceId} Machine:{Machine} VendorId:{VendorId} VendorType:{VendorType} Provider:{Provider} ApiBaseUrl:{ApiBaseUrl} LanguageId:{LanguageId} LocationName:{LocationName}",
+                        traceId,
+                        Environment.MachineName,
+                        vendorId,
+                        mappedVendor.VendorType,
+                        locationProvider.GetType().FullName,
+                        mappedVendor.APIBaseUrl,
+                        languageId,
+                        locationName);
+
+                    response = await locationProvider.GetLocations(mappedVendor, languageId, locationName);
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    vendorLogScope?.AddException(ex);
+                    throw;
+                }
+                finally
+                {
+                    stopwatch.Stop();
+
+                    var locations = response?.Data as IEnumerable<CommonModels.Location>;
+                    var httpEntries = vendorLogScope.Log.Entries.Select((entry, index) => new
+                        {
+                            Index = index + 1,
+                            entry.HttpMethod,
+                            entry.RequestPath,
+                            entry.HttpStatusCode,
+                            entry.Success,
+                            entry.ElapsedMilliseconds,
+                            ResponseLength = entry.ResponseContent?.Length,
+                            ResponseShape = GetResponseShape(entry.ResponseContent),
+                            entry.ExceptionMessage
+                        }).ToList();
+
+                    Serilog.Log.Error(
+                        "VendorLocation END | TraceId:{TraceId} Machine:{Machine} VendorId:{VendorId} Provider:{Provider} TotalElapsedMs:{TotalElapsedMs} ResponseNull:{ResponseNull} Success:{Success} DataNull:{DataNull} DataType:{DataType} Count:{Count} Message:{Message} HttpCallCount:{HttpCallCount} HttpEntries:{@HttpEntries}",
+                        traceId,
+                        Environment.MachineName,
+                        vendorId,
+                        locationProvider.GetType().FullName,
+                        stopwatch.ElapsedMilliseconds,
+                        response == null,
+                        response?.Success,
+                        response?.Data == null,
+                        response?.Data?.GetType().FullName,
+                        locations?.Count(),
+                        response?.Message,
+                        httpEntries.Count,
+                        httpEntries);
+
+                    vendorLogScope.Dispose();
+                }
             }
             catch (Exception ex)
             {
                 Serilog.Log.Error("{@LocationProviderError}", ex.ToJson());
                 return new ServiceResponseBase(null, false, ex.Message);
             }
+        }
+
+        private static string GetResponseShape(string responseContent)
+        {
+            if (responseContent == null) return "Null";
+
+            var trimmedContent = responseContent.Trim();
+            if (trimmedContent.Length == 0) return "Empty";
+            if (trimmedContent == "[]") return "EmptyJsonArray";
+            if (trimmedContent[0] == '[') return "JsonArray";
+            if (trimmedContent[0] == '{') return "JsonObject";
+            if (trimmedContent[0] == '<') return "XmlOrHtml";
+
+            return "Other";
         }
 
         public async Task<CommonModels.Location> GetLocation(int locationId, int languageId)

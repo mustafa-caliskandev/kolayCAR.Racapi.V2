@@ -65,7 +65,7 @@ namespace KolayCAR.Broker.API.Providers.Garenta
             CalculationHelper.SetVehiclePrices(selectedVehicle, vendor, exchangeRates, requestCurrencyType, reservationToken, additionalInformation.RentalDuration);
             CalculationHelper.SetExtraPrices(selectedVehicle.Extras, vendor, exchangeRates, requestCurrencyType, addProfitMarkup, getAPIPrices, reservationToken.BaseVendorRequestCurrencyType);
 
-            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(selectedVehicle.Extras), selectedVehicle);
+            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(selectedVehicle.Extras), selectedVehicle, vehicles);
             return new ServiceResponseBase(getExtrasResponse, true);
         }
 

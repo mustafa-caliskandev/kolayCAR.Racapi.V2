@@ -183,7 +183,7 @@ namespace KolayCAR.Broker.API.Mappers.Vonarent
 
         private static string GetReservationCurrencyCode(ReservationToken reservationToken)
         {
-            var currencyCode = reservationToken.CurrencyType.ToString();
+            var currencyCode = reservationToken.BaseVendorRequestCurrencyType.ToString();
             return !string.IsNullOrWhiteSpace(currencyCode)
                 ? currencyCode
                 : reservationToken.APIReferenceCode2.ToStringNullSafe();

@@ -114,7 +114,7 @@ namespace KolayCAR.Broker.API.Providers.Vonarent
             }
 
             extras = ReservationHelper.RemoveZeroPriceExtras(extras);
-            var getExtrasResponse = new GetExtrasResponse(extras, selectedVehicle);
+            var getExtrasResponse = new GetExtrasResponse(extras, selectedVehicle, vehicles);
             return new ServiceResponseBase(getExtrasResponse, true);
         }
 

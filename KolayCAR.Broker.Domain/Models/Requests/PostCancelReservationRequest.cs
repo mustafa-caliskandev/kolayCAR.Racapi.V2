@@ -3,6 +3,7 @@
     public class PostCancelReservationRequest : IntegrationBase
     {
         public string ReservationNumber { get; set; }
+        public string AgencyReservationReference { get; set; }
         public string CustomerEmail { get; set; }
         public string CancelNote { get; set; }
         public string LanguageCode { get; set; }

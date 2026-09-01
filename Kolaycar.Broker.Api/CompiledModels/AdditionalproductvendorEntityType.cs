@@ -19,7 +19,7 @@ namespace KolayCAR.Broker.API.CompiledModels
                 "KolayCAR.Broker.API.Models.Additionalproductvendor",
                 typeof(Additionalproductvendor),
                 baseEntityType,
-                propertyCount: 14,
+                propertyCount: 13,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -82,15 +82,6 @@ namespace KolayCAR.Broker.API.CompiledModels
             apiproductprice.AddAnnotation("Relational:ColumnType", "decimal(18, 2)");
             apiproductprice.AddAnnotation("Relational:DefaultValueSql", "((0))");
             apiproductprice.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
-
-            var apivendorid = runtimeEntityType.AddProperty(
-                "Apivendorid",
-                typeof(int?),
-                propertyInfo: typeof(Additionalproductvendor).GetProperty("Apivendorid", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(Additionalproductvendor).GetField("<Apivendorid>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            apivendorid.AddAnnotation("Relational:ColumnName", "APIVENDORID");
-            apivendorid.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var currencyid = runtimeEntityType.AddProperty(
                 "Currencyid",

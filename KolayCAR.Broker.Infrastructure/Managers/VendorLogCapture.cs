@@ -1,5 +1,6 @@
 using KolayCAR.Broker.Domain.Models;
 using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,25 +89,36 @@ namespace KolayCAR.Broker.Infrastructure.Managers
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            var stopwatch = Stopwatch.StartNew();
+            var requestPath = request.RequestUri?.IsAbsoluteUri == true
+                ? request.RequestUri.GetLeftPart(UriPartial.Path)
+                : request.RequestUri?.ToString();
+
             try
             {
                 var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
                 var responseContent = response.Content == null ? null : await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                stopwatch.Stop();
                 VendorLogCapture.Add(new VendorHttpLogEntry
                 {
                     Success = response.IsSuccessStatusCode,
                     HttpStatusCode = (int)response.StatusCode,
                     HttpMethod = request.Method.Method,
+                    RequestPath = requestPath,
+                    ElapsedMilliseconds = stopwatch.ElapsedMilliseconds,
                     ResponseContent = responseContent
                 });
                 return response;
             }
             catch (Exception ex)
             {
+                stopwatch.Stop();
                 VendorLogCapture.Add(new VendorHttpLogEntry
                 {
                     Success = false,
                     HttpMethod = request.Method.Method,
+                    RequestPath = requestPath,
+                    ElapsedMilliseconds = stopwatch.ElapsedMilliseconds,
                     ExceptionMessage = ex.GetBaseException().Message
                 });
                 throw;

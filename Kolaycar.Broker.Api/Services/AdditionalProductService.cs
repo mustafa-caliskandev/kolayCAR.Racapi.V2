@@ -16,11 +16,11 @@ public interface IAdditionalProductService
 public class AdditionalProductService : IAdditionalProductService
 {
     private readonly IAdditionalProductRepository _additionalProductRepository;
-    private readonly ICurrencyService _currencyService;
-    public AdditionalProductService(IAdditionalProductRepository additionalProductRepository, ICurrencyService currencyService)
+    private readonly IExchangeRateService _exchangeRateService;
+    public AdditionalProductService(IAdditionalProductRepository additionalProductRepository, IExchangeRateService exchangeRateService)
     {
         _additionalProductRepository = additionalProductRepository;
-        _currencyService = currencyService;
+        _exchangeRateService = exchangeRateService;
     }
     public async Task<List<Additionalproduct>> GetAdditionalProductsByIdList(IEnumerable<int> idList, int langId)
     {
@@ -43,7 +43,7 @@ public class AdditionalProductService : IAdditionalProductService
         if (!extras.Any())
             return new List<Extra>();
 
-        var curencies = await _currencyService.GetAllCurrencies();
+        var exchangeRates = await _exchangeRateService.GetAllExchangeRates();
         var premiumExtras = new List<Extra>();
 
         foreach (var specialRequest in specialRequests)
@@ -54,15 +54,19 @@ public class AdditionalProductService : IAdditionalProductService
             {
                 if (!extra.ShowOnlyFullCreditVehicles || (token.CreditType == CreditType.FullCredit || token.CreditType == CreditType.LimitedCredit))
                 {
-                    var rentalType = (ExtraRentalTypes)specialRequest.SpecialRequestTariff.RentalTypeId;
+                    var tariff = specialRequest.SpecialRequestTariff;
+                    if (tariff?.Amount == null)
+                        continue;
 
-                    var currency = curencies.FirstOrDefault(c => c.Currencyid == extra.CurrencyId);
+                    var rentalType = (ExtraRentalTypes)tariff.RentalTypeId;
+                    var sourceCurrencyType = (CurrencyTypes)(tariff.CurrencyId - 1);
+                    var targetCurrencyType = token.CurrencyType;
 
-                    var extraDailyPrice = (float)specialRequest.SpecialRequestTariff.Amount;
+                    var extraDailyPrice = tariff.Amount.Value;
 
                     if (rentalType == ExtraRentalTypes.Daily)
                     {
-                        var maxAmount = specialRequest.SpecialRequestTariff?.MaxAmount;
+                        var maxAmount = tariff.MaxAmount;
 
                         if (maxAmount.HasValue)
                         {
@@ -72,6 +76,8 @@ public class AdditionalProductService : IAdditionalProductService
                                 extraDailyPrice = TruncateToTwoDecimalPlaces(maxAmount.Value / rentalDuration);
                         }
                     }
+
+                    extraDailyPrice = ConvertCurrency(extraDailyPrice, sourceCurrencyType, targetCurrencyType, exchangeRates);
 
                     premiumExtras.Add(new Extra
                     {
@@ -84,7 +90,7 @@ public class AdditionalProductService : IAdditionalProductService
                         ExtraQuantityIncreasable = false,
                         Price = extraDailyPrice,
                         Icon = extra.Iconpath,
-                        CurrencyCode = currency?.Currencyisocode,
+                        CurrencyCode = targetCurrencyType.ToString(),
                         VendorId = token.VendorId,
                         ShowDayCountStart = extra.Showdaycountstart,
                         ShowDayCountEnd = extra.Showdaycountend,
@@ -103,5 +109,19 @@ public class AdditionalProductService : IAdditionalProductService
     private static float TruncateToTwoDecimalPlaces(float value)
     {
         return (float)(Math.Truncate((decimal)value * 100) / 100);
+    }
+
+    private static float ConvertCurrency(float amount, CurrencyTypes sourceCurrency, CurrencyTypes targetCurrency, IEnumerable<Exchangerates> exchangeRates)
+    {
+        if (sourceCurrency == targetCurrency)
+            return TruncateToTwoDecimalPlaces(amount);
+
+        var sourceRate = exchangeRates?.FirstOrDefault(e => e.Currencyid == (int)sourceCurrency + 1);
+        var targetRate = exchangeRates?.FirstOrDefault(e => e.Currencyid == (int)targetCurrency + 1);
+
+        if (sourceRate?.Exchangerate == null || targetRate?.Exchangerate == null || targetRate.Exchangerate == 0)
+            return TruncateToTwoDecimalPlaces(amount);
+
+        return TruncateToTwoDecimalPlaces((float)((decimal)amount * sourceRate.Exchangerate.Value / targetRate.Exchangerate.Value));
     }
 }
