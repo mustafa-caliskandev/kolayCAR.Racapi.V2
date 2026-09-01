@@ -139,7 +139,6 @@ namespace KolayCAR.Broker.API.Services
                         {
                             var vendorExtras = await _context.Additionalproductvendor.Where(x =>
                             x.Vendorid == vendor.VendorId &&
-                            (x.Apivendorid == reservationToken.APIVendorId || vendor.VendorType == VendorTypes.Yolcu360) &&
                             x.Active == true).ToListAsync();
                             var premiumPack = _context.Additionalproduct.FirstOrDefaultAsync(ap => ap.Producttype == 5).Result;
                             var selectedExtras = new List<Extra>();
@@ -514,16 +513,9 @@ namespace KolayCAR.Broker.API.Services
                                             vendor.VendorId,
                                             (CurrencyTypes)Enum.Parse(typeof(CurrencyTypes), getSummaryRequest.CurrencyCode),
                                             (LanguageTypes)Enum.Parse(typeof(LanguageTypes), getSummaryRequest.LanguageCode),
-                                            reservationToken.RentalDuration,
-                                            apiVendorId: reservationToken.APIVendorId);
-                                        var localExtras = vendor.VendorType != VendorTypes.Yolcu360 ?
-                                            await _context.Additionalproductvendor.Where(x =>
+                                            reservationToken.RentalDuration);
+                                        var localExtras = await _context.Additionalproductvendor.Where(x =>
                                             x.Vendorid == vendor.VendorId &&
-                                            x.Apivendorid == reservationToken.APIVendorId &&
-                                            x.Active == true).ToListAsync() :
-                                            await _context.Additionalproductvendor.Where(x =>
-                                            x.Vendorid == vendor.VendorId &&
-                                            //x.Apivendorid == reservationToken.APIVendorId &&
                                             x.Active == true).ToListAsync();
 
                                         var sourceExtraList = !agency.FreePriceShowActive ? apiSummaryData.Extras : ReservationHelper.GetReservationExtrasFromStringList(getSummaryRequest.ExtraList);

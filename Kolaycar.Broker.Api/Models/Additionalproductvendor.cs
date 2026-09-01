@@ -11,7 +11,6 @@ namespace KolayCAR.Broker.API.Models
         public string Apiproductcode { get; set; }
         public string Apiproductname { get; set; }
         public decimal? Apiproductprice { get; set; }
-        public int? Apivendorid { get; set; }
         public int? Rentaltype { get; set; }
         public bool? Quantityincreasable { get; set; }
         public int? Currencyid { get; set; }

@@ -187,7 +187,7 @@ namespace KolayCAR.Broker.API.Providers.Yolcu360
                                 .SelectMany(g => g.OrderBy(u => u.Price).Take(1))
                                 .ToList();
 
-            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras2), selectedVehicle);
+            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras2), selectedVehicle, vehicles);
             return new ServiceResponseBase(getExtrasResponse, true);
         }
 

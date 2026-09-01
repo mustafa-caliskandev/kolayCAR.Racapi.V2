@@ -55,7 +55,10 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                     var getExtrasResponse = new GetExtrasResponse
                     {
                         Extras = !vendor.UseBrokerConfigurations ? extrasResponseData.Extras.Map() : extrasResponseData.Extras,
-                        Vehicle = CalculationHelper.CalculateFinalVehiclePrices(vendor, !vendor.UseBrokerConfigurations ? extrasResponseData.Vehicle.Map(additionalInformation) : extrasResponseData.Vehicle, additionalInformation.Agency)
+                        Vehicle = CalculationHelper.CalculateFinalVehiclePrices(vendor, !vendor.UseBrokerConfigurations ? extrasResponseData.Vehicle.Map(additionalInformation) : extrasResponseData.Vehicle, additionalInformation.Agency),
+                        AlternativeVehicles = !vendor.UseBrokerConfigurations
+                            ? extrasResponseData.AlternativeVehicles.Map(additionalInformation)
+                            : extrasResponseData.AlternativeVehicles
                     };
 
                     CalculationHelper.SetVehiclePrices(getExtrasResponse.Vehicle, vendor, exchangeRates, requestCurrencyType, reservationToken, additionalInformation.RentalDuration, useVendorProps: !vendor.UseBrokerConfigurations);

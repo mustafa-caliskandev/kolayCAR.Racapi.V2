@@ -353,8 +353,6 @@ namespace KolayCAR.Broker.API.Models
                     .HasColumnType("decimal(18, 2)")
                     .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.Apivendorid).HasColumnName("APIVENDORID");
-
                 entity.Property(e => e.Currencyid).HasColumnName("CURRENCYID");
 
                 entity.Property(e => e.Defaultprice)

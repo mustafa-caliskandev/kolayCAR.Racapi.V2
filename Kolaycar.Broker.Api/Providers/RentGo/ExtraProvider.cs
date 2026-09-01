@@ -99,7 +99,7 @@ namespace Kolaycar.Broker.Api.Providers.RentGo
 
             selectedVehicle.Extras = extras;
 
-            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle);
+            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle, vehicles);
             return new(getExtrasResponse, true);
         }
     }

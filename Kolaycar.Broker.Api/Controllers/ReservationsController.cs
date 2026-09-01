@@ -96,35 +96,44 @@ namespace KolayCAR.Broker.API.Controllers
         {
             var reservationNumberIsEmpty = string.IsNullOrWhiteSpace(reservationNumber);
             var customerEmailIsEmpty = string.IsNullOrWhiteSpace(customerEmail);
+            var customerSurnameIsEmpty = string.IsNullOrWhiteSpace(customerSurname);
             Reservation localReservation;
 
-            if (reservationNumberIsEmpty && customerEmailIsEmpty)
+            if (!reservationNumberIsEmpty)
+            {
+                if (!customerEmailIsEmpty)
+                {
+                    localReservation = await _reservationService.GetReservation(new GetReservationsRequest
+                    {
+                        ReservationNumber = reservationNumber,
+                        CustomerEmail = customerEmail.TrimNullSafe().ToLowerInvariant(),
+                        LanguageType = languageType
+                    });
+                }
+                else if (!customerSurnameIsEmpty)
+                {
+                    localReservation = await _reservationService.GetReservationByReservationNumberAndSurname(
+                        reservationNumber,
+                        customerSurname,
+                        languageType);
+                }
+                else
+                {
+                    return MissingParameters(nameof(customerEmail), nameof(customerSurname));
+                }
+            }
+            else
             {
                 if (string.IsNullOrWhiteSpace(agencyReservationReference))
-                    return MissingParameters(nameof(reservationNumber), nameof(customerEmail));
+                    return MissingParameters(nameof(reservationNumber), nameof(agencyReservationReference));
 
-                if (string.IsNullOrWhiteSpace(customerSurname))
+                if (customerSurnameIsEmpty)
                     return MissingParameter(nameof(customerSurname));
 
                 localReservation = await _reservationService.GetReservationByAgencyReference(
                     agencyReservationReference,
                     customerSurname,
                     languageType);
-            }
-            else
-            {
-                if (reservationNumberIsEmpty)
-                    return MissingParameter(nameof(reservationNumber));
-
-                if (customerEmailIsEmpty)
-                    return MissingParameter(nameof(customerEmail));
-
-                localReservation = await _reservationService.GetReservation(new GetReservationsRequest
-                {
-                    ReservationNumber = reservationNumber,
-                    CustomerEmail = customerEmail.TrimNullSafe().ToLower(),
-                    LanguageType = languageType
-                });
             }
 
             if (localReservation == null)
@@ -921,12 +930,14 @@ namespace KolayCAR.Broker.API.Controllers
          string userId,
          bool isKpanelAdmin = false,
          bool isBrokerReservation = false,
-         _penaltyStatus PenaltyStatus = _penaltyStatus.None
+         _penaltyStatus PenaltyStatus = _penaltyStatus.None,
+         string agencyReservationReference = null
          )
         {
             var postCancelReservationRequest = new PostCancelReservationRequest
             {
                 ReservationNumber = reservationNumber,
+                AgencyReservationReference = agencyReservationReference,
                 CustomerEmail = customerEmail.TrimNullSafe().ToLower(),
                 CancelNote = cancelNote,
                 LanguageCode = languageCode ?? LanguageTypes.EN.ToString(),
@@ -942,8 +953,8 @@ namespace KolayCAR.Broker.API.Controllers
             if (string.IsNullOrWhiteSpace(reservationNumber))
                 return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, $"{nameof(reservationNumber)} is missing", ResultCodes.Success, "{@CancelReservationResponse}", reservationNumber, BrokerLogTypes.ReservationCancelResponse);
 
-            if (string.IsNullOrWhiteSpace(customerEmail))
-                return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, $"{nameof(customerEmail)} is missing", ResultCodes.Success, "{@CancelReservationResponse}", reservationNumber, BrokerLogTypes.ReservationCancelResponse);
+            if (string.IsNullOrWhiteSpace(customerEmail) && string.IsNullOrWhiteSpace(agencyReservationReference))
+                return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, $"{nameof(customerEmail)} or {nameof(agencyReservationReference)} is missing", ResultCodes.Success, "{@CancelReservationResponse}", reservationNumber, BrokerLogTypes.ReservationCancelResponse);
 
             Serilog.Log.Error("{CancelReservationNumber:l}", reservationNumber);
             Serilog.Log.Error("{@PostCancelReservationRequest}", postCancelReservationRequest);
@@ -953,13 +964,28 @@ namespace KolayCAR.Broker.API.Controllers
             ServiceResponseBase localResponse, serviceCancelReservation;
             Reservation serviceCancelReservationObject;
 
-            var getReservationsRequest = new GetReservationsRequest
+            Reservation reservation;
+            if (!string.IsNullOrWhiteSpace(agencyReservationReference))
             {
-                ReservationNumber = postCancelReservationRequest.ReservationNumber,
-                CustomerEmail = postCancelReservationRequest.CustomerEmail
-            };
+                reservation = await _reservationService.GetReservationByReservationNumberAndAgencyReference(
+                    reservationNumber,
+                    agencyReservationReference);
+            }
+            else
+            {
+                var getReservationsRequest = new GetReservationsRequest
+                {
+                    ReservationNumber = postCancelReservationRequest.ReservationNumber,
+                    CustomerEmail = postCancelReservationRequest.CustomerEmail
+                };
 
-            var reservation = await _reservationService.GetReservation(getReservationsRequest, isBrokerReservation = postCancelReservationRequest.IsBrokerReservation);
+                reservation = await _reservationService.GetReservation(getReservationsRequest, postCancelReservationRequest.IsBrokerReservation);
+            }
+
+            if (reservation == null)
+                return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, "No reservation found!", ResultCodes.Error, "{@CancelReservationResponse}", reservationNumber, BrokerLogTypes.ReservationCancelResponse);
+
+            postCancelReservationRequest.CustomerEmail = reservation.CustomerMail.TrimNullSafe().ToLowerInvariant();
 
             if (reservation.ReservationStatusType == ReservationStatusTypes.Cancelled)
                 return await CreateAndLogErrorResult(null, HttpStatusCode.OK, false, "The reservation has already been canceled.", ResultCodes.Error, "{@CancelReservationResponse}", reservationNumber, BrokerLogTypes.ReservationCancelResponse);
@@ -1165,12 +1191,12 @@ namespace KolayCAR.Broker.API.Controllers
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error("{@SendReservationMail}", ex.Message);
+                Serilog.Log.Error("{@SendReservationMail}", ex.ToJson());
                 return BadRequest(HttpResult<object>.Result(
                     data: null,
                     httpResultType: HttpStatusCode.BadRequest,
                     success: false,
-                    message: $"Mail could not send. Exception: {ex.Message}"));
+                    message: $"Mail could not send. Exception: {ex.ToJson()}"));
             }
         }
 
@@ -1268,6 +1294,7 @@ namespace KolayCAR.Broker.API.Controllers
                         return new
                         {
                             postCancelReservationRequest.ReservationNumber,
+                            postCancelReservationRequest.AgencyReservationReference,
                             postCancelReservationRequest.CustomerEmail,
                             postCancelReservationRequest.CancelNote
                         };

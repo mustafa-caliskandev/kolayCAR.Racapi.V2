@@ -44,7 +44,7 @@ namespace KolayCAR.Broker.API.Providers.Pandora2
             CalculationHelper.SetVehiclePrices(selectedVehicle, vendor, exchangeRates, requestCurrencyType, reservationToken, additionalInformation.RentalDuration);
             CalculationHelper.SetExtraPrices(extras, vendor, exchangeRates, requestCurrencyType, addProfitMarkup, getAPIPrices, reservationToken.BaseVendorRequestCurrencyType);
 
-            return new ServiceResponseBase(new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle), true);
+            return new ServiceResponseBase(new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle, vehicles), true);
         }
 
         private static Vehicle FindSelectedVehicle(List<Vehicle> vehicles, ReservationToken reservationToken)

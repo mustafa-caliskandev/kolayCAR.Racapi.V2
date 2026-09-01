@@ -138,8 +138,18 @@ namespace KolayCAR.Broker.API.Providers.ZiraatFilo
                 { "Currency", ZFHelper.CurrencyHelper.GetZiraatFiloCurrencyType(reservationToken.BaseVendorRequestCurrencyType)},
             };
 
-            if (CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit)
-                parameters.Add("Full_Credit", "True");
+            if (postReservationRequest.PaymentType == PaymentTypes.PayOnDelivery)
+            {
+                parameters.Add("Customer_Pay", "TRUE");
+            }
+            else if (postReservationRequest.PaymentType == PaymentTypes.PayAll)
+            {
+                var invoiceType = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit
+                    ? "Full_Credit"
+                    : "Full_Rental";
+
+                parameters.Add(invoiceType, "TRUE");
+            }
 
             var selectedExtraCodes = postReservationRequest.PostReservationRequestV2 == null ? ReservationHelper.GetSelectedExtaCodes(postReservationRequest.ExtraList)
                 : ReservationHelper.GetSelectedExtaCodesV2(postReservationRequest.PostReservationRequestV2.Extras);

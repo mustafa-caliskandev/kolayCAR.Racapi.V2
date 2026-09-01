@@ -72,7 +72,7 @@ namespace KolayCAR.Broker.API.Providers._5S
             CalculationHelper.SetVehiclePrices(selectedVehicle, vendor, exchangeRates, currencyType, token, additionalInformation.RentalDuration);
             CalculationHelper.SetExtraPrices(extras, vendor, exchangeRates, currencyType, addProfitMarkup, getAPIPrices, token.BaseVendorRequestCurrencyType);
 
-            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle);
+            var getExtrasResponse = new GetExtrasResponse(ReservationHelper.RemoveZeroPriceExtras(extras), selectedVehicle, vehicles);
             return new ServiceResponseBase(getExtrasResponse, true);
         }
 

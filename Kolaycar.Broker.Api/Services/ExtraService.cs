@@ -25,7 +25,7 @@ namespace KolayCAR.Broker.API.Services
     {
         Task<ServiceResponseBase> GetExtras(GetExtrasRequest getExtraRequest, bool getMarkupPrice = true, bool getAPIPrices = false, bool isReservationStep = false);
         Task<ServiceResponseBase> GetExtraListToVendorAPI(int vendorId, int agencyId, CurrencyTypes currencyType, LanguageTypes languageType, int rentalDuration);
-        Task<ServiceResponseBase> GetMappedExtras(int vendorId, CurrencyTypes currencyType, LanguageTypes languageType, int rentalDuration, bool getAllVendorExtras = false, int apiVendorId = 0);
+        Task<ServiceResponseBase> GetMappedExtras(int vendorId, CurrencyTypes currencyType, LanguageTypes languageType, int rentalDuration, bool getAllVendorExtras = false);
         //Task<ServiceResponseBase> GetSpecialProductsByLocationVendor(int vendorId, int productId);
         Task<List<Extra>> GetPremiumPackets(ReservationToken token, List<int> extras);
         Task<List<Extra>> GetActiveLocalExtras(LanguageTypes languageTypes);
@@ -251,8 +251,7 @@ namespace KolayCAR.Broker.API.Services
                                 vendor.VendorId,
                                 (CurrencyTypes)Enum.Parse(typeof(CurrencyTypes), getExtrasRequest.CurrencyCode),
                                 (LanguageTypes)Enum.Parse(typeof(LanguageTypes), getExtrasRequest.LanguageCode),
-                                reservationToken.RentalDuration,
-                                apiVendorId: vendor.VendorType != VendorTypes.Yolcu360 ? reservationToken.APIVendorId : 0);
+                                reservationToken.RentalDuration);
 
                             if (localExtrasResult.Success)
                             {
@@ -440,6 +439,9 @@ namespace KolayCAR.Broker.API.Services
             }
         }
 
+        /*
+         * LEGACY: APIVENDORID kaldırılmadan önce kullanılan GetMappedExtras implementasyonu.
+         * Geri dönüş gerekirse aktif metodu kaldırıp bu blok yorumunu açın.
         public async Task<ServiceResponseBase> GetMappedExtras(int vendorId, CurrencyTypes currencyType, LanguageTypes languageType, int rentalDuration, bool getAllVendorExtras = false, int apiVendorId = 0)
         {
             if (!getAllVendorExtras)
@@ -513,6 +515,157 @@ namespace KolayCAR.Broker.API.Services
                                         }).OrderBy(x => x.Sequence).ToListAsync();
                     }
 
+                    foreach (var extra in extras.ToList())
+                        if (extra.ShowDayCountStart != null && extra.ShowDayCountEnd != null)
+                            if (rentalDuration < extra.ShowDayCountStart || rentalDuration > extra.ShowDayCountEnd)
+                                extras.Remove(extra);
+
+                    if (days.Count > 0)
+                    {
+                        var prices = await _context.Additionalproductprice.Where(x => x.Vendorid == vendorId).ToListAsync();
+
+                        if (rentalDuration > 0)
+                        {
+                            var agencyBasedPassiveVendors = await _vendorService.GetAgencyBasedPassiveVendors(_agencyService.GetCurrentAgencyId());
+                            var dbVendor = await _context.Vendor.Where(x => x.Vendorid == vendorId && x.Active == true && !agencyBasedPassiveVendors.Contains(x.Vendorid)).FirstOrDefaultAsync();
+                            var vendor = dbVendor.Map();
+
+                            var exchangeRates = await _context.Exchangerates.ToListAsync();
+                            var mappedExchangeRates = exchangeRates.Map();
+
+                            foreach (var extra in extras.ToList())
+                            {
+                                int maxDay = 1;
+                                float maxPrice = 0;
+                                float maxDayPrice = 0;
+                                bool found = false;
+                                foreach (var price in prices)
+                                {
+                                    int extraId = extra.ExtraId;
+                                    float extraPrice = price.Price.ToFloatNullSafe();
+
+                                    if (price.Productid == extraId)
+                                    {
+                                        if (price.Startday <= rentalDuration && price.Endday >= rentalDuration)
+                                        {
+                                            found = true;
+                                            extra.Price = extraPrice;
+                                        }
+                                        if (maxDay < price.Endday)
+                                        {
+                                            maxDayPrice = extraPrice;
+                                            maxDay = price.Endday;
+                                        }
+                                        if (maxPrice < extraPrice)
+                                            maxPrice = extraPrice;
+                                    }
+                                }
+
+                                if (rentalDuration > maxDay && maxPrice > 0)
+                                {
+                                    extra.Price = maxPrice;
+                                    found = true;
+                                }
+
+                                if (!found)
+                                    extras.Remove(extra);
+                                else
+                                {
+                                    extra.Price = CalculationHelper.CurrencyExchange(mappedExchangeRates, vendor, extra.Price, vendor.CurrencyType, currencyType);
+                                }
+                            }
+                            return new(extras, true);
+                        }
+                        else
+                            return new(null, false, "Kiralama gün sayısı 0'dan büyük olmalıdır!", "Kiralama gün sayısı 0'dan büyük olmalıdır!");
+                    }
+
+                    return new(extras, true, serviceCode: "-1");
+                }
+                else if (vendorId == 0) //Broker kendi extra listesini dönüyor
+                {
+                    var extras = await (from ap in _context.Additionalproduct
+                                        where ap.Active == true &&
+                                        ap.Langid == (int)languageType + 1 &&
+                                        ((ap.Producttype == (int)AdditionalProductTypes.Extra || ap.Producttype == (int)AdditionalProductTypes.Insurance) || (ap.Producttype == (int)AdditionalProductTypes.Premium && ap.VendorExtraExists == true)) &&
+                                        ap.Active == true
+                                        select new Extra
+                                        {
+                                            ExtraId = ap.Productid,
+                                            ExtraCode = ap.Productcode,
+                                            ExtraName = ap.Productname,
+                                            ExtraDescription = ap.Productdescription,
+                                            ExtraRentalType = (ExtraRentalTypes)ap.Rentaltype,
+                                            ExtraType = (AdditionalProductTypes)ap.Producttype,
+                                            ExtraQuantityIncreasable = ap.Quantityincreasable ?? false,
+                                            Price = ap.Defaultprice.ToFloatNullSafe(),
+                                            ShowDayCountStart = ap.Showdaycountstart,
+                                            ShowDayCountEnd = ap.Showdaycountend,
+                                            Icon = $"{configurations.PortalOwnerDomain}{ap.Iconpath}",
+                                            VendorExtraExists = ap.VendorExtraExists ?? false,
+                                        }).ToListAsync();
+
+                    return new(extras, true);
+                }
+            }
+            else
+            {
+                var allExtras = new List<Extra>();
+                var vendors = await _context.Vendor.ToListAsync();
+                foreach (var vendor in vendors)
+                {
+                    var vendorExtras = await GetMappedExtras(vendor.Vendorid, currencyType, languageType, rentalDuration);
+                    if (vendorExtras.Success)
+                    {
+                        if (vendorExtras.Data != null)
+                        {
+                            var extras = vendorExtras.Data as List<Extra>;
+                            allExtras.AddRange(extras);
+                        }
+                    }
+                }
+                return new(allExtras, true);
+            }
+            return new(null, false, "Lütfen geçerli bir vendorId değeri gönderin!");
+        }
+
+         */
+
+        public async Task<ServiceResponseBase> GetMappedExtras(int vendorId, CurrencyTypes currencyType, LanguageTypes languageType, int rentalDuration, bool getAllVendorExtras = false)
+        {
+            if (!getAllVendorExtras)
+            {
+                var configurations = await _configurationService.GetConfigurations();
+                if (vendorId > 0)
+                {
+                    var days = await _context.Additionalproductvendordays.Where(x => x.Vendorid == vendorId).ToListAsync();
+                    var extras = await (from ap in _context.Additionalproduct
+                                        join apv in _context.Additionalproductvendor on ap.Productid equals apv.Productid
+                                        join v in _context.Vendor on apv.Vendorid equals v.Vendorid
+                                        where ap.Active == true &&
+                                        ap.Langid == (int)languageType + 1 &&
+                                        (ap.Producttype == (int)AdditionalProductTypes.Extra || ap.Producttype == (int)AdditionalProductTypes.Insurance || ap.Producttype == (int)AdditionalProductTypes.Compulsory || ap.Producttype == (int)AdditionalProductTypes.Premium) &&
+                                        apv.Vendorid == vendorId &&
+                                        apv.Active == true
+                                        select new Extra
+                                        {
+                                            ExtraId = ap.Productid,
+                                            ExtraCode = apv.Apiproductcode,
+                                            ExtraName = ap.Productname,
+                                            ExtraDescription = ap.Productdescription,
+                                            ExtraRentalType = (ExtraRentalTypes)ap.Rentaltype,
+                                            ExtraType = (AdditionalProductTypes)ap.Producttype,
+                                            ExtraQuantityIncreasable = ap.Quantityincreasable ?? false,
+                                            Price = ap.Defaultprice.ToFloatNullSafe(),
+                                            VendorId = v.Vendorid,
+                                            VendorName = v.Vendorname,
+                                            ShowDayCountStart = ap.Showdaycountstart,
+                                            ShowDayCountEnd = ap.Showdaycountend,
+                                            Icon = $"{configurations.PortalOwnerDomain}{ap.Iconpath}",
+                                            Sequence = ap.Sequence ?? 1,
+                                            VendorExtraExists = ap.VendorExtraExists ?? false,
+                                            DefaultPrice = ap.Defaultprice.ToFloatNullSafe()
+                                        }).OrderBy(x => x.Sequence).ToListAsync();
                     foreach (var extra in extras.ToList())
                         if (extra.ShowDayCountStart != null && extra.ShowDayCountEnd != null)
                             if (rentalDuration < extra.ShowDayCountStart || rentalDuration > extra.ShowDayCountEnd)
