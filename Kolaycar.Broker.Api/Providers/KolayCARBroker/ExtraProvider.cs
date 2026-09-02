@@ -32,6 +32,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
         public async Task<ServiceResponseBase> GetExtras(GetExtrasRequest getExtrasRequest, Vendor vendor, ResponseReservationStepsAdditionalInformation additionalInformation, List<ExchangeRates> exchangeRates, List<Vehicle> localVehicles, List<SubVendor> subVendors, bool addProfitMarkup = true, bool getAPIPrices = false)
         {
             var brokerName = _configuration["AppSettings:BrokerName"].ToStringNullSafe();
+            var alternativeVehicleActive = _configuration.GetValue<bool>("AppSettings:AlternativeVehicleActive");
 
             var auth = await _cacheService.GetOrCreateAsync($"kolayCarBroker{vendor.VendorName}Token", () => AuthProvider.GetJWT(vendor.ApiKey, vendor.ApiPassword, EncryptionHelper.Encrypt(vendor.ApiPassword))
             , TimeSpan.FromMinutes(30));
@@ -60,6 +61,24 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                             ? extrasResponseData.AlternativeVehicles.Map(additionalInformation)
                             : extrasResponseData.AlternativeVehicles
                     };
+
+                    if (alternativeVehicleActive && getExtrasResponse.AlternativeVehicles?.Any() != true)
+                    {
+                        var vehicleProvider = new VehicleProvider(vendor, _cacheService, false);
+                        var getVehiclesRequest = ObjectHelper.GetVehiclesRequestEntity(getExtrasRequest, vendor);
+                        var getVehiclesResponse = await vehicleProvider.GetVehicles(
+                            getVehiclesRequest,
+                            vendor,
+                            additionalInformation,
+                            exchangeRates,
+                            localVehicles,
+                            subVendors,
+                            reservationToken.BaseVendorRequestCurrencyType);
+
+                        getExtrasResponse.AlternativeVehicles = (getVehiclesResponse?.Data as List<Vehicle>)?
+                            .Where(x => x != null && x.VehicleCode != reservationToken.VehicleCode)
+                            .ToList() ?? new List<Vehicle>();
+                    }
 
                     CalculationHelper.SetVehiclePrices(getExtrasResponse.Vehicle, vendor, exchangeRates, requestCurrencyType, reservationToken, additionalInformation.RentalDuration, useVendorProps: !vendor.UseBrokerConfigurations);
                     CalculationHelper.SetExtraPrices(getExtrasResponse.Extras, vendor, exchangeRates, requestCurrencyType, addProfitMarkup, getAPIPrices, reservationToken.BaseVendorRequestCurrencyType);
