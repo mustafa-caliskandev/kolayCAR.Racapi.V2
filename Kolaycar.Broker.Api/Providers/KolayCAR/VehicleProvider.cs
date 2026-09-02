@@ -90,7 +90,14 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
 
                 if (getSettingsResult != null)
                 {
-                    VendorLogCapture.RecordResponse(getSettingsResult.Body?.GET_SETTINGSResult);
+                    VendorLogCapture.RecordResponse(
+                        getSettingsResult.Body?.GET_SETTINGSResult,
+                        requestContent: new
+                        {
+                            getVehiclesRequest.ApiKey,
+                            getVehiclesRequest.ApiPassword,
+                            getVehiclesRequest.LanguageCode
+                        }.ToJson());
                     getSettingsResponse = JsonConvert.DeserializeObject<KOLAYCARSETTINGS>(getSettingsResult.Body.GET_SETTINGSResult);
                 }
 
@@ -118,11 +125,11 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                                  string.Empty,
                                  string.Empty);
 
-                VendorLogCapture.RecordResponse(getVehiclesResult?.GET_VEHICLES_V2Result);
+                VendorLogCapture.RecordResponse(getVehiclesResult?.GET_VEHICLES_V2Result, requestContent: getVehiclesRequest.ToJson());
             }
             catch (Exception ex)
             {
-                VendorLogCapture.RecordException(ex, getVehiclesResult?.GET_VEHICLES_V2Result);
+                VendorLogCapture.RecordException(ex, getVehiclesResult?.GET_VEHICLES_V2Result, requestContent: getVehiclesRequest.ToJson());
                 // Serilog.Log.Error("{@KolaycarAvailabilityError}", $"{ex.Message} - {getVehiclesRequest.ToJson()}");
                 return new ServiceResponseBase(null, false, "KolayCAR service could not be reached!");
             }

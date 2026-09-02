@@ -57,18 +57,19 @@ namespace KolayCAR.Broker.Infrastructure.Managers
         internal static void Restore(VendorLogCaptureScope scope) => CurrentScope.Value = scope;
         internal static void Add(VendorHttpLogEntry entry) => CurrentScope.Value?.Add(entry);
 
-        public static void RecordResponse(string responseContent, int? httpStatusCode = 200, string httpMethod = "POST")
+        public static void RecordResponse(string responseContent, int? httpStatusCode = 200, string httpMethod = "POST", string requestContent = null)
         {
             Add(new VendorHttpLogEntry
             {
                 Success = httpStatusCode.HasValue && httpStatusCode.Value >= 200 && httpStatusCode.Value <= 299,
                 HttpStatusCode = httpStatusCode,
                 HttpMethod = httpMethod,
+                RequestContent = requestContent,
                 ResponseContent = responseContent
             });
         }
 
-        public static void RecordException(Exception exception, string responseContent = null, string httpMethod = "POST")
+        public static void RecordException(Exception exception, string responseContent = null, string httpMethod = "POST", string requestContent = null)
         {
             if (exception == null)
                 return;
@@ -77,6 +78,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             {
                 Success = false,
                 HttpMethod = httpMethod,
+                RequestContent = requestContent,
                 ResponseContent = responseContent,
                 ExceptionMessage = exception.GetBaseException().Message
             });
@@ -93,6 +95,9 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             var requestPath = request.RequestUri?.IsAbsoluteUri == true
                 ? request.RequestUri.GetLeftPart(UriPartial.Path)
                 : request.RequestUri?.ToString();
+            var requestContent = request.Content == null
+                ? request.RequestUri?.Query
+                : await request.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -105,6 +110,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                     HttpStatusCode = (int)response.StatusCode,
                     HttpMethod = request.Method.Method,
                     RequestPath = requestPath,
+                    RequestContent = requestContent,
                     ElapsedMilliseconds = stopwatch.ElapsedMilliseconds,
                     ResponseContent = responseContent
                 });
@@ -118,6 +124,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                     Success = false,
                     HttpMethod = request.Method.Method,
                     RequestPath = requestPath,
+                    RequestContent = requestContent,
                     ElapsedMilliseconds = stopwatch.ElapsedMilliseconds,
                     ExceptionMessage = ex.GetBaseException().Message
                 });

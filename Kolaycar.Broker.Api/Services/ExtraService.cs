@@ -33,6 +33,7 @@ namespace KolayCAR.Broker.API.Services
     }
     public class ExtraService : IExtraService
     {
+        private readonly AppSettings _appSettings;
         private readonly BrokerContext _context;
         private readonly IVendorService _vendorService;
         private readonly IReservationStepsService _reservationStepsService;
@@ -53,6 +54,7 @@ namespace KolayCAR.Broker.API.Services
         private readonly IVendorContactInformationService _vendorContactInformationService;
         public ExtraService(IOptions<AppSettings> appSettings, BrokerContext context, IConfigurationService configurationService, IAgencyService agencyService, IVehicleService vehicleService, IVendorService vendorService, IReservationStepsService reservationStepsService, IMemoryCache memoryCache, ILocationService locationService, IAgencyVendorService agencyVendorService, IExchangeRateService exchangeRateService, ICacheService cacheService, IExtraProviderFactory extraProviderFactory, IResTokenService resTokenService, IConfiguration configuration, IVendorVendorService vendorVendorService, ISpecialRequestService specialRequestService, IAdditionalProductService additionalProductService, IVendorOfficeService vendorOfficeService, IVendorContactInformationService vendorContactInformationService)
         {
+            _appSettings = appSettings.Value;
             _context = context;
             _configurationService = configurationService;
             _vendorService = vendorService;
@@ -382,6 +384,13 @@ namespace KolayCAR.Broker.API.Services
                                 extra.Price = CalculationHelper.CurrencyExchange(exchangeRates.Map(), vendor, extra.ApiPrice, reservationToken.BaseVendorRequestCurrencyType, reservationToken.CurrencyType);
                             }
                         }
+
+                        if (_appSettings.AlternativeVehicleActive)
+                        {
+                            await CreateAlternativeVehicleTokens(
+                                extrasData.AlternativeVehicles,
+                                getExtrasRequest.ReservationToken);
+                        }
                     }
                 }
 
@@ -391,6 +400,33 @@ namespace KolayCAR.Broker.API.Services
                 return extrasResult;
             }
             return new(null, false, "Check your request parameters!");
+        }
+
+        private async Task CreateAlternativeVehicleTokens(List<Vehicle> alternativeVehicles, string sourceReservationToken)
+        {
+            var vehiclesWithToken = alternativeVehicles?
+                .Where(x => !string.IsNullOrWhiteSpace(x?.ReservationToken))
+                .ToList();
+
+            if (vehiclesWithToken?.Any() != true)
+                return;
+
+            var sourceRestoken = await _resTokenService.GetRestokenByUniqueId(sourceReservationToken);
+            var tokenMappings = vehiclesWithToken
+                .Select(vehicle => (Vehicle: vehicle, Guid: Guid.NewGuid().ToString()))
+                .ToList();
+
+            var restokens = tokenMappings.Select(mapping => new Restoken
+            {
+                SessionId = sourceRestoken?.SessionId,
+                Uniqueid = mapping.Guid,
+                Token = ObjectHelper.CompressString(mapping.Vehicle.ReservationToken)
+            }).ToList();
+
+            await _resTokenService.AddRestokenList(restokens);
+
+            foreach (var mapping in tokenMappings)
+                mapping.Vehicle.ReservationToken = mapping.Guid;
         }
 
         private static void PrepareDynamicProviderExtras(GetExtrasResponse extrasData, ReservationToken reservationToken, string currencyCode)

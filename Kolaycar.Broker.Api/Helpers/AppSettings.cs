@@ -10,5 +10,6 @@
         public string ApiBaseUrl { get; set; }
         public bool UseCache { get; set; }
         public string BrokerName { get; set; }
+        public bool AlternativeVehicleActive { get; set; }
     }
 }

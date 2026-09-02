@@ -80,10 +80,25 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
             KOLAYCARSETTINGS getSettingsResponse = null;
             if (getExtrasResponseObject.RETURNCODE == 0)
             {
+                var vehicleProvider = new VehicleProvider(vendor, false);
+                var getVehiclesRequest = ObjectHelper.GetVehiclesRequestEntity(getExtrasRequest, vendor);
+                var getVehiclesResponse = await vehicleProvider.GetVehicles(
+                    getVehiclesRequest,
+                    vendor,
+                    additionalInformation,
+                    exchangeRates,
+                    localVehicles,
+                    subVendors,
+                    reservationToken.BaseVendorRequestCurrencyType);
+                var availableVehicles = getVehiclesResponse?.Data as List<Vehicle>;
+
                 var getExtrasResponse = new GetExtrasResponse
                 {
                     Extras = getExtrasResponseObject.EXTRAS.Map(),
-                    Vehicle = CalculationHelper.CalculateFinalVehiclePrices(vendor, getExtrasResponseObject.VEHICLES[0].Map(additionalInformation, vendor), additionalInformation.Agency)
+                    Vehicle = CalculationHelper.CalculateFinalVehiclePrices(vendor, getExtrasResponseObject.VEHICLES[0].Map(additionalInformation, vendor), additionalInformation.Agency),
+                    AlternativeVehicles = availableVehicles?
+                        .Where(x => x != null && x.VehicleCode != reservationToken.VehicleCode)
+                        .ToList() ?? new List<Vehicle>()
                 };
 
                 CalculationHelper.SetVehiclePrices(getExtrasResponse.Vehicle, vendor, exchangeRates, requestCurrencyType, reservationToken, additionalInformation.RentalDuration);

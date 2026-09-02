@@ -6,8 +6,6 @@ using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using KolayCAR.Broker.Infrastructure.Helpers;
 using KolayCAR.Broker.Infrastructure.Managers;
-using KolayCAR.Resws;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -181,12 +179,12 @@ namespace KolayCAR.Broker.API.Providers.Turevrac
                 { "User_Name",  additionalInformation.Vendor.ApiKey },
                 { "User_Pass",  additionalInformation.Vendor.ApiPassword }
             };
-            if (!string.IsNullOrEmpty(getVehiclesRequest.ReservationToken))
-            {
-                var reservationToken = JsonConvert.DeserializeObject<ReservationToken>(getVehiclesRequest.ReservationToken);
-                parameters.Add("Group_ID", reservationToken.VehicleCode);
-                parameters.Add("Cars_Park_ID", reservationToken.APIReferenceCode2);
-            }
+            //if (!string.IsNullOrEmpty(getVehiclesRequest.ReservationToken))
+            //{
+            //    var reservationToken = JsonConvert.DeserializeObject<ReservationToken>(getVehiclesRequest.ReservationToken);
+            //    parameters.Add("Group_ID", reservationToken.VehicleCode);
+            //    parameters.Add("Cars_Park_ID", reservationToken.APIReferenceCode2);
+            //}
             return parameters;
         }
 
