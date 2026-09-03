@@ -28,6 +28,7 @@ namespace KolayCAR.Broker.API.Models.MobileAppDtos.ResponseDtos
         public bool IsReservationTokenChange { get; set; } = false;
         public bool IsPriceChanged { get; set; } = false;
         public float OldTotalPrice { get; set; } = default(float);
+        public List<VehicleDto> AlternativeVehicles { get; set; }
     }
 
     public class SpecialAdvantage

@@ -1902,6 +1902,7 @@ namespace KolayCAR.Broker.API.Controllers
                     var labels = allLabels.Where(l => l.Dilid == languageId).ToList();
                     var vehicleFeatures = await _memoryCacheService.GetVehicleFutures();
                     var vehicle = (serviceResponse.Data as GetExtrasResponse).Vehicle;
+                    var alternativeVehicles = (serviceResponse.Data as GetExtrasResponse).AlternativeVehicles;
                     var vendor = await _vendorService.GetVendorById(vehicle.VendorId);
                     var podomain = _parameterService.GetParameterValue("PODOMAIN");
                     var mobileAppSettings = await _memoryCacheService.GetMobileSettings();
@@ -1959,6 +1960,7 @@ namespace KolayCAR.Broker.API.Controllers
                         Notes = conditions?.Where(c => !string.IsNullOrWhiteSpace(c.Conditions)).Select(c => c.Conditions)?.ToList(),
                         Conditions = conditions?.FirstOrDefault()?.Conditions
                     } : null;
+                    getDetailsResponseDto.AlternativeVehicles = await CreateAlternativeVehicles(languageId, "TRY", alternativeVehicles, vehicle.PickupLocationId, _memoryCacheService);
 
                     if (oldToken != getDetailsDto.ReservationToken)
                     {
@@ -1968,7 +1970,7 @@ namespace KolayCAR.Broker.API.Controllers
                         if (oldTokenDetail != null)
                         {
                             var oldPrice = (oldTokenDetail.DailyPrice * oldTokenDetail.RentalDuration + oldTokenDetail.OneWayFee).Round();
-                                                        
+
                             getDetailsResponseDto.IsPriceChanged = oldTokenDetail.DailyPrice != vehicle.DailyPrice;
                             getDetailsResponseDto.OldTotalPrice = oldPrice;
                         }
@@ -2003,6 +2005,78 @@ namespace KolayCAR.Broker.API.Controllers
                     message = e.ToStringNullSafe()
                 });
             }
+        }
+
+        private async Task<List<VehicleDto>> CreateAlternativeVehicles(
+            int languageId,
+            string currencyCode,
+            List<Vehicle> resultVehicles,
+            int pickupLocationId,
+            IMemoryCacheService memoryCacheService = null)
+        {
+            var cache = memoryCacheService ?? _memoryCacheService;
+            var podomain = _parameterService.GetParameterValue("PODOMAIN");
+            var currencies = await cache.GetCurrencies();
+            var currencySymbol = await GetCurrencySymbol(currencyCode);
+            var alllabels = await cache.GetLabels(languageId);
+            var labels = alllabels.Where(l => l.Dilid == languageId).ToList();
+            var labelDict = labels
+                .Where(l => !string.IsNullOrEmpty(l.LabelKodu))
+                .GroupBy(l => l.LabelKodu)
+                .ToDictionary(g => g.Key, g => g.First().Labeladi);
+            var totalKmLabel = labelDict.TryGetValue("VehicleMobile.VehicleList.TotalKmLimit", out var tkl) ? tkl : "[totalkm]";
+            var vehicleDetails = await cache.GetVehicleDetails();
+            var vehicleFutures = await cache.GetVehicleFutures();
+            var settings = await cache.GetMobileSettings();
+            var vendorLocationIconPath = podomain + settings?.FirstOrDefault(s => s.Parameter == "VendorDetails")?.IconPath;
+
+            var vehicleDtos = new List<VehicleDto>();
+            var vendorOffice = await cache.GetVendorOffices(pickupLocationId);
+            var vendorOfficeDict = vendorOffice?.GroupBy(x => x.VendorId).ToDictionary(g => g.Key, g => g.First());
+
+            foreach (var rv in resultVehicles)
+            {
+                var vehicleDto = new VehicleDto
+                {
+                    PickupLocationCode = rv.PickupLocationCode,
+                    ReturnLocationCode = rv.ReturnLocationCode,
+                    VehicleId = rv.VehicleId,
+                    BaggageQuantityName = rv.BaggageQuantityName,
+                    BaggageQuantityType = (int)rv.BaggageQuantityType,
+                    CurrencyCode = rv.CurrencyCode,
+                    DailyPrice = rv.DailyPrice.Round(),
+                    DeliveryType = (int)rv.DeliveryType,
+                    DepositPrice = rv.DepositPrice ?? 0,
+                    OneWayFee = rv.OneWayFee,
+                    PassengerQuantityName = rv.PassangerQuantityName,
+                    PassengerQuantityType = (int)rv.PassangerQuantityType,
+                    RentalDuration = rv.RentalDuration,
+                    ReservationToken = rv.ReservationToken,
+                    TotalPrice = rv.TotalPrice.Round(),
+                    VehicleCategoryTypeName = rv.VehicleCategoryTypeName,
+                    VehicleCategoryType = (int)rv.VehicleCategoryType,
+                    ServiceCharge = rv.ServiceCharge,
+                    TotalKmLimit = rv.TotalKMLimit ?? 0,
+                    VehicleFuelTypeName = rv.FuelTypeName,
+                    VehicleFuelType = (int)rv.FuelType,
+                    VehicleName = rv.VehicleName,
+                    VehicleTransmissionTypeName = rv.TransmissionTypeName,
+                    VehicleTransmissionType = (int)rv.TransmissionType,
+                    VehicleTypeName = rv.VehicleTypeName,
+                    VehicleType = (int)rv.VehicleType,
+                    VendorId = rv.VendorId,
+                    VendorMinimumDriverAge = rv.VendorMinimumDriverAge,
+                    VendorMinimumDrivingLicenseAge = rv.VendorMinimumDrivingLicenseAge,
+                    IsFlightNumberRequired = vendorOfficeDict != null && vendorOfficeDict.TryGetValue(rv.VendorId, out var vo) ? vo.FlightCardRequired ?? false : false,
+                    OrderNo = 0,
+                    VehicleFeatures = await CreateVehicleFeatures(rv, vehicleFutures, labels, labelDict, podomain, languageId, totalKmLabel, MobilePages.VehicleList)
+                };
+
+                vehicleDto.VehicleDetails = await CreateVehicleDetailsAsync(rv, vehicleDetails, labels, labelDict, podomain, languageId, currencySymbol);
+                vehicleDtos.Add(vehicleDto);
+            }
+
+            return vehicleDtos;
         }
 
 
