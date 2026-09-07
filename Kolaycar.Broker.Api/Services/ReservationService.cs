@@ -72,6 +72,7 @@ namespace KolayCAR.Broker.API.Services
         Rez GetCanceledReservationsByRezToken(string rezToken);
         Task<Reservation> GetMappedReservationByRezNo(string rezNo);
         Task<bool> LocalCancel(CancelLocalRequest request);
+        Task<bool> UpdateRecalculatedReservation(UpdateRecalculatedReservationRequest request);
     }
 
     public class ReservationService : IReservationService
@@ -2900,6 +2901,52 @@ namespace KolayCAR.Broker.API.Services
             catch (Exception ex)
             {
                 Serilog.Log.Error("{@LocalCancel}", ex.ToJson());
+
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateRecalculatedReservation(UpdateRecalculatedReservationRequest request)
+        {
+            try
+            {
+                var reservation = await _context.Rez.FirstOrDefaultAsync(r => r.Rezno == request.ReservationCode);
+
+                if (reservation == null)
+                    return false;
+
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $"UPDATE REZ SET LASTUPDATEBYUSER = {18} WHERE REZID = {reservation.Rezid}");
+
+                reservation.Birakistarihi = request.NewReturnDate;
+                reservation.Kiralamasuresi = request.RentalDayCount;
+                reservation.Toplamtutar = request.TotalInvoiceAmount - request.CouponDiscountAmount;
+                reservation.Apipaidamount = request.VendorPaidAmount;
+                reservation.Odenentutar = request.PaidAmount;
+                reservation.InstallmentCommissionAmount = request.InstallmentDelta;
+                reservation.Coupondiscountamount = request.CouponDiscountAmount;
+                reservation.Updatedate = DateTime.Now;
+                reservation.Apidailyprice = request.VendorPaidAmount / request.RentalDayCount;
+                reservation.Gunlukfiyat = request.TotalInvoiceAmount / request.RentalDayCount;
+
+                var entry = _context.Entry(reservation);
+                entry.State = EntityState.Unchanged;
+                entry.Property(nameof(reservation.Birakistarihi)).IsModified = true;
+                entry.Property(nameof(reservation.Kiralamasuresi)).IsModified = true;
+                entry.Property(nameof(reservation.Toplamtutar)).IsModified = true;
+                entry.Property(nameof(reservation.Apipaidamount)).IsModified = true;
+                entry.Property(nameof(reservation.Odenentutar)).IsModified = true;
+                entry.Property(nameof(reservation.InstallmentCommissionAmount)).IsModified = true;
+                entry.Property(nameof(reservation.Coupondiscountamount)).IsModified = true;
+                entry.Property(nameof(reservation.Updatedate)).IsModified = true;
+                entry.Property(nameof(reservation.Apidailyprice)).IsModified = true;
+                entry.Property(nameof(reservation.Gunlukfiyat)).IsModified = true;
+
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error("{@UpdateRecalculatedReservation}", ex.ToJson());
 
                 return false;
             }

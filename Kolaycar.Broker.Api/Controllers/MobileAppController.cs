@@ -3494,6 +3494,54 @@ namespace KolayCAR.Broker.API.Controllers
 
         #endregion
 
+        #region ReservationUpdate
+
+        [HttpPost]
+        [Route("UpdateRecalculatedReservation")]
+        public async Task<IActionResult> UpdateRecalculatedReservation(UpdateRecalculatedReservationRequest request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrEmpty(request.ReservationCode))
+                    return BadRequest("Invalid request");
+
+                if (request.NewReturnDate == default || request.RentalDayCount <= 0)
+                    return BadRequest("Invalid request");
+
+                var result = await _reservationService.UpdateRecalculatedReservation(request);
+
+                return Ok(new
+                {
+                    data = new
+                    {
+                        success = result,
+                        message = result ? "Successful" : "Reservation could not be updated"
+                    },
+                    resultCode = result ? ResultCodes.Success : ResultCodes.Error,
+                    success = result,
+                    message = result ? "Successful" : "Reservation could not be updated"
+                });
+            }
+            catch (Exception e)
+            {
+                Serilog.Log.Error("{@UpdateRecalculatedReservationError}", $"{e.Message}-{e.StackTrace}-{e.InnerException?.Message}");
+
+                return Ok(new
+                {
+                    data = new
+                    {
+                        success = false,
+                        message = "Reservation could not be updated"
+                    },
+                    resultCode = ResultCodes.Error,
+                    success = false,
+                    message = e.Message
+                });
+            }
+        }
+
+        #endregion
+
         #region Findeks Methods
 
         [HttpPost]
