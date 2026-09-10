@@ -2920,14 +2920,14 @@ namespace KolayCAR.Broker.API.Services
 
                 reservation.Birakistarihi = request.NewReturnDate;
                 reservation.Kiralamasuresi = request.RentalDayCount;
-                reservation.Toplamtutar = request.TotalInvoiceAmount - request.CouponDiscountAmount;
+                reservation.Toplamtutar = request.AgencyPaidAmount + request.CouponDiscountAmount;
                 reservation.Apipaidamount = request.VendorPaidAmount;
                 reservation.Odenentutar = request.PaidAmount;
                 reservation.InstallmentCommissionAmount = request.InstallmentDelta;
                 reservation.Coupondiscountamount = request.CouponDiscountAmount;
                 reservation.Updatedate = DateTime.Now;
                 reservation.Apidailyprice = request.VendorPaidAmount / request.RentalDayCount;
-                reservation.Gunlukfiyat = request.TotalInvoiceAmount / request.RentalDayCount;
+                reservation.Gunlukfiyat = (request.AgencyPaidAmount + request.CouponDiscountAmount) / request.RentalDayCount;
 
                 var entry = _context.Entry(reservation);
                 entry.State = EntityState.Unchanged;
