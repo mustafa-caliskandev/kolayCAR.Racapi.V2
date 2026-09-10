@@ -423,8 +423,25 @@ namespace KolayCAR.Broker.API.Controllers
         [Route("Save")]
         public async Task<ActionResult<HttpResult<object>>> SaveReservation([FromBody] PostReservationRequestV2 request)
         {
+            return await SaveReservationInternal(request, skipAvailabilityRequest: false);
+        }
+
+        private async Task<ActionResult<HttpResult<object>>> SaveReservationInternal(PostReservationRequestV2 request, bool skipAvailabilityRequest)
+        {
             if (request != null)
+            {
                 request.FullCredit = request.FullCredit ?? false;
+
+                if (request.Pricing != null)
+                {
+                    request.Pricing.SpecialDailyPrice = request.Pricing.SpecialDailyPrice > 0
+                        ? request.Pricing.SpecialDailyPrice
+                        : -1;
+                    request.Pricing.SpecialOneWayFee = request.Pricing.SpecialOneWayFee > 0
+                        ? request.Pricing.SpecialOneWayFee
+                        : -1;
+                }
+            }
 
             Serilog.Log.Error("{@PostReservationRequest}", request.ToJson());
 
@@ -463,7 +480,7 @@ namespace KolayCAR.Broker.API.Controllers
                 return await CreateAndLogErrorResult(null, HttpStatusCode.BadRequest, false, message.Replace("{time}", DateTime.Now.ToString("dd.MM.yyyy HH:mm")), ResultCodes.Error, "{@PostReservationResponse}", reservationNumber, BrokerLogTypes.ReservationResponse);
             }
 
-            if (sendAvailabilityRequest)
+            if (!skipAvailabilityRequest && sendAvailabilityRequest)
             {
                 var getVehiclesRequest = new GetVehiclesRequest
                 {
@@ -643,6 +660,37 @@ namespace KolayCAR.Broker.API.Controllers
                 reservationNumber,
                 BrokerLogTypes.ReservationResponse,
                 GetVendorServiceMessage(serviceReservation));
+        }
+
+        [HttpPost]
+        [Route("SaveV2")]
+        public async Task<ActionResult<HttpResult<object>>> SaveReservationV2([FromBody] PostReservationRequestV2 request)
+        {
+            if (request == null)
+                return BadRequest();
+
+            var reservationToken = await _resTokenService.GetReservationTokenByUniqueId(request.ReservationToken);
+
+            if (reservationToken == null)
+                return HttpResult<object>.Result(
+                    data: null,
+                    httpResultType: HttpStatusCode.BadRequest,
+                    success: false,
+                    message: "ReservationToken hatalı!",
+                    resultCode: ResultCodes.Error);
+
+            var mappedExtrasResult = await _extraService.MapReservationExtrasByProductCode(request.Extras, reservationToken);
+
+            if (!mappedExtrasResult.Success)
+                return HttpResult<object>.Result(
+                    data: null,
+                    httpResultType: HttpStatusCode.BadRequest,
+                    success: false,
+                    message: mappedExtrasResult.Message,
+                    resultCode: ResultCodes.Error);
+
+            request.Extras = mappedExtrasResult.Data as List<Extra>;
+            return await SaveReservationInternal(request, skipAvailabilityRequest: true);
         }
 
         public async Task<ActionResult<HttpResult<object>>> PostReservation(PostReservationRequest postReservationRequest)

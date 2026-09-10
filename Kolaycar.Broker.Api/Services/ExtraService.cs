@@ -30,6 +30,7 @@ namespace KolayCAR.Broker.API.Services
         Task<List<Extra>> GetPremiumPackets(ReservationToken token, List<int> extras);
         Task<List<Extra>> GetActiveLocalExtras(LanguageTypes languageTypes);
         Task<Extra> GetPremiumPacketByReservationToken(ReservationToken reservationToken);
+        Task<ServiceResponseBase> MapReservationExtrasByProductCode(List<Extra> requestExtras, ReservationToken reservationToken);
     }
     public class ExtraService : IExtraService
     {
@@ -372,6 +373,15 @@ namespace KolayCAR.Broker.API.Services
 
                             extrasData.Extras = extrasData.Extras.Concat(premiumPackets).GroupBy(x => x.ExtraId).Select(g => g.First()).ToList();
                         }
+
+                        if (!isReservationStep)
+                        {
+                            await SetLocalProductCodes(extrasData.Extras, reservationToken.LanguageType);
+
+                            if (extrasData.Vehicle != null)
+                                extrasData.Vehicle.Extras = extrasData.Extras;
+                        }
+
                         if (
                             agency.UserRole == UserRoles.External &&
                             agency.AgencyName.Contains("Airtuerk") &&
@@ -400,6 +410,84 @@ namespace KolayCAR.Broker.API.Services
                 return extrasResult;
             }
             return new(null, false, "Check your request parameters!");
+        }
+
+        public async Task<ServiceResponseBase> MapReservationExtrasByProductCode(List<Extra> requestExtras, ReservationToken reservationToken)
+        {
+            if (requestExtras == null || requestExtras.Count == 0)
+                return new ServiceResponseBase(new List<Extra>(), true);
+
+            if (reservationToken?.CyrptExtras == null)
+                return new ServiceResponseBase(null, false, "ReservationToken extra information could not be reached!");
+
+            if (requestExtras.Any(x => x == null || string.IsNullOrWhiteSpace(x.ExtraCode)))
+                return new ServiceResponseBase(null, false, "ExtraCode is required!");
+
+            if (requestExtras.Any(x => x.Piece <= 0))
+                return new ServiceResponseBase(null, false, "Extra quantity must be greater than zero!");
+
+            var duplicateRequestCode = requestExtras
+                .GroupBy(x => x.ExtraCode.Trim(), StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(x => x.Count() > 1);
+
+            if (duplicateRequestCode != null)
+                return new ServiceResponseBase(null, false, $"ExtraCode can only be sent once: {duplicateRequestCode.Key}");
+
+            var productIds = reservationToken.CyrptExtras.Select(x => x.I).Distinct().ToList();
+            var localProducts = await _additionalProductService.GetAdditionalProductsByIdList(productIds, (int)reservationToken.LanguageType);
+            var productsByCode = localProducts
+                .Where(x => x.Active && !string.IsNullOrWhiteSpace(x.Productcode))
+                .GroupBy(x => x.Productcode.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(x => x.Key, x => x.ToList(), StringComparer.OrdinalIgnoreCase);
+
+            var mappedExtras = new List<Extra>();
+
+            foreach (var requestExtra in requestExtras)
+            {
+                var productCode = requestExtra.ExtraCode.Trim();
+
+                if (!productsByCode.TryGetValue(productCode, out var matchingProducts) || matchingProducts.Count == 0)
+                    return new ServiceResponseBase(null, false, $"ExtraCode is not valid for this reservation: {productCode}");
+
+                var matchingTokenExtras = reservationToken.CyrptExtras
+                    .Where(x => matchingProducts.Any(p => p.Productid == x.I))
+                    .ToList();
+
+                if (matchingTokenExtras.Count != 1)
+                    return new ServiceResponseBase(null, false, $"ExtraCode is ambiguous for this reservation: {productCode}");
+
+                var localProduct = matchingProducts.First(x => x.Productid == matchingTokenExtras[0].I);
+
+                if (localProduct.Quantityincreasable != true && requestExtra.Piece > 1)
+                    return new ServiceResponseBase(null, false, $"Extra quantity cannot be greater than one: {productCode}");
+
+                mappedExtras.Add(new Extra
+                {
+                    Code = matchingTokenExtras[0].CD,
+                    Piece = requestExtra.Piece
+                });
+            }
+
+            return new ServiceResponseBase(mappedExtras, true);
+        }
+
+        private async Task SetLocalProductCodes(List<Extra> extras, LanguageTypes languageType)
+        {
+            if (extras?.Any() != true)
+                return;
+
+            var localProducts = await _additionalProductService.GetAdditionalProductsByIdList(
+                extras.Select(x => x.ExtraId).Distinct(),
+                (int)languageType);
+
+            var productCodes = localProducts
+                .Where(x => !string.IsNullOrWhiteSpace(x.Productcode))
+                .GroupBy(x => x.Productid)
+                .ToDictionary(x => x.Key, x => x.First().Productcode);
+
+            foreach (var extra in extras)
+                if (productCodes.TryGetValue(extra.ExtraId, out var productCode))
+                    extra.ExtraCode = productCode;
         }
 
         private async Task CreateAlternativeVehicleTokens(List<Vehicle> alternativeVehicles, string sourceReservationToken)

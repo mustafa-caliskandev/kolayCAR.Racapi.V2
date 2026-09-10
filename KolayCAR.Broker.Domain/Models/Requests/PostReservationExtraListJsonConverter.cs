@@ -32,6 +32,11 @@ namespace KolayCAR.Broker.Domain.Models.Requests
 
                 var extra = DeserializeExtra(element, options);
 
+                if (TryGetProperty(element, "Quantity", options, out var quantityElement) &&
+                    quantityElement.ValueKind == JsonValueKind.Number &&
+                    quantityElement.TryGetInt32(out var quantity))
+                    extra.Piece = quantity;
+
                 if (TryGetProperty(element, nameof(Extra.Price), options, out var priceElement))
                 {
                     extra.RequestPrice = ReadPrice(priceElement);

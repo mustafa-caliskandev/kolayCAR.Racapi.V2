@@ -1004,7 +1004,7 @@ namespace KolayCAR.Broker.API.Helpers
                                 {
                                     ParameterName = "@ONEWAYAMOUNT",
                                     SqlDbType = SqlDbType.Decimal,
-                                    Value = postReservationRequest.Pricing?.SpecialOneWayFee != -1 ? postReservationRequest.Pricing.SpecialOneWayFee : reservationToken.OneWayFee
+                                    Value = postReservationRequest.Pricing?.SpecialOneWayFee > 0 ? postReservationRequest.Pricing.SpecialOneWayFee : reservationToken.OneWayFee
                                 },
                                 new SqlParameter
                                 {

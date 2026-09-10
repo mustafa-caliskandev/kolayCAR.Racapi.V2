@@ -144,11 +144,11 @@ namespace KolayCAR.Broker.API.Providers.ZiraatFilo
             }
             else if (postReservationRequest.PaymentType == PaymentTypes.PayAll)
             {
-                var invoiceType = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit
-                    ? "Full_Credit"
-                    : "Full_Rental";
-
-                parameters.Add(invoiceType, "TRUE");
+                //var invoiceType = CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit
+                //? "Full_Credit"
+                //: "Full_Rental";
+                if (CreditHelper.ResolveTokenCreditType(reservationToken) == CreditType.FullCredit)
+                    parameters.Add("Full_Credit", "True");
             }
 
             var selectedExtraCodes = postReservationRequest.PostReservationRequestV2 == null ? ReservationHelper.GetSelectedExtaCodes(postReservationRequest.ExtraList)

@@ -33,6 +33,9 @@ namespace KolayCAR.Broker.API.Services
         {
             try
             {
+                if (request?.ContactPermission.HasValue != true)
+                    return;
+
                 var bulten = await _repository.GetByEmail(request.CustomerEmail);
 
                 if (bulten != null && bulten?.ContactPermission != request.ContactPermission)
@@ -80,6 +83,9 @@ namespace KolayCAR.Broker.API.Services
         {
             try
             {
+                if (request?.ContactPermission.HasValue != true)
+                    return;
+
                 var bulten = await _repository.GetByEmail(request.Customer.Email);
 
                 if (bulten != null && bulten?.ContactPermission != request.ContactPermission)
