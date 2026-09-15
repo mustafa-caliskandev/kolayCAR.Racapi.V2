@@ -17,6 +17,7 @@ using KolayCAR.Broker.API.Repositories.Concrete;
 using KolayCAR.Broker.API.Services;
 using KolayCAR.Broker.API.Services.Abstract;
 using KolayCAR.Broker.Infrastructure.Helpers;
+using KolayCAR.Broker.Infrastructure.Managers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -64,6 +65,8 @@ CacheSettings.Initialize(
     useCache: appSettings.UseCache,
     brokerName: appSettings.BrokerName
 );
+
+SharedHttpHandler.Initialize(appSettings.UseHttpPooling);
 
 var connectionString = new DbConnectionHelper(builder.Configuration).ConnectionString;
 

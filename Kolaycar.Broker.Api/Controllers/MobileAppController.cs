@@ -95,7 +95,12 @@ namespace KolayCAR.Broker.API.Controllers
 
         private readonly IAWSService _awsService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private static readonly SemaphoreSlim _vendorSemaphore = new SemaphoreSlim(30, 30);
+
+        // Tedarikçi çağrıları I/O-bound; bağlantı havuzu geldikten sonra sabit 30 slot gereksiz dar kalıyordu.
+        private static readonly int _vendorConcurrency = Environment.ProcessorCount * 16;
+        private static readonly SemaphoreSlim _vendorSemaphore = new(_vendorConcurrency, _vendorConcurrency);
+        private static readonly TimeSpan _vendorSlotWaitTimeout = TimeSpan.FromSeconds(3);
+
         public MobileAppController(
             IOptions<AppSettings> appSettings,
             BrokerContext context,
@@ -463,7 +468,12 @@ namespace KolayCAR.Broker.API.Controllers
 
         private async Task<List<Vehicle>> ExecuteWithTimeout(GetVehiclesRequest request, int timeoutMs = 20000)
         {
-            await _vendorSemaphore.WaitAsync();
+            if (!await _vendorSemaphore.WaitAsync(_vendorSlotWaitTimeout))
+            {
+                Serilog.Log.Warning("{@VendorSlotUnavailable}", $"Eşzamanlılık slotu bulunamadı, tedarikçi atlandı: {request.VendorType}");
+                return null;
+            }
+
             try
             {
                 using var cts = new CancellationTokenSource(timeoutMs);

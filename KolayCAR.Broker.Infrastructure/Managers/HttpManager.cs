@@ -25,15 +25,11 @@ namespace KolayCAR.Broker.Infrastructure.Managers
         }
         public HttpManager(string apiBaseUrl, string connectionString = "", HttpClientHandler httpClientHandler = null, int timeout = 0)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            if (httpClientHandler != null)
-            {
-                client = new HttpClient(new VendorLogHttpMessageHandler(httpClientHandler));
-            }
-            else
-            {
-                client = new HttpClient(new VendorLogHttpMessageHandler(new HttpClientHandler()));
-            }
+            // Havuzlama açıkken çağrı noktasının handler'ı yok sayılır; paylaşılan handler aynı sertifika politikasına sahip.
+            client = httpClientHandler != null && !SharedHttpHandler.PoolingEnabled
+                ? new HttpClient(new VendorLogHttpMessageHandler(httpClientHandler))
+                : SharedHttpHandler.CreateHttpManagerClient();
+
             ApiBaseUri = new Uri(apiBaseUrl);
 
             if (!string.IsNullOrEmpty(connectionString))

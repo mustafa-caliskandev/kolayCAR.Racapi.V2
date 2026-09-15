@@ -25,10 +25,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
 
         public RestManager(string apiBaseUrl, string connectionString = "", int timeout = 0)
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-            client = new HttpClient(new VendorLogHttpMessageHandler(clientHandler));
+            client = SharedHttpHandler.CreateRestManagerClient();
             ApiBaseUri = new Uri(apiBaseUrl);
 
             if (!string.IsNullOrEmpty(connectionString))
@@ -39,6 +36,17 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             }
 
             client.BaseAddress = ApiBaseUri;
+        }
+
+        private RestClient CreateRestClient(string requestPath)
+        {
+            var url = $"{client.BaseAddress}{requestPath}";
+
+            return SharedHttpHandler.PoolingEnabled
+                ? new RestClient(SharedHttpHandler.RestSharpClient,
+                                 disposeHttpClient: false,
+                                 configureRestClient: options => options.BaseUrl = new Uri(url))
+                : new RestClient(url);
         }
 
         public T Get<T>(string requestPath, IDictionary<string, object> parameters = null, IDictionary<string, object> headers = null, bool isReservationRequest = false) where T : class
@@ -607,7 +615,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             {
                 RestResponse response = null;
 
-                var restClient = new RestClient($"{client.BaseAddress}{requestPath}");
+                var restClient = CreateRestClient(requestPath);
                 var request = new RestRequest("", Method.Post);
                 if (headers != null)
                     foreach (var header in headers)
@@ -670,7 +678,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             {
                 RestResponse response = null;
 
-                var restClient = new RestClient($"{client.BaseAddress}{requestPath}");
+                var restClient = CreateRestClient(requestPath);
                 var request = new RestRequest("", Method.Post);
 
                 foreach (var header in headers)
@@ -982,7 +990,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
         {
             try
             {
-                var restClient = new RestClient($"{client.BaseAddress}{requestPath}");
+                var restClient = CreateRestClient(requestPath);
                 var request = new RestRequest("", Method.Post);
 
                 if (headers != null)
