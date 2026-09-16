@@ -133,16 +133,16 @@ namespace KolayCAR.Broker.API.Services
                                        logoReservation.CouponDiscountAmount.ToDecimalNullSafe();
 
             decimal bankCommissionAmount, brokerAllowance, brokerAllowanceWithoutTax,
-                    vendorAllowance, vendorAllowanceWithoutTax, couponDiscountPercent;            
+                    vendorAllowance, vendorAllowanceWithoutTax, couponDiscountPercent;
 
             if (logoReservation.InstallmentCount == 0)
             {
                 // Tek çekim senaryosu
                 bankCommissionAmount = logoReservation.InstallmentCommissionAmount.ToDecimalNullSafe();
-                brokerAllowance = CalculateBrokerAllowance(
+                brokerAllowance = !(logoReservation.VendorCommissionInvoice ?? false) ? CalculateBrokerAllowance(
                     logoReservation.TotalPaymentPrice - bankCommissionAmount,
                     logoReservation.RentalWorkingType,
-                    logoReservation.ProfitMarkupRental.ToDecimalNullSafe());
+                    logoReservation.ProfitMarkupRental.ToDecimalNullSafe()) : decimal.Zero;
                 brokerAllowanceWithoutTax = brokerAllowance / (1 + taxRate / 100);
                 vendorAllowance = rentalAmount - brokerAllowance - bankCommissionAmount;
                 vendorAllowanceWithoutTax = vendorAllowance / (1 + taxRate / 100);
@@ -200,12 +200,15 @@ namespace KolayCAR.Broker.API.Services
             }
 
             // -6 => Broker hakediş satırı
-            rowId++;
-            var brokerAllowanceLineTotalAmount = brokerAllowance;
-            var brokerAllowanceLine = BrokerAllowance(rowId, 0M, invoiceAmount, invoiceTaxAmount, invoiceTotalAmount,
-                taxRate, brokerAllowanceWithoutTax, brokerAllowanceWithoutTax, brokerAllowanceLineTotalAmount - brokerAllowanceWithoutTax, brokerAllowanceLineTotalAmount, logoReservation);
-            ApplyTaxExceptionIfNeeded(brokerAllowanceLine, logoReservation);
-            lines.Add(brokerAllowanceLine);
+            if (!(logoReservation.VendorCommissionInvoice ?? false))
+            {
+                rowId++;
+                var brokerAllowanceLineTotalAmount = brokerAllowance;
+                var brokerAllowanceLine = BrokerAllowance(rowId, 0M, invoiceAmount, invoiceTaxAmount, invoiceTotalAmount,
+                    taxRate, brokerAllowanceWithoutTax, brokerAllowanceWithoutTax, brokerAllowanceLineTotalAmount - brokerAllowanceWithoutTax, brokerAllowanceLineTotalAmount, logoReservation);
+                ApplyTaxExceptionIfNeeded(brokerAllowanceLine, logoReservation);
+                lines.Add(brokerAllowanceLine);
+            }
 
             // -7 => Banka komisyonu satırı
             if ((logoReservation.InstallmentCount ?? 0) == 0)
