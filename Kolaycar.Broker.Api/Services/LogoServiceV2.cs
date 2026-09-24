@@ -271,8 +271,8 @@ namespace KolayCAR.Broker.API.Services
             invoice.ContractCustomerName = hasTitle ? res.CustomerTitle : res.CustomerName;
             invoice.ContractCustomerSurname = hasTitle ? "" : res.CustomerSurname;
             invoice.ContractCustomerCountry = !string.IsNullOrEmpty(res.Country) ? res.Country : "Türkiye";
-            invoice.ContractCustomerCity = !string.IsNullOrEmpty(res.City) ? res.City : "İstanbul";
-            invoice.ContractCustomerDistrict = !string.IsNullOrEmpty(res.District) ? res.District : "Ataşehir";
+            invoice.ContractCustomerCity = !string.IsNullOrEmpty(res.City) ? res.City : "Belirtilmemiş";
+            invoice.ContractCustomerDistrict = !string.IsNullOrEmpty(res.District) ? res.District : "Belirtilmemiş";
             invoice.ContractCustomerAddress = res.CustomerAddress;
             invoice.ContractCustomerTCNumber = res.IdentityNumber;
             invoice.PickupLocation = res.PickupLocation;
