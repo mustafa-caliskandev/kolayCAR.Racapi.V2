@@ -39,6 +39,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -2756,21 +2757,25 @@ namespace KolayCAR.Broker.API.Controllers
             {
                 Serilog.Log.Error("{@MobilePostReservationRequest}", postReservationRequestDto.ToJson());
 
-                if (await _reservationService.CheckReservationTokenExists(postReservationRequestDto.ReservationToken))
+                var reservationTokenObj = await _resTokenService.GetReservationTokenByUniqueId(postReservationRequestDto.ReservationToken);
+
+                Serilog.Log.Error("{@MobileReservationToken}", reservationTokenObj);
+
+                if (reservationTokenObj is null)
                 {
                     return Ok(new
                     {
                         data = "",
                         success = false,
                         resultCode = HttpStatusCode.OK,
-                        message = "Aynı token ile iki rezervasyon oluşturulamaz!"
+                        message = "Reservation token not exist!"
                     });
                 }
 
                 postReservationRequestDto.LanguageCode = postReservationRequestDto.LanguageCode.Contains("-")
                                                         ? postReservationRequestDto.LanguageCode.Split('-')[0]
                                                         : postReservationRequestDto.LanguageCode;
-                var postReservationResponse = await CreateReservation(postReservationRequestDto);
+                var postReservationResponse = await CreateReservation(postReservationRequestDto, reservationTokenObj);
 
                 if (HttpContext.RequestAborted.IsCancellationRequested)
                 {
@@ -3026,17 +3031,13 @@ namespace KolayCAR.Broker.API.Controllers
 
         #region CreateReservation
 
-        private async Task<HttpResult<object>> CreateReservation(PostReservationRequestDto postReservationRequestDto)
+        private async Task<HttpResult<object>> CreateReservation(PostReservationRequestDto postReservationRequestDto, ReservationToken reservationTokenObj)
         {
             var jwtToken = _agencyService.GetCurrentBearerToken();
             var postReservationResponse = new HttpResult<object>();
             var postReservationRequest = await GetPostReservationRequest(postReservationRequestDto);
 
             Serilog.Log.Error("{@MobilePostReservationRequestStep2}", postReservationRequest);
-
-            var reservationTokenObj = await _resTokenService.GetReservationTokenByUniqueId(postReservationRequest.ReservationToken);
-
-            Serilog.Log.Error("{@MobileReservationToken}", reservationTokenObj);
 
             var reservationId = await _reservationStepsService.CreateNewResIdIfExist();
             var reservationNumber = ReservationHelper.GenerateReservationNumber(reservationId);
@@ -3134,12 +3135,6 @@ namespace KolayCAR.Broker.API.Controllers
 
             if (checkVehicleIsAvailable.Success)
             {
-                var getExtrasRequest = new GetExtrasRequest
-                {
-                    ReservationToken = postReservationRequest.ReservationToken.TrimNullSafe(),
-                    LanguageCode = postReservationRequest.LanguageCode,
-                    CurrencyCode = reservationTokenObj.CurrencyType.ToString()
-                };
 
                 if (_userRole == UserRoles.External && postReservationRequest.PaymentType == PaymentTypes.AdvancePayment && postReservationRequest.PaidAmount > 0)
                 {
@@ -3147,101 +3142,57 @@ namespace KolayCAR.Broker.API.Controllers
                     postReservationRequest.AdvancedPaymentWithoutPayment = true;
                 }
 
-                var extraServiceResponse = !string.IsNullOrEmpty(postReservationRequest.ExtraList) ?
-                        await _extraService.GetExtras(getExtrasRequest, getMarkupPrice: false, getAPIPrices: true, isReservationStep: true) :
-                        new ServiceResponseBase
+                Serilog.Log.Error("{ReservationId}", reservationId);
+                Serilog.Log.Error("{ReservationNumber:l}", reservationNumber);
+
+                var apiExtras = MapCyrpt(reservationTokenObj.CyrptExtras ?? new List<CyrptExtra>());
+
+                var localResponse = await _reservationService.PostReservationLocalV3(postReservationRequest, reservationId, reservationTokenObj, apiExtras);
+
+                Serilog.Log.Error("{@MobilePostReservationLocalResult}", localResponse);
+
+                if (localResponse.Success)
+                {
+                    if (HttpContext.RequestAborted.IsCancellationRequested)
+                        Serilog.Log.Error("{@MobilePostReservationCancelRequestError}", postReservationRequest.ToJson());
+
+                    string customerMail = postReservationRequest.CustomerEmail.TrimNullSafe().ToLower();
+
+                    var serviceReservation = await _reservationService.PostReservationToVendorAPI(postReservationRequest, reservationId, apiExtras);
+
+                    Serilog.Log.Error("{@MobilePostReservationVendorAPIResult}", serviceReservation);
+
+                    var serviceReservationData = serviceReservation.Data as Reservation;
+
+                    var configurations = await _configurationService.GetConfigurations();
+
+                    if (configurations.AutoCancel && !serviceReservationData.APIReservationSuccessfully)
+                    {
+                        var postCancelReservationRequest = new PostCancelReservationRequest
                         {
-                            Success = true,
-                            Data = new GetExtrasResponse
-                            {
-                                Extras = new List<Extra>(),
-                            }
+                            ReservationNumber = reservationNumber,
+                            CustomerEmail = customerMail,
+                            CancelNote = "Otomatik İptal!",
+                            LanguageCode = LanguageTypes.TR.ToString(),
+                            IsBrokerReservation = false,
+                            PenaltyStatus = _penaltyStatus.None,
+                            CancelReasonId = 0,
+                            UserId = string.Empty,
+                            IsKpanelAdmin = true
                         };
 
-                Serilog.Log.Error("{@ExtraServiceResponse}", extraServiceResponse);
+                        await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, GetReservationCancelRequestObjectForLog(_userRole, postCancelReservationRequest).ToJson(), BrokerLogTypes.ReservationCancelRequest));
 
-                if (extraServiceResponse.Success && extraServiceResponse.Data != null)
-                {
-                    var getExtrasResponse = extraServiceResponse.Data as GetExtrasResponse;
-                    Serilog.Log.Error("{ReservationId}", reservationId);
-                    Serilog.Log.Error("{ReservationNumber:l}", reservationNumber);
+                        var cancelResponse = await _reservationService.CancelReservationLocal(postCancelReservationRequest);
 
-                    var localResponse = await _reservationService.PostReservationLocal(postReservationRequest, reservationId, getExtrasResponse, null, null);
-
-                    Serilog.Log.Error("{@MobilePostReservationLocalResult}", localResponse);
-
-                    if (localResponse.Success)
-                    {
-                        if (HttpContext.RequestAborted.IsCancellationRequested)
-                            Serilog.Log.Error("{@MobilePostReservationCancelRequestError}", postReservationRequest.ToJson());
-
-                        string customerMail = postReservationRequest.CustomerEmail.TrimNullSafe().ToLower();
-
-                        var serviceReservation = await _reservationService.PostReservationToVendorAPI(postReservationRequest, reservationId, getExtrasResponse.Extras);
-
-                        Serilog.Log.Error("{@MobilePostReservationVendorAPIResult}", serviceReservation);
-
-                        var serviceReservationData = serviceReservation.Data as Reservation;
-
-                        var configurations = await _configurationService.GetConfigurations();
-
-                        if (configurations.AutoCancel && !serviceReservationData.APIReservationSuccessfully)
-                        {
-                            var postCancelReservationRequest = new PostCancelReservationRequest
-                            {
-                                ReservationNumber = reservationNumber,
-                                CustomerEmail = customerMail,
-                                CancelNote = "Otomatik İptal!",
-                                LanguageCode = LanguageTypes.TR.ToString(),
-                                IsBrokerReservation = false,
-                                PenaltyStatus = _penaltyStatus.None,
-                                CancelReasonId = 0,
-                                UserId = string.Empty,
-                                IsKpanelAdmin = true
-                            };
-
-                            await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, GetReservationCancelRequestObjectForLog(_userRole, postCancelReservationRequest).ToJson(), BrokerLogTypes.ReservationCancelRequest));
-
-                            var cancelResponse = await _reservationService.CancelReservationLocal(postCancelReservationRequest);
-
-                            await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, "Rezervasyon tedarikçi API iletilemediği için otomatik iptal!", BrokerLogTypes.ReservationCancelVendorAPIRequest));
-
-                            postReservationResponse = HttpResult<object>.Result(
-                                 data: null,
-                                 httpResultType: HttpStatusCode.BadGateway,
-                                 success: false,
-                                 message: "Rezervasyon tedarikçi API tarafına iletilemedi!",
-                                 resultCode: ResultCodes.Error);
-
-                            await _configurationService.WriteLog(new BrokerLogModel
-                            {
-                                LogKey = reservationNumber,
-                                Content = JsonConvert.SerializeObject(postReservationResponse),
-                                LogType = BrokerLogTypes.ReservationResponse
-                            });
-
-                            return postReservationResponse;
-                        }
-
-                        await _reservationService.SetVendorLocalContactInformations(serviceReservationData);
-
-                        serviceReservation.Data = _reservationService.UpdateReservationWhenPostReservationToServiceSuccessfully(serviceReservation.Data as Reservation);
-
-                        Serilog.Log.Error("{@MobileUpdatedLocalReservation}", serviceReservation.Data);
-
-                        await _reservationService.SetVendorAddress(serviceReservation.Data as Reservation);
-
-                        var reservationData = serviceReservationData;
-                        var resultReservation = _agencyService.ChechAgencyRestricted<RestrictedReservation>(reservationData);
+                        await _configurationService.WriteLog(new BrokerLogModel(reservationNumber, "Rezervasyon tedarikçi API iletilemediği için otomatik iptal!", BrokerLogTypes.ReservationCancelVendorAPIRequest));
 
                         postReservationResponse = HttpResult<object>.Result(
-                            data: resultReservation,
-                            httpResultType: HttpStatusCode.OK,
-                            success: localResponse.Data != null,
-                            message: localResponse.Message ?? serviceReservation.Message,
-                            resultCode: ResultCodes.Success);
-
-                        Serilog.Log.Error("{@MobilePostReservationResponse}", postReservationResponse);
+                             data: null,
+                             httpResultType: HttpStatusCode.BadGateway,
+                             success: false,
+                             message: "Rezervasyon tedarikçi API tarafına iletilemedi!",
+                             resultCode: ResultCodes.Error);
 
                         await _configurationService.WriteLog(new BrokerLogModel
                         {
@@ -3252,26 +3203,55 @@ namespace KolayCAR.Broker.API.Controllers
 
                         return postReservationResponse;
                     }
-                    else
-                    {
-                        postReservationResponse = HttpResult<object>.Result(
-                        data: null,
+
+                    await _reservationService.SetVendorLocalContactInformations(serviceReservationData);
+
+                    serviceReservation.Data = _reservationService.UpdateReservationWhenPostReservationToServiceSuccessfully(serviceReservation.Data as Reservation);
+
+                    Serilog.Log.Error("{@MobileUpdatedLocalReservation}", serviceReservation.Data);
+
+                    await _reservationService.SetVendorAddress(serviceReservation.Data as Reservation);
+
+                    var reservationData = serviceReservationData;
+                    var resultReservation = _agencyService.ChechAgencyRestricted<RestrictedReservation>(reservationData);
+
+                    postReservationResponse = HttpResult<object>.Result(
+                        data: resultReservation,
                         httpResultType: HttpStatusCode.OK,
-                        success: false,
-                        message: localResponse.Message,
-                        resultCode: ResultCodes.InvalidCouponCode);
+                        success: localResponse.Data != null,
+                        message: localResponse.Message ?? serviceReservation.Message,
+                        resultCode: ResultCodes.Success);
 
-                        Serilog.Log.Error("{@MobilePostReservationResponse}", postReservationResponse);
+                    Serilog.Log.Error("{@MobilePostReservationResponse}", postReservationResponse);
 
-                        await _configurationService.WriteLog(new BrokerLogModel
-                        {
-                            LogKey = reservationNumber,
-                            Content = JsonConvert.SerializeObject(postReservationResponse),
-                            LogType = BrokerLogTypes.ReservationResponse
-                        });
+                    await _configurationService.WriteLog(new BrokerLogModel
+                    {
+                        LogKey = reservationNumber,
+                        Content = JsonConvert.SerializeObject(postReservationResponse),
+                        LogType = BrokerLogTypes.ReservationResponse
+                    });
 
-                        return postReservationResponse;
-                    }
+                    return postReservationResponse;
+                }
+                else
+                {
+                    postReservationResponse = HttpResult<object>.Result(
+                    data: null,
+                    httpResultType: HttpStatusCode.OK,
+                    success: false,
+                    message: localResponse.Message,
+                    resultCode: ResultCodes.InvalidCouponCode);
+
+                    Serilog.Log.Error("{@MobilePostReservationResponse}", postReservationResponse);
+
+                    await _configurationService.WriteLog(new BrokerLogModel
+                    {
+                        LogKey = reservationNumber,
+                        Content = JsonConvert.SerializeObject(postReservationResponse),
+                        LogType = BrokerLogTypes.ReservationResponse
+                    });
+
+                    return postReservationResponse;
                 }
             }
             postReservationResponse = HttpResult<object>.Result(
@@ -3291,6 +3271,28 @@ namespace KolayCAR.Broker.API.Controllers
             });
 
             return postReservationResponse;
+        }
+
+        private static List<Extra> MapCyrpt(List<CyrptExtra> extras)
+        {
+            var extraList = new List<Extra>();
+            foreach (var cyrtpExtra in extras)
+            {
+                var extra = new Extra();
+                extra.ExtraId = cyrtpExtra.I;
+                extra.ExtraCode = cyrtpExtra.C;
+                extra.ExtraRentalType = cyrtpExtra.R;
+                extra.ExtraType = cyrtpExtra.T;
+                extra.Price = cyrtpExtra.P;
+                extra.ApiPrice = cyrtpExtra.A;
+                extra.ApiExtraCode = cyrtpExtra.AC;
+                extra.ExtraName = cyrtpExtra.N;
+                extra.VendorExtraExists = cyrtpExtra.V;
+                extra.Code = cyrtpExtra.CD;
+
+                extraList.Add(extra);
+            }
+            return extraList;
         }
 
         private async Task<HttpResult<object>> CheckVehicleIsAvailable(GetVehiclesRequest getVehiclesRequest, ReservationToken reservationTokenObj, string sessionId, PostReservationRequest postReservationRequest, Domain.Models.Vendor vendor)

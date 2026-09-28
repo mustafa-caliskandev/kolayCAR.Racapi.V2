@@ -55,6 +55,7 @@ namespace KolayCAR.Broker.API.Services
         Task<ServiceResponseBase> CancelReservationServiceV2(PostCancelReservationRequest postCancelReservationRequest, Reservation reservation);
         Task<ServiceResponseBase> PostReservationLocal(PostReservationRequest postReservationRequest, long reservationId, GetExtrasResponse getExtrasResponse, PostPaymentResponse postPaymentResponse, Vehicle vehicle);
         Task<ServiceResponseBase> PostReservationLocalV2(Domain.Models.Requests.PostReservationRequestV2 postReservationRequest, Domain.Models.Agency agency, ReservationToken reservationToken, Domain.Models.Vendor vendor, long reservationId, List<Extra> extras = null);
+        Task<ServiceResponseBase> PostReservationLocalV3(PostReservationRequest postReservationRequest, long reservationId, ReservationToken reservationTokenObj, List<Extra> apiExtras);
         Task<ServiceResponseBase> PostReservationToVendorAPI(PostReservationRequest postReservationRequest, long reservationId, List<Extra> Extras);
         Task<ServiceResponseBase> PostReservationToVendorAPI(Domain.Models.Requests.PostReservationRequestV2 postReservationRequest, ReservationToken reservationToken, Domain.Models.Agency agency, Domain.Models.Vendor vendor, long reservationId, List<Extra> apiExtras);
         Reservation UpdateReservationWhenPostReservationToServiceSuccessfully(Reservation reservation);
@@ -1084,6 +1085,215 @@ namespace KolayCAR.Broker.API.Services
                 }
             }
             return new ServiceResponseBase(null, false, "Check your reservationToken!");
+        }
+
+        public async Task<ServiceResponseBase> PostReservationLocalV3(PostReservationRequest postReservationRequest, long reservationId, ReservationToken reservationToken, List<Extra> apiExtras)
+        {
+            var agency = await _agencyService.GetAgency(reservationToken.AgencyId.ToLongNullSafe());
+            if (agency != null)
+            {
+                Serilog.Log.Error("{@ReservationLocalAgency}", agency);
+
+                var vendor = await _vendorService.GetVendorById(reservationToken.VendorId, agency, subVendorId: reservationToken.APIVendorId);
+                if (vendor != null)
+                {
+                    ReservationHelper.FillPostReservationRequest(postReservationRequest, reservationToken, agency);
+
+                    await _agencyService.SetAgencyPaymentOptions(agency, vendor);
+                    Serilog.Log.Error("{@ReservationLocalVendor}", vendor);
+
+                    var sendAvailabilityRequest = vendor.SendAvailabilityRequest;
+                    string originalExtraList = postReservationRequest.ExtraList;
+
+                    var selectedReservationExtras = ReservationHelper.GetSelectedReservationExtras(apiExtras, postReservationRequest.ExtraList);
+                    postReservationRequest.ExtraList = ReservationHelper.ReservationExtraToStringList(selectedReservationExtras);
+                    postReservationRequest.ExtraAmount = ReservationHelper.GetTotalExtraAmount(selectedReservationExtras, reservationToken.RentalDuration);
+                    float packetPricePremium = 0;
+                    string tempExtraList = postReservationRequest.ExtraList;
+
+
+                    var extraIdList = apiExtras.Select(e => e.ExtraId).ToList();
+
+                    if (!string.IsNullOrEmpty(postReservationRequest.ExtraList) &&
+                            (vendor.VendorType != VendorTypes.KolayCARBroker || !vendor.UseBrokerConfigurations) &&
+                            sendAvailabilityRequest)
+                    {
+                        var vendorExtras = await _context.Additionalproductvendor.Where(e => e.Vendorid == vendor.VendorId && e.Active == true).ToListAsync();
+
+                        Serilog.Log.Error("{@ReservationLocalVendorExtras}", vendorExtras);
+
+                        var extraListItems = postReservationRequest.ExtraList.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+                        var apiExtraListMapped = new List<string>();
+
+                        foreach (var item in extraListItems)
+                        {
+                            var parts = item.Split('~');
+                            var extraId = parts[0].ToIntNullSafe();
+                            var quantity = parts[1];
+                            var price = parts[2];
+                            var other = parts[3];
+                            var extraCode = parts.Length > 4 ? parts[4] : string.Empty;
+
+                            var dbExtra = vendorExtras.FirstOrDefault(x => x.Apiproductcode == extraCode);
+                            string newApiExtra = string.Empty;
+
+                            if (dbExtra != null)
+                            {
+                                newApiExtra = $"{dbExtra.Apiproductcode}~{quantity}~{price}~{other}~{dbExtra.Productid}~{price}";
+                            }
+
+                            if (!string.IsNullOrEmpty(newApiExtra))
+                                apiExtraListMapped.Add(newApiExtra);
+                        }
+
+                        postReservationRequest.ExtraList = string.Join("|", apiExtraListMapped);
+                    }
+
+                    if (!string.IsNullOrEmpty(tempExtraList) && sendAvailabilityRequest)
+                    {
+                        var localExtras = tempExtraList.Split('|');
+                        for (int i = 0; i < localExtras.Length; i++)
+                        {
+                            foreach (var extra in apiExtras)
+                            {
+                                var extraCode = localExtras[i].Split('~')[4];
+                                var extraId = localExtras[i].Split('~')[0].ToIntNullSafe();
+
+                                if (extraCode == extra.ExtraCode)
+                                {
+                                    extra.ExtraType = apiExtras.Where(e => e.ExtraCode == extraCode).FirstOrDefault()?.ExtraType ?? AdditionalProductTypes.Extra;
+                                    extra.Price = apiExtras.Where(e => e.ExtraCode == extraCode).FirstOrDefault()?.Price ?? 0;
+                                    if (vendor.AdditionalProductWorkingType == VendorWorkingTypes.Commission)
+                                    {
+                                        float extraPrice = extra.Price;
+                                        extra.Price = CalculationHelper.ExtractCommission(vendor.ProfitMarkupAdditionalProducts, vendor.PriceRoundingType, extra.Price);
+                                        localExtras[i] = $"{localExtras[i]}~{extra.Price.ToString().Replace(",", ".")}~{extraPrice.ToString().Replace(",", ".")}";
+                                    }
+                                    else
+                                        localExtras[i] = $"{localExtras[i]}~{extra.Price.ToString().Replace(",", ".")}~{localExtras[i].Split("~")[2].Replace(",", ".")}";
+                                }
+                            }
+                        }
+                        tempExtraList = string.Join('|', localExtras);
+                    }
+
+                    if (postReservationRequest.InstallmentCount != 0 && postReservationRequest.PaymentType == PaymentTypes.PayAll)
+                    {
+                        reservationToken.DailyPricePayNow = GetDailyPriceOfInstallmentByAgencySettings(agency, postReservationRequest, reservationToken);
+                    }
+                    var exchangeRates = await _context.Exchangerates.ToListAsync();
+                    var mappedExchangeRates = exchangeRates.Map();
+                    var reservationCurrencyType = postReservationRequest.CurrencyCode.ToEnum<CurrencyTypes>();
+                    Serilog.Log.Error("{@ReservationLocalExchangeRates}", mappedExchangeRates);
+
+                    if (vendor.VendorType == VendorTypes.KolayCARBroker && vendor.UseBrokerConfigurations && sendAvailabilityRequest)
+                        postReservationRequest.ExtraList = ReservationHelper.ChangeExtraCodeAndExtraId(postReservationRequest.ExtraList);
+
+                    var configurations = await _configurationService.GetConfigurations();
+
+                    Serilog.Log.Error("{@Configurations}", configurations);
+
+                    var vendorLogoUrl = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? $"{configurations.PortalOwnerDomain}{reservationToken.APIVendorLogo}" : reservationToken.APIVendorLogo ?? string.Empty;
+
+                    var dailyPrice =
+                        postReservationRequest.SpecialDailyPrice < 0
+                            ? (postReservationRequest.PaymentType != PaymentTypes.PayAll
+                                ? reservationToken.DailyPrice
+                                : reservationToken.DailyPricePayNow)
+                            : postReservationRequest.SpecialDailyPrice;
+
+                    var totalAmount =
+                        CalculationHelper.CalculateTotalPrice(
+                            vendor.PriceRoundingType,
+                            reservationToken.RentalDuration,
+                            dailyPrice,
+                            postReservationRequest.ExtraAmount,
+                            postReservationRequest.SpecialOneWayFee == -1 ? reservationToken.OneWayFee : postReservationRequest.SpecialOneWayFee);
+
+                    var serviceCharge =
+                        _userRole != UserRoles.External ? reservationToken.CurrencyType != vendor.ServiceChargeCurrencyType
+                            ? CalculationHelper.CurrencyExchange(mappedExchangeRates, vendor, vendor.ServiceCharge, vendor.ServiceChargeCurrencyType, postReservationRequest.CurrencyCode.ToEnum<CurrencyTypes>())
+                            : vendor.ServiceCharge : 0;
+
+                    float discountAmount = 0;
+                    float? discountValue = null;
+                    int? couponId = null;
+
+                    if (!string.IsNullOrEmpty(postReservationRequest.CouponCode) && !configurations.CheckCouponActive)
+                    {
+                        discountAmount = postReservationRequest.CouponDiscountAmount.ToFloatNullSafe();
+                        discountValue = postReservationRequest.CouponDiscountValue.ToFloatNullSafe();
+                    }
+
+                    totalAmount -= discountAmount;
+
+                    float apiDailyPrice = BrokerReservationHelper.GetAPIDailyPrice(reservationToken.APIDailyPrice, vendor);
+
+                    float apiExtraAmount = (!string.IsNullOrWhiteSpace(postReservationRequest.ExtraList) || !string.IsNullOrWhiteSpace(tempExtraList)) ? ReservationHelper.GetTotalExtraAmount(apiExtras, postReservationRequest.ExtraList, reservationToken.RentalDuration) : 0;
+
+                    float apiTotalAmount = BrokerReservationHelper.GetAPITotalAmount(reservationToken, vendor, apiExtraAmount);
+
+                    var locationVendor = await _context.Locationvendor.Where(x =>
+                    x.Active == true &&
+                    x.Vendorid == vendor.VendorId &&
+                    x.Locallocationid == postReservationRequest.PickupLocationId).FirstOrDefaultAsync();
+
+                    bool isOffice = vendor.VendorType != VendorTypes.KolayCARBroker || (vendor.VendorType == VendorTypes.KolayCARBroker && !vendor.UseBrokerConfigurations) ? locationVendor.Isoffice ?? false : reservationToken.IsOffice;
+
+                    var sqlParameters = SqlParameterHelper.PostReservationLocalSqlParameters(reservationId, postReservationRequest, reservationToken, vendor, dailyPrice, totalAmount, serviceCharge, tempExtraList, apiDailyPrice, apiExtraAmount, apiTotalAmount, vendorLogoUrl, isOffice, null, discountAmount, agency, packetPricePremium, configurations, discountValue, couponId, null);
+
+                    Serilog.Log.Error("{@PostReservationLocalSqlParameters}", sqlParameters.Select(e => new { e.ParameterName, Type = e.SqlDbType, Value = e.Value }));
+
+                    try
+                    {
+                        int postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE SP_ADD_RESERVATION " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
+
+                        Serilog.Log.Error("{@PostReservationLocalProcedureResult}", postReservationLocalResult);
+                        return new ServiceResponseBase(postReservationRequest, true, postReservationLocalResult > 0 ? "Reservation received successfully!" : "An error occurred during the request!");
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error("{@PostReservationLocalProcedureErrorResult}", ex.ToJson());
+                        try
+                        {
+                            var previousCommandTimeout = _context.Database.GetCommandTimeout();
+                            int postReservationLocalResult = 0;
+                            try
+                            {
+                                _context.Database.SetCommandTimeout(15);
+                                postReservationLocalResult = await _context.Database.ExecuteSqlRawAsync("EXECUTE SP_ADD_RESERVATION " + SqlParameterHelper.SqlParamList(sqlParameters), sqlParameters);
+                            }
+                            catch (Exception ex2)
+                            {
+                                Serilog.Log.Error("{@PostReservationLocalProcedureErrorResult2}", ex2.ToJson());
+                                return new ServiceResponseBase(postReservationRequest, false, $"An error occurred during the request! - {ex2.Message}");
+                            }
+                            finally
+                            {
+                                _context.Database.SetCommandTimeout(previousCommandTimeout);
+
+                            }
+                            return new ServiceResponseBase(postReservationRequest, true, postReservationLocalResult > 0 ? "Reservation received successfully!" : "An error occurred during the request!");
+                        }
+                        catch (Exception retryEx)
+                        {
+                            Serilog.Log.Error("{@PostReservationLocalProcedureErrorResult2}", retryEx.ToJson());
+                            return new ServiceResponseBase(postReservationRequest, false, $"An error occurred during the request! - {retryEx.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    Serilog.Log.Error("Tedarikçi bilgisine ulaşılamadı!");
+                    return new ServiceResponseBase(null, false, "Vendor information not available!");
+                }
+            }
+            else
+            {
+                Serilog.Log.Error("Acente bilgisine ulaşılamadı!");
+                return new ServiceResponseBase(null, false, "Agency information not available!");
+            }
         }
 
         public float GetDailyPriceOfInstallmentByAgencySettings(CommonModels.Agency agency, PostReservationRequest postReservationRequest, ReservationToken reservationToken)

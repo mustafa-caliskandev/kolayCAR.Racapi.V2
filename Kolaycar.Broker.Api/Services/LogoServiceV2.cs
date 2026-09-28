@@ -154,8 +154,12 @@ namespace KolayCAR.Broker.API.Services
                 bankCommissionAmount = logoReservation.InstallmentCommissionAmount.ToDecimalNullSafe();
                 vendorAllowance = CalculateVendorAllowance(rentalAmount, logoReservation.ProfitMarkupRental.ToDecimalNullSafe(),
                     logoReservation.RentalWorkingType.ToIntNullSafe(), logoReservation.CouponDiscountType.ToIntNullSafe(), logoReservation.CouponVendorDiscountValue.ToDecimalNullSafe());
-                vendorAllowanceWithoutTax = vendorAllowance / (1 + taxRate / 100);
                 brokerAllowance = rentalAmount - vendorAllowance;
+
+                if (logoReservation.VendorCommissionInvoice ?? false)
+                    vendorAllowance += brokerAllowance;
+
+                vendorAllowanceWithoutTax = vendorAllowance / (1 + taxRate / 100);
                 brokerAllowanceWithoutTax = rentalAmountWithoutTax - vendorAllowanceWithoutTax;
                 couponDiscountPercent = (couponDiscountAmount / vendorAllowance) * 100;
             }
