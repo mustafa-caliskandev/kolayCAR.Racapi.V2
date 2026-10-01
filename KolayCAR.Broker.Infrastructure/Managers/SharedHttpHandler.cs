@@ -40,30 +40,29 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             }
         };
 
-        private static readonly HttpMessageHandler LoggingPipeline = new VendorLogHttpMessageHandler(SocketsHandler);
-
         /// <summary>
         /// HttpClient örneği başına ayrı kalır çünkü çağrı noktaları DefaultRequestHeaders'ı değiştiriyor;
         /// bağlantı havuzunu tutan handler ise paylaşılır.
         /// </summary>
-        internal static HttpClient CreateRestManagerClient()
+        internal static HttpClient CreateRestManagerClient(Uri baseUri)
             => PoolingEnabled
-                ? CreatePooledClient()
-                : CreateLegacyClient(bypassCertificate: true, SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13);
+                ? CreatePooledClient(baseUri)
+                : CreateLegacyClient(bypassCertificate: true, SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13, baseUri);
 
-        internal static HttpClient CreateHttpManagerClient()
+        internal static HttpClient CreateHttpManagerClient(Uri baseUri)
             => PoolingEnabled
-                ? CreatePooledClient()
-                : CreateLegacyClient(bypassCertificate: false, SecurityProtocolType.Tls12);
+                ? CreatePooledClient(baseUri)
+                : CreateLegacyClient(bypassCertificate: false, SecurityProtocolType.Tls12, baseUri);
 
         /// <summary>
         /// RestSharp çağrıları loglamayı kendisi yaptığı için log handler'ı olmadan paylaşılır.
         /// </summary>
         internal static readonly HttpClient RestSharpClient = new(SocketsHandler, disposeHandler: false);
 
-        private static HttpClient CreatePooledClient() => new(LoggingPipeline, disposeHandler: false);
+        private static HttpClient CreatePooledClient(Uri baseUri)
+            => new(new VendorLogHttpMessageHandler(SocketsHandler, baseUri), disposeHandler: false);
 
-        private static HttpClient CreateLegacyClient(bool bypassCertificate, SecurityProtocolType securityProtocol)
+        private static HttpClient CreateLegacyClient(bool bypassCertificate, SecurityProtocolType securityProtocol, Uri baseUri)
         {
             ServicePointManager.SecurityProtocol = securityProtocol;
 
@@ -71,7 +70,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             if (bypassCertificate)
                 handler.ServerCertificateCustomValidationCallback = static (_, _, _, _) => true;
 
-            return new HttpClient(new VendorLogHttpMessageHandler(handler));
+            return new HttpClient(new VendorLogHttpMessageHandler(handler, baseUri));
         }
     }
 }

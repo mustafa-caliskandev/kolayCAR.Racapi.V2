@@ -57,19 +57,21 @@ namespace KolayCAR.Broker.Infrastructure.Managers
         internal static void Restore(VendorLogCaptureScope scope) => CurrentScope.Value = scope;
         internal static void Add(VendorHttpLogEntry entry) => CurrentScope.Value?.Add(entry);
 
-        public static void RecordResponse(string responseContent, int? httpStatusCode = 200, string httpMethod = "POST", string requestContent = null)
+        public static void RecordResponse(string responseContent, int? httpStatusCode = 200, string httpMethod = "POST", string requestContent = null, string requestBaseUrl = null, string requestPath = null)
         {
             Add(new VendorHttpLogEntry
             {
                 Success = httpStatusCode.HasValue && httpStatusCode.Value >= 200 && httpStatusCode.Value <= 299,
                 HttpStatusCode = httpStatusCode,
                 HttpMethod = httpMethod,
+                RequestBaseUrl = requestBaseUrl,
+                RequestPath = requestPath,
                 RequestContent = requestContent,
                 ResponseContent = responseContent
             });
         }
 
-        public static void RecordException(Exception exception, string responseContent = null, string httpMethod = "POST", string requestContent = null)
+        public static void RecordException(Exception exception, string responseContent = null, string httpMethod = "POST", string requestContent = null, string requestBaseUrl = null, string requestPath = null)
         {
             if (exception == null)
                 return;
@@ -78,6 +80,8 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             {
                 Success = false,
                 HttpMethod = httpMethod,
+                RequestBaseUrl = requestBaseUrl,
+                RequestPath = requestPath,
                 RequestContent = requestContent,
                 ResponseContent = responseContent,
                 ExceptionMessage = exception.GetBaseException().Message
@@ -87,13 +91,20 @@ namespace KolayCAR.Broker.Infrastructure.Managers
 
     internal sealed class VendorLogHttpMessageHandler : DelegatingHandler
     {
-        public VendorLogHttpMessageHandler(HttpMessageHandler innerHandler) : base(innerHandler) { }
+        private readonly Uri _baseUri;
+
+        public VendorLogHttpMessageHandler(HttpMessageHandler innerHandler, Uri baseUri = null) : base(innerHandler)
+        {
+            _baseUri = baseUri;
+        }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var stopwatch = Stopwatch.StartNew();
+            var requestBaseUrl = _baseUri?.AbsoluteUri ??
+                (request.RequestUri?.IsAbsoluteUri == true ? request.RequestUri.GetLeftPart(UriPartial.Authority) : null);
             var requestPath = request.RequestUri?.IsAbsoluteUri == true
-                ? request.RequestUri.GetLeftPart(UriPartial.Path)
+                ? request.RequestUri.AbsolutePath
                 : request.RequestUri?.ToString();
             var requestContent = request.Content == null
                 ? request.RequestUri?.Query
@@ -109,6 +120,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                     Success = response.IsSuccessStatusCode,
                     HttpStatusCode = (int)response.StatusCode,
                     HttpMethod = request.Method.Method,
+                    RequestBaseUrl = requestBaseUrl,
                     RequestPath = requestPath,
                     RequestContent = requestContent,
                     ElapsedMilliseconds = stopwatch.ElapsedMilliseconds,
@@ -123,6 +135,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                 {
                     Success = false,
                     HttpMethod = request.Method.Method,
+                    RequestBaseUrl = requestBaseUrl,
                     RequestPath = requestPath,
                     RequestContent = requestContent,
                     ElapsedMilliseconds = stopwatch.ElapsedMilliseconds,

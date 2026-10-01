@@ -69,9 +69,20 @@ namespace KolayCAR.Broker.API.Mappers
          : null;
         public static Extra MapCyrpt(this Extra extra, List<CyrptExtra> extras)
         {
+            // A nested broker can return its original Code while exposing a different
+            // local ExtraCode. The Code stored in the token is the exact reservation key.
+            var cyrtpExtra = extras?.FirstOrDefault(e => e.CD == extra.Code);
 
-            string[] entityArr = Encoding.UTF8.GetString(Convert.FromBase64String(extra.Code)).Split("~");
-            var cyrtpExtra = extras.Where(e=> e.I == entityArr[0].ToIntNullSafe() && e.C == entityArr[1]).FirstOrDefault();
+            // Keep compatibility with older tokens that do not contain CD.
+            if (cyrtpExtra == null)
+            {
+                string[] entityArr = Encoding.UTF8.GetString(Convert.FromBase64String(extra.Code)).Split("~");
+                if (entityArr.Length == 2)
+                    cyrtpExtra = extras?.FirstOrDefault(e => e.I == entityArr[0].ToIntNullSafe() && e.C == entityArr[1]);
+            }
+
+            if (cyrtpExtra == null)
+                throw new ArgumentException("Extra code is not valid for this reservation.", nameof(extra));
 
             extra.ExtraId = cyrtpExtra.I;
             extra.ExtraCode = cyrtpExtra.C;

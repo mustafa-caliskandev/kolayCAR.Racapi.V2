@@ -44,6 +44,7 @@ namespace KolayCAR.Broker.API.Services
         Task<IEnumerable<AgencyVendorDto>> GetAgencyVendors(int agencyId);
         Task<IEnumerable<AgencyVendorDto>> GetVendorsByAgencyAndLocationId(int agencyId, int locationId);
         Task<Domain.Models.Agency> GetAgencyByUsernamePassword(string username, string password);
+        Task<Domain.Models.Agency> GetAgencyByCode(string agencyCode);
     }
 
     public class AgencyService : IAgencyService
@@ -292,6 +293,18 @@ namespace KolayCAR.Broker.API.Services
             if (agency == null) return null;
 
             return agency.Map();
+        }
+
+        public async Task<Domain.Models.Agency> GetAgencyByCode(string agencyCode)
+        {
+            if (string.IsNullOrWhiteSpace(agencyCode))
+                return null;
+
+            var agencyList = await GetActiveAgencyList();
+            var agency = agencyList.FirstOrDefault(x =>
+                string.Equals(x.Agencycode?.Trim(), agencyCode.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            return agency?.Map();
         }
     }
 }

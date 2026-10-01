@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace KolayCAR.Broker.API.Controllers
@@ -40,6 +41,32 @@ namespace KolayCAR.Broker.API.Controllers
                 Serilog.Log.Error("{@FailLogin}", ex.Message);
                 return Ok(HttpResult<User>.Result(null, HttpStatusCode.OK, false, "Kullanıcı adı veya şifre yanlış!"));
             }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("exchange-token")]
+        public async Task<IActionResult> ExchangeToken()
+        {
+            var clientIp = HttpContext.Connection.RemoteIpAddress;
+            if (clientIp?.IsIPv4MappedToIPv6 == true)
+                clientIp = clientIp.MapToIPv4();
+
+            var allowedIps = _configuration.GetSection("ExchangeToken:AllowedIps").Get<string[]>();
+            if (clientIp == null || allowedIps == null ||
+                !allowedIps.Any(value => IPAddress.TryParse(value, out var allowedIp) &&
+                    (allowedIp.IsIPv4MappedToIPv6 ? allowedIp.MapToIPv4() : allowedIp).Equals(clientIp)))
+            {
+                return StatusCode((int)HttpStatusCode.Forbidden,
+                    HttpResult<User>.Result(null, HttpStatusCode.Forbidden, false, "Bu IP adresinden erişime izin verilmiyor!"));
+            }
+
+            var externalToken = Request.Headers["X-External-Token"].FirstOrDefault();
+            var user = await _userService.AuthenticateExternalToken(externalToken);
+
+            if (user == null)
+                return Unauthorized(HttpResult<User>.Result(null, HttpStatusCode.Unauthorized, false, "Token geçersiz veya acente bulunamadı!"));
+
+            return Ok(HttpResult<User>.Result(user, HttpStatusCode.OK, true, "Giriş başarılı!"));
         }
     }
 }

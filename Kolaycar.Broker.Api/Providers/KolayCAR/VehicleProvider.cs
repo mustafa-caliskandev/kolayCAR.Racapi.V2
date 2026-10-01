@@ -97,7 +97,9 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                             getVehiclesRequest.ApiKey,
                             getVehiclesRequest.ApiPassword,
                             getVehiclesRequest.LanguageCode
-                        }.ToJson());
+                        }.ToJson(),
+                        requestBaseUrl: vendor.APIBaseUrl,
+                        requestPath: client.Endpoint.Address.Uri.AbsolutePath);
                     getSettingsResponse = JsonConvert.DeserializeObject<KOLAYCARSETTINGS>(getSettingsResult.Body.GET_SETTINGSResult);
                 }
 
@@ -125,11 +127,11 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                                  string.Empty,
                                  string.Empty);
 
-                VendorLogCapture.RecordResponse(getVehiclesResult?.GET_VEHICLES_V2Result, requestContent: getVehiclesRequest.ToJson());
+                VendorLogCapture.RecordResponse(getVehiclesResult?.GET_VEHICLES_V2Result, requestContent: getVehiclesRequest.ToJson(), requestBaseUrl: vendor.APIBaseUrl, requestPath: client.Endpoint.Address.Uri.AbsolutePath);
             }
             catch (Exception ex)
             {
-                VendorLogCapture.RecordException(ex, getVehiclesResult?.GET_VEHICLES_V2Result, requestContent: getVehiclesRequest.ToJson());
+                VendorLogCapture.RecordException(ex, getVehiclesResult?.GET_VEHICLES_V2Result, requestContent: getVehiclesRequest.ToJson(), requestBaseUrl: vendor.APIBaseUrl, requestPath: client.Endpoint.Address.Uri.AbsolutePath);
                 // Serilog.Log.Error("{@KolaycarAvailabilityError}", $"{ex.Message} - {getVehiclesRequest.ToJson()}");
                 return new ServiceResponseBase(null, false, "KolayCAR service could not be reached!");
             }

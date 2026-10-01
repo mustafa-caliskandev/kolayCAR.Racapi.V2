@@ -526,12 +526,6 @@ namespace KolayCAR.Broker.API.Controllers
             request.FullCredit = requestedFullCredit;
             ReservationHelper.ApplyLimitedCreditPaymentDelivery(request);
 
-            if (_userRole == UserRoles.External && request.Payment.PaymentType == PaymentTypes.AdvancePayment && request.Pricing.PaidAmount > 0)
-            {
-                request.Payment.PaymentType = PaymentTypes.PayOnDelivery;
-                request.Payment.AdvancedPaymentWithoutPayment = true;
-            }
-
             var extras = new List<Extra>();
             try
             {
@@ -779,12 +773,6 @@ namespace KolayCAR.Broker.API.Controllers
             };
 
             Serilog.Log.Error("{@PostReservationRequest}, {@GetExtrasRequest}, {@User}", postReservationRequest, getExtrasRequest, new { AgencyId = postReservationRequest.AgencyId, AgencyCode = postReservationRequest.AgencyCode });
-
-            if (_userRole == UserRoles.External && postReservationRequest.PaymentType == PaymentTypes.AdvancePayment && postReservationRequest.PaidAmount > 0)
-            {
-                postReservationRequest.PaymentType = PaymentTypes.PayOnDelivery;
-                postReservationRequest.AdvancedPaymentWithoutPayment = true;
-            }
 
             var extraServiceResponse = ((!string.IsNullOrEmpty(postReservationRequest.ExtraList) && sendAvailabilityRequest)) ?
                     await _extraService.GetExtras(getExtrasRequest, getMarkupPrice: false, getAPIPrices: true, isReservationStep: true) :

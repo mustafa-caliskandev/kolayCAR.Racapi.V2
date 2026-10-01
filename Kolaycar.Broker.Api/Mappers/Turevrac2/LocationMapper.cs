@@ -1,6 +1,7 @@
 ﻿using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KolayCAR.Broker.API.Mappers.Turevrac2
 {
@@ -16,7 +17,17 @@ namespace KolayCAR.Broker.API.Mappers.Turevrac2
                         IsPickup = true,
                         Address = location.address,
                         PhoneNumber = location.telephone,
-                        MailAddress = location.mail_adress
+                        MailAddress = location.mail_adress,
+                        OfficeWorkingHours = location.Workdays?
+                            .Where(workday => workday != null)
+                            .Select(workday => new Domain.Models.LocationOfficeWorkingHour
+                            {
+                                DayOfWeek = workday.workday_id.ToIntNullSafe(),
+                                OpeningTime = workday.work_time_start,
+                                ClosingTime = workday.work_time_end
+                            })
+                            .OrderBy(workday => workday.DayOfWeek)
+                            .ToList()
                     }
                     : null;
         public static List<Domain.Models.Location> Map(this List<Turevrac2ResponseBase.Location> list)

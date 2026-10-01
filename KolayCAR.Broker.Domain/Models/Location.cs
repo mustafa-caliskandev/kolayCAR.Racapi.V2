@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace KolayCAR.Broker.Domain.Models
 {
@@ -19,6 +21,8 @@ namespace KolayCAR.Broker.Domain.Models
         public Coordinate Coordinate { get; set; }
         public string MailAddress { get; set; }
         public bool? IsOffice { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<LocationOfficeWorkingHour> OfficeWorkingHours { get; set; }
         [NotMapped]
         public string DistrictCode { get; set; }
         public string CityCode { get; set; }

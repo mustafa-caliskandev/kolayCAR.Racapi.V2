@@ -472,6 +472,9 @@ namespace KolayCAR.Broker.API.Services
                     if (vendor.AppearingProfitMarkup != 0)
                         apiVehiclesData.ForEach(x => x.ApparentPrice = (float)(x.TotalPrice * (vendor.AppearingProfitMarkup.ToFloatNullSafe() + 100) / 100));
 
+                    if (!vendor.VehicleMappingActive)
+                        apiVehiclesData.ForEach(x => x.VehicleId = 0);
+
                     apiVehicles.Data = apiVehiclesData;
 
                     return apiVehicles;
@@ -549,6 +552,7 @@ namespace KolayCAR.Broker.API.Services
                 if (agency.IsActiveSendCheapestCar.ToBoolNullSafe())
                 {
                     var cheapestDuplicates = vehicles
+                        .Where(v => v.VehicleId != 0)
                         .GroupBy(v => v.VehicleId)
                         .Where(g => g.Count() > 1)
                         .Select(g => g.OrderBy(v => v.DailyPrice).First()).ToList();

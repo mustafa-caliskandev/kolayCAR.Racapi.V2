@@ -43,11 +43,14 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                         headers: AuthProvider.CreateAuthHeader(user.Token));
                     if (result?.Data?.Count > 0)
                     {
-                        //var apiVehicleList = JsonConvert.DeserializeObject<List<Vehicle>>(JsonConvert.SerializeObject(result.Data));
-                        var apiVehicleList = VehicleHelper.SelectCheapestByGroup(JsonConvert.DeserializeObject<List<Vehicle>>(JsonConvert.SerializeObject(result.Data)), v => v.VehicleId,
+                        Func<Vehicle, string> groupKey = v => v.VehicleId != 0
+                            ? $"id:{v.VehicleId}"
+                            : $"code:{v.VendorId}:{(string.IsNullOrWhiteSpace(v.VehicleCode) ? v.ReservationToken : v.VehicleCode)}";
+
+                        var apiVehicleList = VehicleHelper.SelectCheapestByGroup(JsonConvert.DeserializeObject<List<Vehicle>>(JsonConvert.SerializeObject(result.Data)), groupKey,
                           v => v.DailyPrice.ToFloatNullSafe());
 
-                        var mappedVehicleList = VehicleHelper.SelectCheapestByGroup(JsonConvert.DeserializeObject<List<Vehicle>>(JsonConvert.SerializeObject(result.Data)), v => v.VehicleId,
+                        var mappedVehicleList = VehicleHelper.SelectCheapestByGroup(JsonConvert.DeserializeObject<List<Vehicle>>(JsonConvert.SerializeObject(result.Data)), groupKey,
                           v => v.DailyPrice.ToFloatNullSafe());
                         var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
 
@@ -57,7 +60,7 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                             if (vendor.VehicleMappingActive)
                             {
                                 mappedVehicleList = VehicleHelper.MapLocalVehicleList(mappedVehicleList, localVehicles, exchangeRates: exchangeRates, vendor.CurrencyType, requestCurrencyType, useLocalDeposit: (bool)vendor.UseLocalDeposit, useBaseVehiclePropsFromVendorAPI: true, vendor: vendor);
-                                apiVehicleList.RemoveAll(p => !localVehicles.Any(e => e.VehicleCode == p.VehicleId.ToStringNullSafe()));
+                                apiVehicleList.RemoveAll(p => !localVehicles.Any(e => e.VehicleCode == (p.VehicleId == 0 ? p.VehicleCode : p.VehicleId.ToStringNullSafe())));
                             }
                             CalculationHelper.SetVehiclesPrices(mappedVehicleList, vendor, exchangeRates, requestCurrencyType, baseVendorRequestCurrencyType);
                             VehicleHelper.SetVehiclesProperties(mappedVehicleList, vendor, additionalInformation.Agency, exchangeRates, baseVendorRequestCurrencyType, requestCurrencyType, profitMarkups);
@@ -80,7 +83,10 @@ namespace KolayCAR.Broker.API.Providers.KolayCARBroker
                         foreach (var vehicle in apiVehicleList.Select((value, index) => new { value, index }))
                         {
                             //var tempMappedVehicleList = !vendor.UseBrokerConfigurations ? mappedVehicleList.Where(x => x.VehicleCode == vehicle.value.VehicleId.ToStringNullSafe()).ToList() : mappedVehicleList.Where(x => x.VehicleCode == vehicle.value.VehicleCode.ToStringNullSafe() && x.VehicleId == vehicle.value.VehicleId && x.VendorId == vehicle.value.VendorId).ToList();
-                            var tempMappedVehicleList = !vendor.UseBrokerConfigurations ? mappedVehicleList.Where(x => x.VehicleCode == vehicle.value.VehicleId.ToStringNullSafe()).ToList() : mappedVehicleList.Where(x => x.ReservationToken == vehicle.value.ReservationToken).ToList();
+                            var tempMappedVehicleList = !vendor.UseBrokerConfigurations
+                                ? mappedVehicleList.Where(x => x.VehicleCode == (vehicle.value.VehicleId == 0 ? vehicle.value.VehicleCode : vehicle.value.VehicleId.ToStringNullSafe()) &&
+                                    (vehicle.value.VehicleId != 0 || x.BaseVendorId == vehicle.value.VendorId)).ToList()
+                                : mappedVehicleList.Where(x => x.ReservationToken == vehicle.value.ReservationToken).ToList();
                             for (int i = 0; i < tempMappedVehicleList.Count; i++)
                             {
                                 var mappedVehicle = tempMappedVehicleList[i];

@@ -25,8 +25,8 @@ namespace KolayCAR.Broker.Infrastructure.Managers
 
         public RestManager(string apiBaseUrl, string connectionString = "", int timeout = 0)
         {
-            client = SharedHttpHandler.CreateRestManagerClient();
             ApiBaseUri = new Uri(apiBaseUrl);
+            client = SharedHttpHandler.CreateRestManagerClient(ApiBaseUri);
 
             if (!string.IsNullOrEmpty(connectionString))
                 _dbHelper = new ADODBHelper(connectionString);
@@ -635,6 +635,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                     Success = response.IsSuccessful,
                     HttpStatusCode = response.StatusCode == 0 ? null : (int)response.StatusCode,
                     HttpMethod = "POST",
+                    RequestBaseUrl = ApiBaseUri.AbsoluteUri,
                     RequestPath = requestPath,
                     RequestContent = JsonConvert.SerializeObject(new { entity, parameters }),
                     ResponseContent = content,
@@ -663,7 +664,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             }
             catch (Exception ex)
             {
-                VendorLogCapture.Add(new VendorHttpLogEntry { Success = false, HttpMethod = "POST", RequestPath = requestPath, RequestContent = JsonConvert.SerializeObject(new { entity, parameters }), ResponseContent = responseContent, ExceptionMessage = ex.GetBaseException().Message });
+                VendorLogCapture.Add(new VendorHttpLogEntry { Success = false, HttpMethod = "POST", RequestBaseUrl = ApiBaseUri.AbsoluteUri, RequestPath = requestPath, RequestContent = JsonConvert.SerializeObject(new { entity, parameters }), ResponseContent = responseContent, ExceptionMessage = ex.GetBaseException().Message });
                 if (isReservationRequest)
                     Serilog.Log.Error("{@PostAsyncXMLRestClientError}", ex.ToJson());
 
@@ -699,6 +700,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
                     Success = response.IsSuccessful,
                     HttpStatusCode = response.StatusCode == 0 ? null : (int)response.StatusCode,
                     HttpMethod = "POST",
+                    RequestBaseUrl = ApiBaseUri.AbsoluteUri,
                     RequestPath = requestPath,
                     RequestContent = JsonConvert.SerializeObject(new { entity, parameters }),
                     ResponseContent = response.Content,
@@ -714,7 +716,7 @@ namespace KolayCAR.Broker.Infrastructure.Managers
             {
                 if (isReservationRequest)
                     Serilog.Log.Error("{@RestManagerPostAsyncRestClientError}", ex.ToJson());
-                VendorLogCapture.Add(new VendorHttpLogEntry { Success = false, HttpMethod = "POST", RequestPath = requestPath, RequestContent = JsonConvert.SerializeObject(new { entity, parameters }), ExceptionMessage = ex.GetBaseException().Message });
+                VendorLogCapture.Add(new VendorHttpLogEntry { Success = false, HttpMethod = "POST", RequestBaseUrl = ApiBaseUri.AbsoluteUri, RequestPath = requestPath, RequestContent = JsonConvert.SerializeObject(new { entity, parameters }), ExceptionMessage = ex.GetBaseException().Message });
                 return default(TRes);
             }
         }

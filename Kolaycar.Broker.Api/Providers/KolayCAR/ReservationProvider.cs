@@ -199,7 +199,9 @@ namespace KolayCAR.Broker.API.Providers.KolayCAR
                 decimal specialDailyPrice = KolayCARHelper.ReservationHelper.GetKolayCARSpecialDailyPriceDecimal(additionalInformation.Agency, reservationToken, postReservationRequest, apiExtras, vendor, localReservation, exchangeRates);
                 decimal specialOneWayFee = KolayCARHelper.ReservationHelper.GetKolayCARSpecialOneWayFeeDecimal(additionalInformation.Agency, reservationToken, postReservationRequest, apiExtras, vendor, localReservation, exchangeRates);
 
-                decimal apiPaidAmount = localReservation.PaymentType == PaymentTypes.AdvancePayment && localReservation.RentalWorkingType == VendorWorkingTypes.ProfitMarkup && localReservation.AdditionalProductWorkingType == VendorWorkingTypes.ProfitMarkup && localReservation.OneWayFeeWorkingType == VendorWorkingTypes.ProfitMarkup && specialDailyPrice == KolayCARHelper.MoneyHelper.NotSet && specialOneWayFee == KolayCARHelper.MoneyHelper.NotSet ? 0m : KolayCARHelper.MoneyHelper.ToMoney(localReservation.APIPaidAmount);
+                decimal apiPaidAmount = postReservationRequest.PaymentType == PaymentTypes.AdvancePayment
+                    ? KolayCARHelper.MoneyHelper.ToMoney(postReservationRequest.PaidAmount)
+                    : KolayCARHelper.MoneyHelper.ToMoney(localReservation.APIPaidAmount);
                 //CalculationHelper.GetAPIPaidAmount(additionalInformation.Agency, vendor, reservationToken, localReservation, postReservationRequest);
 
                 if (postReservationRequest.PaymentType != PaymentTypes.PayOnDelivery && postReservationRequest.PaymentType != PaymentTypes.AdvancePayment)

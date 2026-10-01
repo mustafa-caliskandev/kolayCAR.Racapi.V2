@@ -345,6 +345,8 @@ builder.Services.AddLogging(loggingBuilder =>
 
 var app = builder.Build();
 
+app.UseMiddleware<BlockedUserAgentMiddleware>();
+
 app.UseCors(x => x
     .AllowAnyOrigin()
     .AllowAnyMethod()

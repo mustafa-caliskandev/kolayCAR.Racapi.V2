@@ -1,6 +1,7 @@
 ﻿using KolayCAR.Broker.Domain.Models;
 using KolayCAR.Broker.Domain.Models.Response;
 using KolayCAR.Broker.Infrastructure.Extensions;
+using KolayCAR.Broker.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,13 +37,23 @@ namespace KolayCAR.Broker.API.Mappers.Enuygun
 
             var vehicleDailyPrice = Math.Round(reservationBreakdown.totalPrice / apiVehicle.days, 2).ToFloatNullSafe();
 
-            float depositPrice = apiVehicle.provisionPrice.price.ToFloatNullSafe();
+            float? depositPrice = apiVehicle.provisionPrice?.price;
+            if (depositPrice > 0 && !(vendor.VehicleMappingActive && vendor.UseLocalDeposit == true))
+            {
+                if (!Enum.TryParse(apiVehicle.provisionPrice.currency, true, out CurrencyTypes depositCurrency) ||
+                    !Enum.IsDefined(depositCurrency))
+                    return null;
 
-            //if (apiVehicle.provisionPrice != null && !string.IsNullOrWhiteSpace(apiVehicle.provisionPrice.currency) &&
-            //    Enum.TryParse(apiVehicle.provisionPrice.currency, true, out CurrencyTypes depositCurrency))
-            //{
-            //    depositPrice = CalculationHelper.CurrencyExchange(exchangeRates, vendor, apiVehicle.provisionPrice.price.ToLongNullSafe(), depositCurrency, currency);
-            //}
+                if (depositCurrency != currency)
+                {
+                    var sourceRate = exchangeRates?.FirstOrDefault(x => x.CurrencyType == depositCurrency)?.ExchangeRate;
+                    var targetRate = exchangeRates?.FirstOrDefault(x => x.CurrencyType == currency)?.ExchangeRate;
+                    if (sourceRate is null or <= 0 || targetRate is null or <= 0)
+                        return null;
+
+                    depositPrice = CalculationHelper.CurrencyExchange(exchangeRates, vendor, depositPrice.Value, depositCurrency, currency);
+                }
+            }
 
             var onewayFee = dropPrice?.totalPrice ?? 0;
 

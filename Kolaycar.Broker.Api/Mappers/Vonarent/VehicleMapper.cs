@@ -21,7 +21,7 @@ namespace KolayCAR.Broker.API.Mappers.Vonarent
                 var apiVehicle = apiVehicleList[i];
                 vehicles.Add(new Vehicle
                 {
-                    VehicleId = i + 1,
+                    VehicleId = 0,
                     VendorId = vendor.VendorId,
                     VendorName = vendor.VendorName,
                     ApiVendorName = vendor.VendorName,

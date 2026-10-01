@@ -26,3 +26,4 @@ TestResults/
 
 # Keep sanitized examples trackable
 !**/appsettings.example.json
+**/.env.local

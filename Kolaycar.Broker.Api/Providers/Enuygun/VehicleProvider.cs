@@ -58,7 +58,7 @@ namespace KolayCAR.Broker.API.Providers.Enuygun
                     GetReservationGroupPrice);
 
                 var requestCurrencyType = getVehiclesRequest.CurrencyCode.ToEnum<CurrencyTypes>();
-                var mappedVehicleList = apiVehicleList.Map(additionalInformation, requestCurrencyType, vendor, requestId, exchangeRates);
+                var mappedVehicleList = apiVehicleList.Map(additionalInformation, baseVendorRequestCurrencyType, vendor, requestId, exchangeRates);
 
                 if (vendor.VehicleMappingActive)
                 {

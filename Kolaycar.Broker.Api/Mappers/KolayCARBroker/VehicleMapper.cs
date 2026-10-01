@@ -14,7 +14,7 @@ namespace KolayCAR.Broker.API.Mappers.KolayCARBroker
         {
             var _vehicle = vehicle;
 
-            _vehicle.VehicleCode = vehicle.VehicleId.ToStringNullSafe();
+            _vehicle.VehicleCode = vehicle.VehicleId == 0 ? vehicle.VehicleCode : vehicle.VehicleId.ToStringNullSafe();
             _vehicle.VehicleImages = vehicle.VehicleImages;
             _vehicle.VendorId = additionalInformation.Vendor.VendorId;
             _vehicle.BaseVendorId = vehicle.VendorId;

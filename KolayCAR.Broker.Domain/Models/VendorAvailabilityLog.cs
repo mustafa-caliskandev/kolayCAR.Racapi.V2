@@ -16,6 +16,7 @@ namespace KolayCAR.Broker.Domain.Models
         public bool Success { get; set; }
         public int? HttpStatusCode { get; set; }
         public string HttpMethod { get; set; }
+        public string RequestBaseUrl { get; set; }
         public string RequestPath { get; set; }
         public string RequestContent { get; set; }
         public long? ElapsedMilliseconds { get; set; }
