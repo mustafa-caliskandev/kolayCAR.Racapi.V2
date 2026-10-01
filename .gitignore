@@ -11,6 +11,7 @@ obj/
 
 # Logs and temp files
 *.log
+Kolaycar.Broker.Api/Logs/
 *.cache
 TestResults/
 
